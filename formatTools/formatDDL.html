@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL DDL 格式化器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SQL DDL 格式化器</h1>
+
+    <textarea id="inputSql" placeholder="將您的 SQL DDL 語句放在這裡..."></textarea>
+    <button id="formatBtn">格式化 SQL</button>
+
+    <h2>格式化結果</h2>
+    <pre id="outputSql"></pre>
+
+    <!-- 載入 sql-formatter 函式庫 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql-formatter/2.3.3/sql-formatter.min.js"></script>
+
+    <script>
+        // 取得網頁元素
+        const inputSql = document.getElementById('inputSql');
+        const formatBtn = document.getElementById('formatBtn');
+        const outputSql = document.getElementById('outputSql');
+
+        // 當按鈕被點擊時，格式化 SQL 語句
+        formatBtn.addEventListener('click', function() {
+            const rawSql = inputSql.value.trim();
+            if (rawSql) {
+                // 使用 sql-formatter 來格式化 SQL 語句，並減少換行
+                const formattedSql = sqlFormatter.format(rawSql, {
+                    // 調整這些選項來減少換行
+                    indent: '    ',        // 使用四個空格縮排
+                    language: 'sql',       // 使用 SQL 語言格式
+                    linesBetweenQueries: 1, // 在每個查詢之間保留1個空行
+                    upperCase: true,       // 保留大寫關鍵字
+                    tabSize: 4,            // 設置每個縮排為4個空格
+                    breakLength: 80,       // 語句長度超過80時才換行
+                    keywordCase: 'upper',  // 關鍵字使用大寫
+                    omitExtraSemicolons: true, // 避免在語句末尾插入多餘的分號
+                });
+                outputSql.textContent = formattedSql;
+            } else {
+                outputSql.textContent = "請輸入 SQL DDL 語句";
+            }
+        });
+    </script>
+
+</body>
+</html>

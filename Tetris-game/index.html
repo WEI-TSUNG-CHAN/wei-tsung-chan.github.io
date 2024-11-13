@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>俄羅斯方塊遊戲</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-35PX9B0V46"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-35PX9B0V46');
+  </script>
+</head>
+
+<body>
+  <h1>俄羅斯方塊遊戲<br>
+    <!-- 例如，將箭頭按鈕加入到#controls1容器中 -->
+    <div id="controls1">
+      <button id="rotateButton">旋轉</button> <!-- 上箭頭 -->
+      <button id="leftButton">左</button> <!-- 左箭頭 -->
+      <button id="rightButton">右</button> <!-- 右箭頭 -->
+      <button id="downButton">下</button> <!-- 下箭頭 -->
+    </div>
+
+  </h1>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="score">分數: 0</div>
+    <div id="timer">時間: 0</div>
+    <div id="controls">
+      <button id="startButton">開始遊戲</button>
+      <button id="pauseButton" disabled>暫停遊戲</button>
+      <button id="resetButton" disabled>重置遊戲</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

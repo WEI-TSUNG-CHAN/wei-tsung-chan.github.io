@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>格式化 JSON 網頁</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2d2d2d; /* 暗色背景 */
+            color: #f1f1f1; /* 浅色文字 */
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #f1f1f1;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #333; /* 暗色背景 */
+            color: #f1f1f1; /* 浅色文字 */
+            resize: none;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007bff; /* 藍色按鈕 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3; /* 按鈕懸停時變深藍色 */
+        }
+        #formatted-json {
+            padding: 15px;
+			font-size: 14px;
+            border-radius: 5px;
+            background-color: #333; /* 暗色背景 */
+            border: 1px solid #555;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 20px;
+        }
+        .key {
+            color: #ffab00; /* 鮮亮的橙色 */
+        }
+        .string {
+            color: #80d4ff; /* 淺藍色 */
+        }
+        .number {
+            color: #ff6666; /* 淺紅色 */
+        }
+        .boolean {
+            color: #78e55f; /* 螢光綠 */
+        }
+        .null {
+            color: #7f7f7f; /* 灰色 */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>格式化 JSON 字串</h1>
+    <textarea id="json-input" placeholder="請輸入 JSON 字串..."></textarea><br>
+    <button onclick="formatJson()">格式化 JSON</button>
+
+    <h2>格式化後的 JSON</h2>
+    <div id="formatted-json"></div>
+
+    <script>
+        function formatJson() {
+            const inputText = document.getElementById('json-input').value;
+            let parsedJson;
+
+            // 清除先前的結果
+            document.getElementById('formatted-json').innerHTML = '';
+
+            try {
+                // 解析 JSON
+                parsedJson = JSON.parse(inputText);
+            } catch (e) {
+                document.getElementById('formatted-json').innerHTML = `<span style="color: red;">無效的 JSON 格式</span>`;
+                return;
+            }
+
+            // 格式化 JSON
+            const formattedJson = JSON.stringify(parsedJson, null, 4);
+
+            // 上色並顯示 JSON
+            document.getElementById('formatted-json').innerHTML = syntaxHighlight(formattedJson);
+        }
+
+        // 為 JSON 字串加上顏色
+        function syntaxHighlight(json) {
+            json = json.replace(/\\n/g, ' ')
+                .replace(/\\u[\dA-F]{4}/gi, ' ')
+                .replace(/(".*?"\s*:)|("[^"]*")|(\d+(\.\d*)?)/g, function (match) {
+                    if (match.indexOf(":") > -1) {
+                        return '<span class="key">' + match + '</span>';
+                    } else if (match.indexOf('"') === 0) {
+                        return '<span class="string">' + match + '</span>';
+                    } else if (!isNaN(match)) {
+                        return '<span class="number">' + match + '</span>';
+                    }
+                    return match;
+                })
+                .replace(/true|false/g, function (match) {
+                    return '<span class="boolean">' + match + '</span>';
+                })
+                .replace(/null/g, function (match) {
+                    return '<span class="null">' + match + '</span>';
+                });
+            return json;
+        }
+    </script>
+
+</body>
+</html>

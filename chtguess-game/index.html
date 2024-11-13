@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中文寫字練習遊戲</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7N51V6NRJH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-7N51V6NRJH');
+  </script>
+</head>
+
+<body>
+  <div id="game">
+    <h1>中文寫字練習遊戲</h1>
+    <div id="character">
+      <span id="current-character"></span>
+      <span id="current-zhuyin"></span>
+    </div>
+    <canvas id="writing-canvas"></canvas>
+    <div id="buttons">
+      <button id="next-char">下一個字</button>
+      <button id="clear-canvas">清除</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>

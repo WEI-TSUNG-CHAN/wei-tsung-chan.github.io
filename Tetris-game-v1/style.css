@@ -1,0 +1,131 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.game-wrapper {
+  display: flex;
+  justify-content: flex-start;  /* 水平排列，並將控制區域置於右側 */
+  align-items: center;
+  gap: 30px;
+  padding: 10px;
+}
+
+.game-container {
+  text-align: center;
+  position: relative;
+}
+
+#gameCanvas {
+  border: 1px solid #fff;
+  background-color: #000;
+}
+
+#score {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+#timer {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-up,
+.control-left-right,
+.control-down,
+.control-pause-restart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-left-right {
+  gap: 20px;
+}
+
+button {
+  background-color: #444;
+  color: white;
+  font-size: 18px;
+  border: 2px solid #666;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  width: 80px;
+}
+
+button:hover {
+  background-color: #666;
+}
+
+button:active {
+  background-color: #333;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  #gameCanvas {
+      width: 250px;
+      height: 500px;
+  }
+
+  .game-wrapper {
+      flex-direction: row; /* 保持水平排列 */
+      gap: 20px;
+  }
+
+  .controls {
+      gap: 15px;
+  }
+
+  .control-left-right {
+      gap: 15px;
+  }
+
+  button {
+      font-size: 16px;
+      padding: 8px;
+      width: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  #gameCanvas {
+      width: 200px;
+      height: 400px;
+  }
+
+  .controls {
+      gap: 12px;
+  }
+
+  .control-left-right {
+      gap: 10px;
+  }
+
+  button {
+      font-size: 14px;
+      padding: 6px;
+      width: 60px;
+  }
+}
