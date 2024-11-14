@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手機版教學網頁</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- 側邊欄 -->
+        <div id="sidebar" class="sidebar">
+            <button class="closebtn" onclick="closeNav()">×</button>
+            <h2>目錄</h2>
+            <ul class="tree">
+                <li>
+                    <span class="tree-item">教學內容 1</span>
+                    <button class="toggle-btn">+</button>
+                    <ul class="nested">
+                        <li><a href="#">子項目 1</a></li>
+                        <li><a href="#">子項目 2</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="tree-item">教學內容 2</span>
+                    <button class="toggle-btn">+</button>
+                    <ul class="nested">
+                        <li><a href="#">子項目 3</a></li>
+                        <li><a href="#">子項目 4</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">教學內容 3</a></li>
+            </ul>
+        </div>
+
+        <!-- 主體內容 -->
+        <div id="main">
+            <button class="openbtn" onclick="openNav()">☰ 開啟目錄</button>
+            <h1>手機版教學網頁</h1>
+            <p>這是教學內容的首頁。</p>
+            <p>點選左側目錄來查看不同的內容。</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

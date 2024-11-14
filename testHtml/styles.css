@@ -1,0 +1,121 @@
+/* 全局樣式 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+}
+
+/* 側邊欄樣式 */
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidebar a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+.sidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+/* 樹狀目錄樣式 */
+.tree ul {
+    list-style-type: none;
+    padding-left: 20px;
+    display: none;  /* 默認隱藏子項目 */
+    margin-left: 0;
+}
+
+.tree .nested {
+    list-style-type: none;
+    padding-left: 20px;
+    display: none; /* 隱藏所有子項目 */
+}
+
+.tree li {
+    padding: 5px;
+}
+
+.tree li a {
+    text-decoration: none;
+    color: white;
+}
+
+.tree li a:hover {
+    color: #f1f1f1;
+}
+
+/* 展開和收摺按鈕樣式 */
+.toggle-btn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.toggle-btn:focus {
+    outline: none;
+}
+
+/* 主體內容 */
+#main {
+    margin-left: 0;
+    padding: 20px;
+    width: 100%;
+}
+
+.openbtn {
+    font-size: 30px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    border: none;
+    padding: 10px;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+}
+
+@media screen and (max-width: 768px) {
+    .tree ul {
+        padding-left: 10px;
+    }
+
+    .tree li {
+        padding: 5px;
+    }
+
+    #main {
+        margin-left: 0;
+        padding: 15px;
+    }
+}
