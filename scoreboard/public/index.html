@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手機記分板</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+      color: #333;
+      /* 默認文字顏色為深灰 */
+    }
+
+    .container {
+      width: 90%;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ffcc00;
+      /* 黃色文字 */
+    }
+
+    h2 {
+      color: #ffcc00;
+      /* 黃色文字 */
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      background-color: black;
+      /* 黑色背景 */
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .scoreboard table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #ffcc00;
+      /* 黃色文字 */
+    }
+
+    .scoreboard table th,
+    .scoreboard table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .delete-button {
+      padding: 5px 10px;
+      background-color: red;
+      /* 紅色按鈕 */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-team-button {
+      padding: 10px 20px;
+      background-color: #ffcc00;
+      /* 黃色按鈕 */
+      color: black;
+      /* 黑色文字 */
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .save-button {
+      padding: 5px 10px;
+      background-color: green;
+      /* 綠色按鈕 */
+      color: white;
+      /* 白色文字 */
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-team-button:hover,
+    .delete-button:hover,
+    .save-button:hover {
+      opacity: 0.8;
+      /* 當滑鼠懸停時，按鈕透明度變低 */
+    }
+
+    td[contenteditable="true"] {
+      background-color: #444;
+      /* 可編輯區域背景顏色為深灰 */
+      color: #ffcc00;
+      /* 黃色文字 */
+    }
+
+    td[contenteditable="true"]:focus {
+      border: 2px solid yellow;
+      /* 編輯單元格時，邊框變成黃色 */
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>手機記分板</h1>
+
+    <!-- 新增隊伍按鈕 -->
+    <button class="add-team-button" onclick="addNewTeamRow()">新增隊伍</button>
+    <button class="add-team-button" onclick="resetAllScores()">將所有分數歸0</button>
+
+    <div class="scoreboard">
+      <h2>目前分數</h2>
+      <table id="scoreboard-table">
+        <thead>
+          <tr>
+            <th>隊伍</th>
+            <th>分數</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 分數列表會顯示在這裡 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 頁面加載後載入分數
+    document.addEventListener("DOMContentLoaded", () => {
+      loadScores();
+    });
+
+    // 載入目前的分數
+    function loadScores() {
+      fetch('/api/scores')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
+          tableBody.innerHTML = ''; // 清空現有的分數
+
+          data.forEach(score => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
+              <td contenteditable="true" data-id="${score.id}" data-column="score">${score.score}</td>
+              <td><button class="delete-button" onclick="deleteTeam(${score.id})">刪除</button></td>
+            `;
+            tableBody.appendChild(row);
+          });
+
+          // 監聽每個可編輯的單元格的修改事件
+          document.querySelectorAll('[contenteditable]').forEach(cell => {
+            cell.addEventListener('blur', function () {
+              const id = this.getAttribute('data-id');
+              const column = this.getAttribute('data-column');
+              const value = this.innerText;
+
+              updateScore(id, column, value);
+            });
+          });
+        })
+        .catch(error => console.error('Error loading scores:', error));
+    }
+
+    // 更新分數
+    function updateScore(id, column, value) {
+      const teamNameCell = document.querySelector(`[data-id="${id}"][data-column="team_name"]`);
+      const scoreCell = document.querySelector(`[data-id="${id}"][data-column="score"]`);
+
+      const teamName = teamNameCell.innerText;
+      const score = scoreCell.innerText;
+
+      // 發送更新請求到伺服器，更新隊伍名稱和分數
+      fetch('/api/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: id,
+          team_name: teamName,
+          score: score
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message);
+        })
+        .catch(error => console.error('Error updating score:', error));
+    }
+
+    // 刪除隊伍
+    function deleteTeam(id) {
+      if (confirm("確定要刪除這支隊伍嗎？")) {
+        fetch(`/api/delete/${id}`, {
+          method: 'DELETE'
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.message);
+            // 重新載入資料表，移除刪除的隊伍
+            loadScores();
+          })
+          .catch(error => console.error('Error deleting team:', error));
+      }
+    }
+
+    // 新增空白隊伍列
+    function addNewTeamRow() {
+      const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td contenteditable="true" data-column="team_name" placeholder="隊伍名稱"></td>
+        <td contenteditable="true" data-column="score" placeholder="分數"></td>
+        <td><button class="delete-button" onclick="deleteRow(this)">刪除</button>
+        <button class="save-button" onclick="saveNewTeam(this)">儲存</button></td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    // 刪除該列
+    function deleteRow(button) {
+      const row = button.parentElement.parentElement;
+      row.remove();
+    }
+
+    // 儲存新增的隊伍
+    function saveNewTeam(button) {
+      const row = button.parentElement.parentElement;
+      const teamName = row.querySelector('[data-column="team_name"]').innerText;
+      const score = row.querySelector('[data-column="score"]').innerText;
+
+      if (teamName && score) {
+        fetch('/api/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ team_name: teamName, score: score })
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.message);
+            loadScores(); // 新增後重新載入資料
+          })
+          .catch(error => console.error('Error adding team:', error));
+      } else {
+        alert('請填寫隊伍名稱和分數');
+      }
+    }
+    // 將所有分數歸0
+    function resetAllScores() {
+      if (confirm("確定要將所有隊伍的分數歸零嗎？")) {
+        fetch('/api/reset-scores', {
+          method: 'POST'
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.message);
+            loadScores(); // 更新分數顯示
+          })
+          .catch(error => console.error('Error resetting scores:', error));
+      }
+    }
+
+  </script>
+
+</body>
+
+</html>
