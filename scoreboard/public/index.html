@@ -12,7 +12,6 @@
       padding: 0;
       background-color: #f3f4f6;
       color: #333;
-      /* 默認文字顏色為深灰 */
     }
 
     .container {
@@ -23,18 +22,15 @@
 
     h1 {
       color: #ffcc00;
-      /* 黃色文字 */
     }
 
     h2 {
       color: #ffcc00;
-      /* 黃色文字 */
     }
 
     .scoreboard {
       margin-top: 20px;
       background-color: black;
-      /* 黑色背景 */
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -44,7 +40,6 @@
       width: 100%;
       border-collapse: collapse;
       color: #ffcc00;
-      /* 黃色文字 */
     }
 
     .scoreboard table th,
@@ -53,14 +48,12 @@
       border: 1px solid #ddd;
       cursor: pointer;
       font-weight: bold;
-      /* 加粗表格中的文字 */
       font-size: 2em;
     }
 
     .delete-button {
       padding: 5px 10px;
       background-color: red;
-      /* 紅色按鈕 */
       color: white;
       border: none;
       border-radius: 5px;
@@ -70,9 +63,7 @@
     .add-team-button {
       padding: 10px 20px;
       background-color: #ffcc00;
-      /* 黃色按鈕 */
       color: black;
-      /* 黑色文字 */
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -82,9 +73,7 @@
     .save-button {
       padding: 5px 10px;
       background-color: green;
-      /* 綠色按鈕 */
       color: white;
-      /* 白色文字 */
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -94,19 +83,15 @@
     .delete-button:hover,
     .save-button:hover {
       opacity: 0.8;
-      /* 當滑鼠懸停時，按鈕透明度變低 */
     }
 
     td[contenteditable="true"] {
       background-color: #444;
-      /* 可編輯區域背景顏色為深灰 */
       color: #ffcc00;
-      /* 黃色文字 */
     }
 
     td[contenteditable="true"]:focus {
       border: 2px solid yellow;
-      /* 編輯單元格時，邊框變成黃色 */
     }
   </style>
 </head>
@@ -142,7 +127,7 @@
   <script>
     // 頁面加載後載入分數
     document.addEventListener("DOMContentLoaded", () => {
-      loadScores();
+      loadScores(); // 初始載入分數
     });
 
     // 載入目前的分數
@@ -212,6 +197,7 @@
         .then(response => response.json())
         .then(data => {
           console.log(data.message);
+          loadScores(); // 更新資料後立刻重新載入分數
         })
         .catch(error => console.error('Error updating score:', error));
     }
@@ -225,8 +211,7 @@
           .then(response => response.json())
           .then(data => {
             console.log(data.message);
-            // 重新載入資料表，移除刪除的隊伍
-            loadScores();
+            loadScores(); // 刪除後立刻重新載入分數
           })
           .catch(error => console.error('Error deleting team:', error));
       }
@@ -269,7 +254,7 @@
           .then(response => response.json())
           .then(data => {
             console.log(data.message);
-            loadScores(); // 新增後重新載入資料
+            loadScores(); // 新增後立刻重新載入分數
           })
           .catch(error => console.error('Error adding team:', error));
       } else {
@@ -291,8 +276,6 @@
           .catch(error => console.error('Error resetting scores:', error));
       }
     }
-
-
   </script>
 
 </body>

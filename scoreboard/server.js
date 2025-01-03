@@ -21,9 +21,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 設置靜態文件夾（假設 HTML 檔案位於 'public' 資料夾中）
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 禁用所有 API 的快取，並設置 Cache-Control 標頭
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 // API 取得目前分數
 app.get('/api/scores', (req, res) => {
-  connection.query('SELECT * FROM scores', (err, results) => {
+  // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
+  connection.query('SELECT SQL_NO_CACHE * FROM scores', (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).send('Error retrieving scores');
@@ -35,7 +44,7 @@ app.get('/api/scores', (req, res) => {
 // API 更新隊伍名稱或分數
 app.post('/api/update', (req, res) => {
   const { id, team_name, score } = req.body;
-  
+
   connection.query(
     'UPDATE scores SET team_name = ?, score = ? WHERE id = ?',
     [team_name, score, id],

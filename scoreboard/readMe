@@ -1,0 +1,6 @@
+##stop server
+CTRL+C
+
+##start server
+cd C:\Users\hero8\Desktop\wei-tsung-chan.github.io\scoreboard
+node server.js
