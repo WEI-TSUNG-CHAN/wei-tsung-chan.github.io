@@ -52,6 +52,9 @@
       padding: 10px;
       border: 1px solid #ddd;
       cursor: pointer;
+      font-weight: bold;
+      /* 加粗表格中的文字 */
+      font-size: 2em;
     }
 
     .delete-button {
@@ -115,6 +118,8 @@
 
     <!-- 新增隊伍按鈕 -->
     <button class="add-team-button" onclick="addNewTeamRow()">新增隊伍</button>
+
+    <!-- 將所有分數歸0按鈕 -->
     <button class="add-team-button" onclick="resetAllScores()">將所有分數歸0</button>
 
     <div class="scoreboard">
@@ -134,8 +139,10 @@
     </div>
   </div>
 
+  <script src="../server.js?timestamp=1234567890"></script>
   <script>
     // 頁面加載後載入分數
+    
     document.addEventListener("DOMContentLoaded", () => {
       loadScores();
     });
@@ -166,6 +173,18 @@
               const value = this.innerText;
 
               updateScore(id, column, value);
+            });
+
+            // 監聽 Enter 鍵，進行資料更新
+            cell.addEventListener('keydown', function (event) {
+              if (event.key === 'Enter') {
+                event.preventDefault(); // 防止跳到下一行
+                const id = this.getAttribute('data-id');
+                const column = this.getAttribute('data-column');
+                const value = this.innerText;
+
+                updateScore(id, column, value); // 更新分數
+              }
             });
           });
         })
@@ -259,6 +278,7 @@
         alert('請填寫隊伍名稱和分數');
       }
     }
+
     // 將所有分數歸0
     function resetAllScores() {
       if (confirm("確定要將所有隊伍的分數歸零嗎？")) {
@@ -273,6 +293,7 @@
           .catch(error => console.error('Error resetting scores:', error));
       }
     }
+
 
   </script>
 

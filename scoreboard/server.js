@@ -5,6 +5,8 @@ const path = require('path');
 
 const app = express();
 const port = 3000;
+const timestamp = new Date().getTime();
+
 
 // MySQL 資料庫連線設定
 const connection = mysql.createConnection({
@@ -21,8 +23,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 設置靜態文件夾（假設 HTML 檔案位於 'public' 資料夾中）
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 添加禁止緩存的中間件，這將影響所有的回應
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 // API 取得目前分數
-app.get('/api/scores', (req, res) => {
+app.get(`/api/scores?timestamp=${timestamp}`, (req, res) => {
   connection.query('SELECT * FROM scores', (err, results) => {
     if (err) {
       console.error(err);
