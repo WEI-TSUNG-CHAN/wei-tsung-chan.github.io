@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英雄榜</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+      color: #333;
+    }
+
+    .container {
+      width: 90%;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ffcc00;
+    }
+
+    h2 {
+      color: #ffcc00;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      background-color: black;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .scoreboard table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #ffcc00;
+    }
+
+    .scoreboard table th,
+    .scoreboard table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+    .add-team-button:hover,
+    .delete-button:hover,
+    .save-button:hover {
+      opacity: 0.8;
+    }
+
+    td[contenteditable="true"] {
+      background-color: #444;
+      color: #ffcc00;
+    }
+
+    td[contenteditable="true"]:focus {
+      border: 2px solid yellow;
+    }
+
+    .total-row td {
+      font-weight: bold;
+      font-size: 2em;
+      text-align: center;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>英雄榜</h1>
+
+    <div class="scoreboard">
+      <h2>目前分數</h2>
+      <table id="scoreboard-table">
+        <thead>
+          <tr>
+            <th>隊伍</th>
+            <th>分數</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 分數列表會顯示在這裡 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 頁面加載後載入分數
+    document.addEventListener("DOMContentLoaded", () => {
+      loadScores(); // 初始載入分數
+      setInterval(loadScores, 10000); 
+    });
+
+    // 載入目前的分數
+    function loadScores() {
+      fetch('/api/rank')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
+          tableBody.innerHTML = ''; // 清空現有的分數
+
+          data.forEach(score => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
+              <td contenteditable="true" data-id="${score.id}" data-column="score">${score.score}</td>
+            `;
+            tableBody.appendChild(row);
+
+          });
+        })
+        .catch(error => console.error('Error loading scores:', error));
+    }
+
+
+  </script>
+
+</body>
+
+</html>
