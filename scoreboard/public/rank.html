@@ -48,7 +48,7 @@
       border: 1px solid #ddd;
       cursor: pointer;
       font-weight: bold;
-      font-size: 2em;
+      font-size: 1.5em;
     }
 
     .add-team-button:hover,
@@ -100,7 +100,7 @@
     // 頁面加載後載入分數
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
-      setInterval(loadScores, 5000); 
+      setInterval(loadScores, 20000); 
     });
 
     // 載入目前的分數
