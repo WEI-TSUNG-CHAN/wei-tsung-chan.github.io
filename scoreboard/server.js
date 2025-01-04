@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 // API 取得目前分數
 app.get('/api/scores', (req, res) => {
   // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
-  connection.query('SELECT SQL_NO_CACHE * FROM scores', (err, results) => {
+  connection.query('SELECT SQL_NO_CACHE * FROM scores where date=CURDATE()', (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).send('Error retrieving scores');
@@ -46,7 +46,7 @@ app.post('/api/update', (req, res) => {
   const { id, team_name, score } = req.body;
 
   connection.query(
-    'UPDATE scores SET team_name = ?, score = ? WHERE id = ?',
+    'UPDATE scores SET team_name = ?, score = ? WHERE id = ? and date=CURDATE()',
     [team_name, score, id],
     (err, results) => {
       if (err) {
@@ -63,7 +63,7 @@ app.delete('/api/delete/:id', (req, res) => {
   const { id } = req.params;
 
   connection.query(
-    'DELETE FROM scores WHERE id = ?',
+    'DELETE FROM scores WHERE id = ? and date=CURDATE()',
     [id],
     (err, results) => {
       if (err) {
@@ -80,7 +80,7 @@ app.post('/api/add', (req, res) => {
   const { team_name, score } = req.body;
 
   connection.query(
-    'INSERT INTO scores (team_name, score) VALUES (?, ?)',
+    'INSERT INTO scores (team_name, score, date) VALUES (?, ?, now())',
     [team_name, score],
     (err, results) => {
       if (err) {
@@ -95,7 +95,7 @@ app.post('/api/add', (req, res) => {
 // API 將所有分數歸0
 app.post('/api/reset-scores', (req, res) => {
   connection.query(
-    'UPDATE scores SET score = 0', // 將所有隊伍的分數更新為 0
+    'UPDATE scores SET score = 0 where date=CURDATE()', // 將所有隊伍的分數更新為 0
     (err, results) => {
       if (err) {
         console.error(err);
