@@ -31,8 +31,10 @@ app.use((req, res, next) => {
 
 // API 取得目前分數
 app.get('/api/scores', (req, res) => {
+  const role = req.query.role || '1';  // 預設為第一將
+
   // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
-  connection.query('SELECT SQL_NO_CACHE * FROM scores where date=CURDATE()', (err, results) => {
+  connection.query('SELECT SQL_NO_CACHE * FROM scores WHERE date=CURDATE() AND role = ? ORDER BY role DESC', [role], (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).send('Error retrieving scores');
@@ -43,6 +45,8 @@ app.get('/api/scores', (req, res) => {
 
 // 分數排行
 app.get('/api/rank', (req, res) => {
+  const role = req.query.role || '1';  // 預設為第一將
+
   // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
   connection.query('SELECT team_name, sum(score) as score FROM scores where substring(date,1,7)= substring(CURDATE(),1,7) group by team_name order by score desc', (err, results) => {
     if (err) {
@@ -55,11 +59,11 @@ app.get('/api/rank', (req, res) => {
 
 // API 更新隊伍名稱或分數
 app.post('/api/update', (req, res) => {
-  const { id, team_name, score } = req.body;
+  const { id, team_name, score, role } = req.body;
 
   connection.query(
-    'UPDATE scores SET team_name = ?, score = ? WHERE id = ? and date=CURDATE()',
-    [team_name, score, id],
+    'UPDATE scores SET team_name = ?, score = ? WHERE id = ? AND date=CURDATE() AND role = ?',
+    [team_name, score, id, role],
     (err, results) => {
       if (err) {
         console.error(err);
@@ -73,10 +77,11 @@ app.post('/api/update', (req, res) => {
 // API 刪除隊伍
 app.delete('/api/delete/:id', (req, res) => {
   const { id } = req.params;
+  const role = req.query.role || '1';  // 預設為第一將
 
   connection.query(
-    'DELETE FROM scores WHERE id = ? and date=CURDATE()',
-    [id],
+    'DELETE FROM scores WHERE id = ? AND date=CURDATE() AND role = ?',
+    [id, role],
     (err, results) => {
       if (err) {
         console.error(err);
@@ -89,11 +94,11 @@ app.delete('/api/delete/:id', (req, res) => {
 
 // API 新增隊伍
 app.post('/api/add', (req, res) => {
-  const { team_name, score } = req.body;
+  const { team_name, score, role } = req.body;
 
   connection.query(
-    'INSERT INTO scores (team_name, score, date) VALUES (?, ?, now())',
-    [team_name, score],
+    'INSERT INTO scores (team_name, score, date, role) VALUES (?, ?, now(), ?)',
+    [team_name, score, role],
     (err, results) => {
       if (err) {
         console.error(err);
@@ -106,8 +111,10 @@ app.post('/api/add', (req, res) => {
 
 // API 將所有分數歸0
 app.post('/api/reset-scores', (req, res) => {
+  const role = req.query.role || '1';  // 預設為第一將
+
   connection.query(
-    'UPDATE scores SET score = 0 where date=CURDATE()', // 將所有隊伍的分數更新為 0
+    'UPDATE scores SET score = 0 WHERE date=CURDATE() AND role = ?', [role], 
     (err, results) => {
       if (err) {
         console.error(err);
