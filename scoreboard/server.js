@@ -43,6 +43,18 @@ app.get('/api/scores', (req, res) => {
   });
 });
 
+// API 取得目前分數
+app.get('/api/news', (req, res) => {
+  // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
+  connection.query('SELECT * FROM scores WHERE date=CURDATE() AND role= (SELECT distinct max(role) FROM scores WHERE date=CURDATE())', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving scores');
+    }
+    res.json(results);
+  });
+});
+
 // 分數排行
 app.get('/api/rank', (req, res) => {
   const role = req.query.role || '1';  // 預設為第一將

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>英雄榜</title>
+  <title>最新分數</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,7 +48,7 @@
       border: 1px solid #ddd;
       cursor: pointer;
       font-weight: bold;
-      font-size: 1.5em;
+      font-size: 2em;
     }
 
     .add-team-button:hover,
@@ -78,7 +78,7 @@
 <body>
 
   <div class="container">
-    <h1>英雄榜</h1>
+    <h1>最新分數</h1>
 
     <div class="scoreboard">
       <h2>目前分數</h2>
@@ -105,7 +105,7 @@
 
     // 載入目前的分數
     function loadScores() {
-      fetch('/api/rank')
+      fetch('/api/news')
         .then(response => response.json())
         .then(data => {
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
