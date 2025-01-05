@@ -99,6 +99,14 @@
       font-size: 2em;
       text-align: center;
     }
+
+    /* 倒數計時顯示樣式 */
+    .countdown {
+      font-size: 2em;
+      color: red;
+      margin-top: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -124,8 +132,10 @@
       <option value="6">第六將</option>
       <option value="7">第七將</option>
       <option value="8">第八將</option>
-      <!-- 可以根據需求擴展更多選項 -->
     </select>
+
+    <!-- 顯示倒數計時 -->
+    <div class="countdown" id="countdown"></div>
 
     <div class="scoreboard">
       <h2>目前分數</h2>
@@ -151,77 +161,95 @@
   </div>
 
   <script>
-    // 頁面加載後載入分數
+    let countdownTime = 15; // 設定倒數時間為15秒
+    const countdownElement = document.getElementById('countdown');
+
+    // 頁面加載後載入分數並啟動倒數計時
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
-      setInterval(loadScores, 15000);
+      startCountdown(); // 開始倒數計時
     });
+
+    // 開始倒數計時
+    function startCountdown() {
+      setInterval(updateCountdown, 1000);
+    }
+
+    // 更新倒數時間
+    function updateCountdown() {
+      if (countdownTime > 0) {
+        countdownElement.innerText = `畫面將在 ${countdownTime} 秒後更新...`;
+        countdownTime--;
+      } else {
+        countdownElement.innerText = "畫面更新中...";
+        loadScores(); // 倒數結束後自動更新分數
+        countdownTime = 15; // 重置倒數時間
+      }
+    }
 
     // 載入目前的分數
     function loadScores() {
-  const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
+      const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
 
-  fetch(`/api/scores?role=${selectedRole}`)  // 加入將次作為查詢條件
-    .then(response => response.json())
-    .then(data => {
-      const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
-      tableBody.innerHTML = ''; // 清空現有的分數
+      fetch(`/api/scores?role=${selectedRole}`)  // 加入將次作為查詢條件
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
+          tableBody.innerHTML = ''; // 清空現有的分數
 
-      let totalScore = 0;  // 計算總分
-      data.forEach(score => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
-          <td contenteditable="true" data-id="${score.id}" data-column="score">${score.score}</td>
-          <td><button class="delete-button" onclick="deleteTeam(${score.id})">刪除</button></td>
-        `;
-        tableBody.appendChild(row);
-        totalScore += parseInt(score.score);  // 加總所有隊伍的分數
-      });
+          let totalScore = 0;  // 計算總分
+          data.forEach(score => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
+              <td contenteditable="true" data-id="${score.id}" data-column="score">${score.score}</td>
+              <td><button class="delete-button" onclick="deleteTeam(${score.id})">刪除</button></td>
+            `;
+            tableBody.appendChild(row);
+            totalScore += parseInt(score.score);  // 加總所有隊伍的分數
+          });
 
-      // 保持原來選擇的 role 不變
-      document.getElementById('role').value = selectedRole;
+          // 保持原來選擇的 role 不變
+          document.getElementById('role').value = selectedRole;
 
-      // 更新合計
-      document.getElementById('total-score').textContent = totalScore;
+          // 更新合計
+          document.getElementById('total-score').textContent = totalScore;
 
-      // 監聽每個可編輯的單元格的修改事件
-      document.querySelectorAll('[contenteditable]').forEach(cell => {
-        cell.addEventListener('blur', function () {
-          const id = this.getAttribute('data-id');
-          const column = this.getAttribute('data-column');
-          const value = this.innerText;
+          // 監聽每個可編輯的單元格的修改事件
+          document.querySelectorAll('[contenteditable]').forEach(cell => {
+            cell.addEventListener('blur', function () {
+              const id = this.getAttribute('data-id');
+              const column = this.getAttribute('data-column');
+              const value = this.innerText;
 
-          updateScore(id, column, value);
-        });
+              updateScore(id, column, value);
+            });
 
-        // 監聽 Enter 鍵，進行資料更新
-        cell.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter') {
-            event.preventDefault(); // 防止跳到下一行
-            const id = this.getAttribute('data-id');
-            const column = this.getAttribute('data-column');
-            const value = this.innerText;
+            // 監聽 Enter 鍵，進行資料更新
+            cell.addEventListener('keydown', function (event) {
+              if (event.key === 'Enter') {
+                event.preventDefault(); // 防止跳到下一行
+                const id = this.getAttribute('data-id');
+                const column = this.getAttribute('data-column');
+                const value = this.innerText;
 
-            updateScore(id, column, value); // 更新分數
-          }
-        });
-      });
-    })
-    .catch(error => console.error('Error loading scores:', error));
-}
-
+                updateScore(id, column, value); // 更新分數
+              }
+            });
+          });
+        })
+        .catch(error => console.error('Error loading scores:', error));
+    }
 
     // 更新分數
     function updateScore(id, column, value) {
       const teamNameCell = document.querySelector(`[data-id="${id}"][data-column="team_name"]`);
       const scoreCell = document.querySelector(`[data-id="${id}"][data-column="score"]`);
-      const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
+      const selectedRole = document.getElementById('role').value;
 
       const teamName = teamNameCell.innerText;
       const score = scoreCell.innerText;
 
-      // 發送更新請求到伺服器，更新隊伍名稱和分數
       fetch('/api/update', {
         method: 'POST',
         headers: {
@@ -231,7 +259,7 @@
           id: id,
           team_name: teamName,
           score: score,
-          role: selectedRole  // 傳遞將次
+          role: selectedRole
         })
       })
         .then(response => response.json())
@@ -244,10 +272,10 @@
 
     // 刪除隊伍
     function deleteTeam(id) {
-      const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
+      const selectedRole = document.getElementById('role').value;
 
       if (confirm("確定要刪除這支隊伍嗎？")) {
-        fetch(`/api/delete/${id}?role=${selectedRole}`, {  // 傳遞將次
+        fetch(`/api/delete/${id}?role=${selectedRole}`, {
           method: 'DELETE'
         })
           .then(response => response.json())
@@ -284,7 +312,7 @@
       const row = button.parentElement.parentElement;
       const teamName = row.querySelector('[data-column="team_name"]').innerText;
       const score = row.querySelector('[data-column="score"]').innerText;
-      const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
+      const selectedRole = document.getElementById('role').value;
 
       if (teamName && score) {
         fetch('/api/add', {
@@ -295,7 +323,7 @@
           body: JSON.stringify({
             team_name: teamName,
             score: score,
-            role: selectedRole  // 傳遞將次
+            role: selectedRole
           })
         })
           .then(response => response.json())
@@ -311,16 +339,16 @@
 
     // 將所有分數歸0
     function resetAllScores() {
-      const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
+      const selectedRole = document.getElementById('role').value;
 
       if (confirm("確定要將所有隊伍的分數歸零嗎？")) {
-        fetch(`/api/reset-scores?role=${selectedRole}`, {  // 傳遞將次
+        fetch(`/api/reset-scores?role=${selectedRole}`, {
           method: 'POST'
         })
           .then(response => response.json())
           .then(data => {
             console.log(data.message);
-            loadScores(); // 更新分數顯示
+            loadScores();
           })
           .catch(error => console.error('Error resetting scores:', error));
       }
