@@ -106,7 +106,7 @@
     }
 
     .countdown {
-      font-size: 2em;
+      font-size: 1em;
       color: #e74c3c;
       margin-top: 20px;
       font-weight: bold;
@@ -165,9 +165,6 @@
       <option value="8">第八將</option>
     </select>
 
-     <!-- 倒數計時 -->
-     <div class="countdown" id="countdown"></div>
-
     <!-- 複製按鈕 -->
     <div>
       <button class="copy-button" value="老王" onclick="copyTeamValue(this)">老王</button>
@@ -182,7 +179,7 @@
 
     <!-- 分數表格 -->
     <div class="scoreboard">
-      <h2>目前分數
+      <h2><div class="countdown" id="countdown"></div>
         <button class="add-team-button" onclick="addNewTeamRow()">新增隊伍</button>
       </h2>
       <table id="scoreboard-table">
@@ -224,7 +221,7 @@
     // 更新倒數時間
     function updateCountdown() {
       if (countdownTime > 0) {
-        countdownElement.innerText = `畫面將在 ${countdownTime} 秒後更新...`;
+        countdownElement.innerText = `目前分數 在 ${countdownTime} 秒更新...`;
         countdownTime--;
       } else {
         countdownElement.innerText = "畫面更新中...";
