@@ -150,9 +150,6 @@
 
   <div class="container">
     <h1>手機記分板</h1>
-
-    <!-- 新增隊伍和重置按鈕 -->
-    <button class="add-team-button" onclick="addNewTeamRow()">新增隊伍</button>
     <button class="add-team-button" onclick="resetAllScores()">將所有分數歸0</button>
 
     <!-- 選擇將次 -->
@@ -185,7 +182,9 @@
 
     <!-- 分數表格 -->
     <div class="scoreboard">
-      <h2>目前分數</h2>
+      <h2>目前分數
+        <button class="add-team-button" onclick="addNewTeamRow()">新增隊伍</button>
+      </h2>
       <table id="scoreboard-table">
         <thead>
           <tr>
@@ -352,7 +351,7 @@
 
       row.innerHTML = `
         <td contenteditable="true" data-column="team_name" placeholder="隊伍名稱"></td>
-        <td contenteditable="true" data-column="score" placeholder="分數"></td>
+        <td contenteditable="true" data-column="score" placeholder="分數">0</td>
         <td><button class="delete-button" onclick="deleteRow(this)">刪除</button>
         <button class="save-button" onclick="saveNewTeam(this)">儲存</button></td>
       `;
