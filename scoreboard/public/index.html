@@ -10,7 +10,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f3f4f6;
+      background-color: #f5f5f5;
       color: #333;
     }
 
@@ -20,92 +20,128 @@
       text-align: center;
     }
 
-    h1 {
-      color: #ffcc00;
+    h1, h2 {
+      color: #f3a536;
+      margin-bottom: 10px;
     }
 
-    h2 {
-      color: #ffcc00;
-    }
-
+    /* 排版和間距 */
     .scoreboard {
-      margin-top: 20px;
-      background-color: black;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+      background-color: #333;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
     }
 
+    /* 表格樣式 */
     .scoreboard table {
       width: 100%;
       border-collapse: collapse;
-      color: #ffcc00;
+      color: #f3a536;
+      font-size: 1.2em;
     }
 
     .scoreboard table th,
     .scoreboard table td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      cursor: pointer;
+      padding: 12px;
+      border: 1px solid #555;
       font-weight: bold;
-      font-size: 2em;
     }
 
-    .delete-button {
-      padding: 5px 10px;
-      background-color: red;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .add-team-button {
-      padding: 10px 20px;
-      background-color: #ffcc00;
-      color: black;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-
-    .save-button {
-      padding: 5px 10px;
-      background-color: green;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .add-team-button:hover,
-    .delete-button:hover,
-    .save-button:hover {
-      opacity: 0.8;
+    .scoreboard table th {
+      background-color: #444;
     }
 
     td[contenteditable="true"] {
-      background-color: #444;
-      color: #ffcc00;
+      background-color: #222;
+      color: #f3a536;
+      border: 1px solid #444;
     }
 
     td[contenteditable="true"]:focus {
-      border: 2px solid yellow;
+      border: 2px solid #f3a536;
     }
 
     .total-row td {
-      font-weight: bold;
-      font-size: 2em;
+      font-size: 1.5em;
       text-align: center;
     }
 
-    /* 倒數計時顯示樣式 */
+    /* 按鈕樣式 */
+    button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .add-team-button {
+      background-color: #f3a536;
+      color: black;
+      margin-bottom: 20px;
+    }
+
+    .add-team-button:hover {
+      background-color: #f29400;
+    }
+
+    .delete-button, .save-button {
+      background-color: #e74c3c;
+      color: white;
+      margin-left: 5px;
+    }
+
+    .delete-button:hover, .save-button:hover {
+      background-color: #c0392b;
+    }
+
+    .save-button {
+      background-color: #2ecc71;
+    }
+
+    .save-button:hover {
+      background-color: #27ae60;
+    }
+
     .countdown {
       font-size: 2em;
-      color: red;
+      color: #e74c3c;
       margin-top: 20px;
       font-weight: bold;
+    }
+
+    .copy-button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 6px;
+      margin: 5px;
+    }
+
+    .copy-button:hover {
+      background-color: #45a049;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+      }
+
+      .scoreboard {
+        padding: 15px;
+      }
+
+      .scoreboard table th, .scoreboard table td {
+        font-size: 1em;
+      }
+
+      .add-team-button, .delete-button, .save-button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
     }
   </style>
 </head>
@@ -115,13 +151,11 @@
   <div class="container">
     <h1>手機記分板</h1>
 
-    <!-- 新增隊伍按鈕 -->
+    <!-- 新增隊伍和重置按鈕 -->
     <button class="add-team-button" onclick="addNewTeamRow()">新增隊伍</button>
-
-    <!-- 將所有分數歸0按鈕 -->
     <button class="add-team-button" onclick="resetAllScores()">將所有分數歸0</button>
 
-    <!-- 新增將次選單 -->
+    <!-- 選擇將次 -->
     <label for="role">將次：</label>
     <select id="role" name="role">
       <option value="1">第一將</option>
@@ -134,9 +168,22 @@
       <option value="8">第八將</option>
     </select>
 
-    <!-- 顯示倒數計時 -->
-    <div class="countdown" id="countdown"></div>
+     <!-- 倒數計時 -->
+     <div class="countdown" id="countdown"></div>
 
+    <!-- 複製按鈕 -->
+    <div>
+      <button class="copy-button" value="老王" onclick="copyTeamValue(this)">老王</button>
+      <button class="copy-button" value="小詹" onclick="copyTeamValue(this)">小詹</button>
+      <button class="copy-button" value="小龍" onclick="copyTeamValue(this)">小龍</button>
+      <button class="copy-button" value="胖澤" onclick="copyTeamValue(this)">胖澤</button>
+      <button class="copy-button" value="粉圓" onclick="copyTeamValue(this)">粉圓</button>
+      <button class="copy-button" value="皮皮" onclick="copyTeamValue(this)">皮皮</button>
+      <button class="copy-button" value="嫚嫚" onclick="copyTeamValue(this)">嫚嫚</button>
+      <button class="copy-button" value="苦瓜" onclick="copyTeamValue(this)">苦瓜</button>
+    </div>
+
+    <!-- 分數表格 -->
     <div class="scoreboard">
       <h2>目前分數</h2>
       <table id="scoreboard-table">
@@ -285,6 +332,17 @@
           })
           .catch(error => console.error('Error deleting team:', error));
       }
+    }
+
+    // 複製按鈕的value到剪貼簿
+    function copyTeamValue(button) {
+      const valueToCopy = button.value;  // 獲取按鈕的value屬性
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = valueToCopy;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
     }
 
     // 新增空白隊伍列
