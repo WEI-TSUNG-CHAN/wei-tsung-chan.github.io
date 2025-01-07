@@ -204,8 +204,9 @@
   </div>
 
   <script>
-    let countdownTime = 30; // 設定倒數時間為30秒
+    let countdownTime = 20; // 設定倒數時間為20秒
     const countdownElement = document.getElementById('countdown');
+    let copiedTeamName = '';  // 用來儲存複製的隊伍名稱
 
     // 頁面加載後載入分數並啟動倒數計時
     document.addEventListener("DOMContentLoaded", () => {
@@ -226,7 +227,7 @@
       } else {
         countdownElement.innerText = "畫面更新中...";
         loadScores(); // 倒數結束後自動更新分數
-        countdownTime = 30; // 重置倒數時間
+        countdownTime = 20; // 重置倒數時間
       }
     }
 
@@ -330,24 +331,24 @@
       }
     }
 
-    // 複製按鈕的value到剪貼簿
+    // 複製按鈕的value到剪貼簿，並儲存隊伍名稱
     function copyTeamValue(button) {
-      const valueToCopy = button.value;  // 獲取按鈕的value屬性
+      copiedTeamName = button.value;  // 獲取按鈕的value屬性
       const tempTextArea = document.createElement('textarea');
-      tempTextArea.value = valueToCopy;
+      tempTextArea.value = copiedTeamName;
       document.body.appendChild(tempTextArea);
       tempTextArea.select();
       document.execCommand('copy');
       document.body.removeChild(tempTextArea);
     }
 
-    // 新增空白隊伍列
+    // 新增空白隊伍列，並將複製的隊伍名稱填入隊伍名稱欄位
     function addNewTeamRow() {
       const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
       const row = document.createElement('tr');
 
       row.innerHTML = `
-        <td contenteditable="true" data-column="team_name" placeholder="隊伍名稱"></td>
+        <td contenteditable="true" data-column="team_name" placeholder="隊伍名稱">${copiedTeamName}</td>
         <td contenteditable="true" data-column="score" placeholder="分數">0</td>
         <td><button class="delete-button" onclick="deleteRow(this)">刪除</button>
         <button class="save-button" onclick="saveNewTeam(this)">儲存</button></td>
@@ -383,16 +384,14 @@
           .then(response => response.json())
           .then(data => {
             console.log(data.message);
-            loadScores(); // 新增後立刻重新載入分數
+            loadScores(); // 儲存後立刻重新載入分數
           })
-          .catch(error => console.error('Error adding team:', error));
-      } else {
-        alert('請填寫隊伍名稱和分數');
+          .catch(error => console.error('Error saving new team:', error));
       }
     }
 
-    // 將所有分數歸0
-    function resetAllScores() {
+     // 將所有分數歸0
+     function resetAllScores() {
       const selectedRole = document.getElementById('role').value;
 
       if (confirm("確定要將所有隊伍的分數歸零嗎？")) {
@@ -410,5 +409,4 @@
   </script>
 
 </body>
-
 </html>
