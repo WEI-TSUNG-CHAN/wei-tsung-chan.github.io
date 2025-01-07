@@ -51,12 +51,6 @@
       font-size: 1.5em;
     }
 
-    .add-team-button:hover,
-    .delete-button:hover,
-    .save-button:hover {
-      opacity: 0.8;
-    }
-
     td[contenteditable="true"] {
       background-color: #444;
       color: #ffcc00;
@@ -97,15 +91,17 @@
   </div>
 
   <script>
+    let previousScores = {}; // 儲存先前分數
+
     // 頁面加載後載入分數
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
-      setInterval(loadScores, 5000); 
+      setInterval(loadScores, 5000); // 每 5 秒刷新一次
     });
 
     // 載入目前的分數
     function loadScores() {
-      fetch('/api/rank')
+      fetch('/api/rank') // 替換成您的 API 路徑
         .then(response => response.json())
         .then(data => {
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
@@ -115,15 +111,28 @@
             const row = document.createElement('tr');
             row.innerHTML = `
               <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
-              <td contenteditable="true" data-id="${score.id}" data-column="score">${score.score}</td>
+              <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
             `;
             tableBody.appendChild(row);
 
+            // 取得當前分數欄位
+            const scoreCell = row.querySelector('.score');
+            const currentScore = Number(score.score); // 強制轉為數字
+            const previousScore = previousScores[score.team_name] !== undefined ? Number(previousScores[score.team_name]) : NaN;
+
+            // 如果分數變動，則顯示為紅色
+            if (currentScore !== previousScore) {
+              scoreCell.style.color = 'red'; // 分數變動時顯示紅色
+            } else {
+              scoreCell.style.color = '#ffcc00'; // 分數未變動時顯示原色
+            }
+
+            // 儲存當前分數
+            previousScores[score.team_name] = score.score;
           });
         })
         .catch(error => console.error('Error loading scores:', error));
     }
-
 
   </script>
 

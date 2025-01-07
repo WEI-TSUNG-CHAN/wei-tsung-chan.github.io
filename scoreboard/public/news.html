@@ -51,12 +51,6 @@
       font-size: 2em;
     }
 
-    .add-team-button:hover,
-    .delete-button:hover,
-    .save-button:hover {
-      opacity: 0.8;
-    }
-
     td[contenteditable="true"] {
       background-color: #444;
       color: #ffcc00;
@@ -64,12 +58,6 @@
 
     td[contenteditable="true"]:focus {
       border: 2px solid yellow;
-    }
-
-    .total-row td {
-      font-weight: bold;
-      font-size: 2em;
-      text-align: center;
     }
 
   </style>
@@ -97,15 +85,17 @@
   </div>
 
   <script>
+    let previousScores = {}; // 儲存前次的分數
+
     // 頁面加載後載入分數
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
-      setInterval(loadScores, 5000); 
+      setInterval(loadScores, 5000); // 每 5 秒刷新一次
     });
 
     // 載入目前的分數
     function loadScores() {
-      fetch('/api/news')
+      fetch('/api/news') // 請根據您的 API 路徑修改
         .then(response => response.json())
         .then(data => {
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
@@ -114,17 +104,30 @@
           data.forEach(score => {
             const row = document.createElement('tr');
             row.innerHTML = `
-              <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
-              <td contenteditable="true" data-id="${score.id}" data-column="score">${score.score}</td>
+              <td class="team-name">${score.team_name}</td>
+              <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
             `;
             tableBody.appendChild(row);
 
+            // 取得當前分數欄位
+            const scoreCell = row.querySelector('.score');
+            const currentScore = Number(score.score); // 強制轉為數字
+            const previousScore = previousScores[score.team_name] !== undefined ? Number(previousScores[score.team_name]) : NaN;
+
+            if (currentScore !== previousScore) {
+              // 分數變動，顏色變紅色
+              scoreCell.style.color = 'red';
+            } else {
+              // 分數未變動，恢復黃色
+              scoreCell.style.color = '#ffcc00';
+            }
+
+            // 儲存當前分數，便於下次比對
+            previousScores[score.team_name] = score.score;
           });
         })
         .catch(error => console.error('Error loading scores:', error));
     }
-
-
   </script>
 
 </body>
