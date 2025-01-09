@@ -30,46 +30,101 @@
 
     .scoreboard {
       margin-top: 20px;
-      background-color: rgba(0, 0, 0, 0.7); /* 背景透明度設置 */
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 200px;
     }
 
-    .scoreboard table {
+    /* 修改基本素材表格的樣式 */
+    table {
       width: 100%;
       border-collapse: collapse;
       color: #ffcc00;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: transparent;
+      /* 移除背景色 */
+      opacity: 0.8;
+      /* 設定透明度 */
     }
 
-    .scoreboard table th,
-    .scoreboard table td {
+    table th,
+    table td {
       padding: 10px;
-      border: 1px solid rgba(0, 0, 0, 0.5); /* 透明邊框 */
-      cursor: pointer;
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      /* 保持邊框顏色 */
       font-weight: bold;
       font-size: 2em;
-      background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
     }
 
-    td[contenteditable="true"] {
-      background-color: rgba(68, 68, 68, 0.7); /* 半透明背景 */
+    .scoreboard table td[contenteditable="true"] {
+      background-color: rgba(68, 68, 68, 0.7);
       color: #ffcc00;
     }
 
-    td[contenteditable="true"]:focus {
+    .scoreboard table td[contenteditable="true"]:focus {
       border: 2px solid yellow;
     }
 
+    /* 設定 directions-table 內所有 td 等寬 */
+    #directions-table {
+      width: 100%;
+      table-layout: fixed;
+      border: none;
+      /* 強制等寬 */
+    }
+
+    #directions-table td {
+      padding: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      /* 保持邊框顏色 */
+      font-weight: bold;
+      font-size: 1.2em;
+      border: none;
+      /* 讓每個 td 擁有相同寬度，四個欄位等寬 */
+    }
+
+    /* 方向資料顯示區 */
+    .directions-display {
+      margin-top: 20px;
+      color: #ffcc00;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .directions-key,
+    .directions-value {
+      width: 48%;
+      padding: 5px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    .error {
+      color: red;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
   </style>
 </head>
 
 <body>
 
   <div class="container">
-    <h1>最新分數</h1>
+    <h1>最新訊息</h1>
+    <div>
+      <h2>基本素材</h2>
+      <table id="directions-table">
+        <tbody>
+          <!-- 顯示在這裡 -->
+        </tbody>
+      </table>
+    </div>
 
+    <!-- 最新分數區塊 -->
     <div class="scoreboard">
       <h2>目前分數</h2>
       <table id="scoreboard-table">
@@ -89,10 +144,12 @@
   <script>
     let previousScores = {}; // 儲存前次的分數
 
-    // 頁面加載後載入分數
+    // 頁面加載後載入分數與 Directions 資料
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
-      setInterval(loadScores, 5000); // 每 5 秒刷新一次
+      loadDirections(); // 初始載入 Directions 資料
+      setInterval(loadScores, 5000); // 每 5 秒刷新分數
+      setInterval(loadDirections, 5000);
     });
 
     // 載入目前的分數
@@ -105,7 +162,7 @@
 
           data.forEach(score => {
             const row = document.createElement('tr');
-            row.innerHTML = `
+            row.innerHTML = ` 
               <td class="team-name">${score.team_name}</td>
               <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
             `;
@@ -130,6 +187,83 @@
         })
         .catch(error => console.error('Error loading scores:', error));
     }
+
+    // 載入 Directions 資料
+    function loadDirections() {
+      fetch('/api/directions')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const tableBody = document.getElementById('directions-table').getElementsByTagName('tbody')[0];
+          tableBody.innerHTML = ''; // 清空現有的資料
+
+          // 為每筆資料創建一個新行
+          const row = document.createElement('tr'); // 創建新的一行
+          data.forEach(direction => {
+            // 檢查 direction.key_name 是否等於 'ranker'
+            if (direction.key_name === 'ranker') {
+              // 創建四個 <td>，每個 <td> 預設為空
+              const td1 = document.createElement('td');
+              const td2 = document.createElement('td');
+              const td3 = document.createElement('td');
+              const td4 = document.createElement('td');
+
+              // 設定字體大小為 3em
+              td1.style.fontSize = '4em';
+              td1.style.color = 'red';
+              td2.style.fontSize = '4em';
+              td2.style.color = 'red';
+              td3.style.fontSize = '4em';
+              td3.style.color = 'red';
+              td4.style.fontSize = '4em';
+              td4.style.color = 'red';
+
+              // 根據 direction.value_name 的值設置對應的 <td> 內容
+              if (direction.value_name === '莊1') {
+                td1.textContent = '莊';
+              } else if (direction.value_name === '莊2') {
+                td2.textContent = '莊';
+              } else if (direction.value_name === '莊3') {
+                td3.textContent = '莊';
+              } else if (direction.value_name === '莊4') {
+                td4.textContent = '莊';
+              }
+
+              // 把這四個 <td> 加入行中
+              row.appendChild(td1);
+              row.appendChild(td2);
+              row.appendChild(td3);
+              row.appendChild(td4);
+            } else if (direction.key_name === 'direction') {
+              // 若不是 ranker，將其他資料顯示為普通 <td>
+              const valCell = document.createElement('td');
+              valCell.textContent = `${direction.value_name}`;
+              valCell.style.fontSize = '5em';
+            
+              row.appendChild(valCell);
+            } else {
+              // 若不是 ranker，將其他資料顯示為普通 <td>
+              const valCell = document.createElement('td');
+              valCell.textContent = `${direction.value_name}`;
+              valCell.style.fontSize = '2em';
+              row.appendChild(valCell);
+            }
+          });
+          tableBody.appendChild(row); // 把整行加入到表格中
+        })
+        .catch(error => {
+          console.error('Error loading directions:', error);
+          const errorMessage = document.createElement('div');
+          errorMessage.textContent = '無法載入資料，請稍後再試。';
+          errorMessage.className = 'error';
+          document.getElementById('directions-display').appendChild(errorMessage);
+        });
+    }
+
   </script>
 
 </body>

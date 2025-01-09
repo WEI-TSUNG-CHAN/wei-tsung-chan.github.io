@@ -183,6 +183,19 @@ app.post('/api/update-ranker', (req, res) => {
   );
 });
 
+// 顯示directions
+app.get('/api/directions', (req, res) => {
+  const query = 'SELECT * FROM directions'; // SQL 查詢語句
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('資料庫查詢錯誤:', err);
+      res.status(500).send('資料庫錯誤');
+      return;
+    }
+    res.json(results); // 將資料回傳為 JSON 格式
+  });
+});
+
 
 // 啟動伺服器
 app.listen(port, () => {
