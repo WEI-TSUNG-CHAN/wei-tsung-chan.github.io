@@ -126,7 +126,7 @@ app.post('/api/reset-scores', (req, res) => {
   const role = req.query.role || '1';  // 預設為第一將
 
   connection.query(
-    'UPDATE scores SET score = 0 WHERE date=CURDATE() AND role = ?', [role], 
+    'UPDATE scores SET score = 0 WHERE date=CURDATE() AND role = ?', [role],
     (err, results) => {
       if (err) {
         console.error(err);
@@ -136,6 +136,53 @@ app.post('/api/reset-scores', (req, res) => {
     }
   );
 });
+
+// 更新風向
+app.post('/api/update-direction', (req, res) => {
+  const { value } = req.body;
+
+  connection.query(
+    'UPDATE directions SET value_name = ? WHERE key_name = "direction"',
+    [value],
+    (err, results) => {
+      if (err) {
+        console.error('Error updating direction:', err);
+        return res.status(500).send('Error updating direction');
+      }
+
+      // 檢查是否有資料被更新
+      if (results.affectedRows === 0) {
+        return res.status(400).send('No matching key_name found to update');
+      }
+
+      res.json({ message: 'Direction updated successfully' });
+    }
+  );
+});
+
+// API 更新莊家
+app.post('/api/update-ranker', (req, res) => {
+  const { value } = req.body;
+
+  connection.query(
+    'UPDATE directions SET value_name = ? WHERE key_name = "ranker"',
+    [value],
+    (err, results) => {
+      if (err) {
+        console.error('Error updating ranker:', err);
+        return res.status(500).send('Error updating ranker');
+      }
+
+      // 檢查是否有資料被更新
+      if (results.affectedRows === 0) {
+        return res.status(400).send('No matching key_name found to update');
+      }
+
+      res.json({ message: 'Ranker updated successfully' });
+    }
+  );
+});
+
 
 // 啟動伺服器
 app.listen(port, () => {
