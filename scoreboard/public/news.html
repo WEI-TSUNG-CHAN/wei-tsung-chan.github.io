@@ -30,7 +30,7 @@
 
     .scoreboard {
       margin-top: 20px;
-      background-color: black;
+      background-color: rgba(0, 0, 0, 0.7); /* 背景透明度設置 */
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -40,19 +40,21 @@
       width: 100%;
       border-collapse: collapse;
       color: #ffcc00;
+      background-color: rgba(0, 0, 0, 0.5);
     }
 
     .scoreboard table th,
     .scoreboard table td {
       padding: 10px;
-      border: 1px solid #ddd;
+      border: 1px solid rgba(0, 0, 0, 0.5); /* 透明邊框 */
       cursor: pointer;
       font-weight: bold;
       font-size: 2em;
+      background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
     }
 
     td[contenteditable="true"] {
-      background-color: #444;
+      background-color: rgba(68, 68, 68, 0.7); /* 半透明背景 */
       color: #ffcc00;
     }
 
