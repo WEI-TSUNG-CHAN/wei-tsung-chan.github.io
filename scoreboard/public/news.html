@@ -20,12 +20,10 @@
       text-align: center;
     }
 
-    h1 {
-      color: #ffcc00;
-    }
-
-    h2 {
-      color: #ffcc00;
+    h1, h2 {
+      color: #ffcc00; /* 黃色文字 */
+      font-weight: bold; /* 加粗 */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* 加上文字陰影，增加可讀性 */
     }
 
     .scoreboard {
@@ -55,6 +53,7 @@
       /* 保持邊框顏色 */
       font-weight: bold;
       font-size: 2em;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 加上文字陰影 */
     }
 
     .scoreboard table td[contenteditable="true"] {
@@ -82,6 +81,7 @@
       font-size: 1.2em;
       border: none;
       /* 讓每個 td 擁有相同寬度，四個欄位等寬 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 加上文字陰影 */
     }
 
     /* 方向資料顯示區 */
@@ -93,6 +93,7 @@
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 加上文字陰影 */
     }
 
     .directions-key,
@@ -212,7 +213,7 @@
               const td3 = document.createElement('td');
               const td4 = document.createElement('td');
 
-              // 設定字體大小為 3em
+              // 設定字體大小為 4em
               td1.style.fontSize = '4em';
               td1.style.color = 'red';
               td2.style.fontSize = '4em';

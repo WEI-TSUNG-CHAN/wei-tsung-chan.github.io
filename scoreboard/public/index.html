@@ -256,7 +256,7 @@
 
 
   <script>
-    let countdownTime = 20; // 設定倒數時間為20秒
+    let countdownTime = 15; // 設定倒數時間為15秒
     const countdownElement = document.getElementById('countdown');
     let copiedTeamName = '';  // 用來儲存複製的隊伍名稱
 
@@ -279,7 +279,7 @@
       } else {
         countdownElement.innerText = "畫面更新中...";
         loadScores(); // 倒數結束後自動更新分數
-        countdownTime = 20; // 重置倒數時間
+        countdownTime = 15; // 重置倒數時間
       }
     }
 
