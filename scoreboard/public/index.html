@@ -254,6 +254,11 @@
     <button class="ranker-button" onclick="updateRanker('莊4')">莊4</button>
   </div>
 
+  <div>
+    <h2>選擇日期: <span id="today-date"></span></h2>
+    <input type="date" id="date-picker" />
+    <button class="save-button" onclick="saveSelectedDate()">儲存日期</button>
+  </div>
 
   <script>
     let countdownTime = 15; // 設定倒數時間為15秒
@@ -264,6 +269,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
       startCountdown(); // 開始倒數計時
+      fetchAndDisplayDate();  // 呼叫此函式以顯示今天的日期
     });
 
     // 開始倒數計時
@@ -465,7 +471,7 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({value: direction })
+        body: JSON.stringify({ value: direction })
       })
         .then(response => response.json())
         .then(data => {
@@ -489,6 +495,40 @@
           alert(`莊家已更新為 ${ranker}`);
         })
         .catch(error => console.error('Error updating ranker:', error));
+    }
+
+    function saveSelectedDate() {
+      const selectedDate = document.getElementById('date-picker').value;
+
+      if (selectedDate) {
+        // 可以在這裡將選擇的日期儲存到伺服器或進行其他處理
+        fetch('/api/save-date', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ date: selectedDate })
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.message);
+            alert(`選擇的日期已儲存：${selectedDate}`);
+          })
+          .catch(error => console.error('Error saving selected date:', error));
+      } else {
+        alert('請選擇一個日期');
+      }
+    }
+
+    // 載入今天的日期
+    function fetchAndDisplayDate() {
+      fetch('/api/get-today')  // 呼叫API獲取今天的日期
+        .then(response => response.json())
+        .then(data => {
+          const todayDateElement = document.getElementById('today-date');
+          todayDateElement.innerText = `${data.date}`;  // 假設API回傳 { date: "YYYY-MM-DD" }
+        })
+        .catch(error => console.error('Error fetching date:', error));
     }
 
 

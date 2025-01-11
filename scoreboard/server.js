@@ -196,6 +196,58 @@ app.get('/api/directions', (req, res) => {
   });
 });
 
+// 新增 API 儲存日期
+app.post('/api/save-date', (req, res) => {
+  const { date } = req.body;  // 從請求中獲取傳來的日期
+
+  if (!date) {
+    return res.status(400).send('日期是必須的');
+  }
+
+  // 更新 directions 表中的 today 欄位
+  connection.query(
+    'UPDATE directions SET value_name = ? WHERE key_name = "today"',
+    [date],
+    (err, results) => {
+      if (err) {
+        console.error('Error updating today date:', err);
+        return res.status(500).send('Error updating today date');
+      }
+
+      // 檢查是否有資料被更新
+      if (results.affectedRows === 0) {
+        return res.status(400).send('No matching key_name found to update');
+      }
+
+      res.json({ message: 'Today date updated successfully' });
+    }
+  );
+});
+
+// 新增 API 取得目前設定的日期
+app.get('/api/get-today', (req, res) => {
+  // 查詢 directions 表中的 today 欄位
+  connection.query(
+    'SELECT value_name FROM directions WHERE key_name = "today"',
+    (err, results) => {
+      if (err) {
+        console.error('Error retrieving today date:', err);
+        return res.status(500).send('Error retrieving today date');
+      }
+
+      // 如果沒有設定過日期，則回傳 null
+      if (results.length === 0) {
+        return res.json({ date: null });
+      }
+
+      // 回傳目前的日期設定
+      res.json({ date: results[0].value_name });
+    }
+  );
+});
+
+
+
 
 // 啟動伺服器
 app.listen(port, () => {
