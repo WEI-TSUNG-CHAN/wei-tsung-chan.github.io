@@ -80,15 +80,35 @@ app.get('/api/scores', (req, res) => {
 
 // API 取得目前分數
 app.get('/api/news', (req, res) => {
-  // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
-  connection.query('SELECT * FROM scores WHERE date=CURDATE() AND role= (SELECT distinct max(role) FROM scores WHERE date=CURDATE())', (err, results) => {
+  // 先查詢 directions 表格以獲取當前日期
+  connection.query('SELECT value_name FROM directions WHERE key_name = "today"', (err, results) => {
     if (err) {
       console.error(err);
-      return res.status(500).send('Error retrieving scores');
+      return res.status(500).send('Error retrieving today\'s date');
     }
-    res.json(results);
+
+    if (results.length === 0) {
+      return res.status(404).send('Today\'s date not found in directions');
+    }
+
+    // 獲取查詢到的日期
+    const today = results[0].value_name;
+
+    // 使用查詢到的日期查詢 scores 表格
+    connection.query(
+      'SELECT * FROM scores WHERE date = ? AND role = (SELECT DISTINCT MAX(role) FROM scores WHERE date = ?)',
+      [today, today],
+      (err, scores) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error retrieving scores');
+        }
+        res.json(scores);
+      }
+    );
   });
 });
+
 
 // 分數排行
 app.get('/api/rank', (req, res) => {
@@ -108,69 +128,183 @@ app.get('/api/rank', (req, res) => {
 app.post('/api/update', (req, res) => {
   const { id, team_name, score, role } = req.body;
 
-  connection.query(
-    'UPDATE scores SET team_name = ?, score = ? WHERE id = ? AND date=CURDATE() AND role = ?',
-    [team_name, score, id, role],
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error updating score');
-      }
-      res.json({ message: 'Score updated successfully' });
+  // 先查詢 directions 表格以獲取當前日期
+  connection.query('SELECT value_name FROM directions WHERE key_name = "today"', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving today\'s date');
     }
-  );
+
+    if (results.length === 0) {
+      return res.status(404).send('Today\'s date not found in directions');
+    }
+
+    // 獲取查詢到的日期
+    const today = results[0].value_name;
+
+    // 使用查詢到的日期更新 scores 表格
+    connection.query(
+      'UPDATE scores SET team_name = ?, score = ? WHERE id = ? AND date = ? AND role = ?',
+      [team_name, score, id, today, role],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error updating score');
+        }
+        res.json({ message: 'Score updated successfully' });
+      }
+    );
+  });
 });
+
 
 // API 刪除隊伍
 app.delete('/api/delete/:id', (req, res) => {
   const { id } = req.params;
-  const role = req.query.role || '1';  // 預設為第一將
+  const role = req.query.role || '1'; // 預設為第一將
 
-  connection.query(
-    'DELETE FROM scores WHERE id = ? AND date=CURDATE() AND role = ?',
-    [id, role],
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error deleting team');
-      }
-      res.json({ message: 'Team deleted successfully' });
+  // 先查詢 directions 表格以獲取當前日期
+  connection.query('SELECT value_name FROM directions WHERE key_name = "today"', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving today\'s date');
     }
-  );
+
+    if (results.length === 0) {
+      return res.status(404).send('Today\'s date not found in directions');
+    }
+
+    // 獲取查詢到的日期
+    const today = results[0].value_name;
+
+    // 使用查詢到的日期來刪除 scores 表格中的資料
+    connection.query(
+      'DELETE FROM scores WHERE id = ? AND date = ? AND role = ?',
+      [id, today, role],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error deleting team');
+        }
+
+        if (results.affectedRows === 0) {
+          return res.status(404).send('No team found with the given id, date, and role');
+        }
+
+        res.json({ message: 'Team deleted successfully' });
+      }
+    );
+  });
 });
+
 
 // API 新增隊伍
 app.post('/api/add', (req, res) => {
   const { team_name, score, role } = req.body;
 
-  connection.query(
-    'INSERT INTO scores (team_name, score, date, role) VALUES (?, ?, now(), ?)',
-    [team_name, score, role],
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error adding team');
-      }
-      res.json({ message: 'Team added successfully' });
+  // 先查詢 directions 表格以獲取當前日期
+  connection.query('SELECT value_name FROM directions WHERE key_name = "today"', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving today\'s date');
     }
-  );
+
+    if (results.length === 0) {
+      return res.status(404).send('Today\'s date not found in directions');
+    }
+
+    // 獲取查詢到的日期
+    const today = results[0].value_name;
+
+    // 使用查詢到的日期來新增記錄
+    connection.query(
+      'INSERT INTO scores (team_name, score, date, role) VALUES (?, ?, ?, ?)',
+      [team_name, score, today, role],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error adding team');
+        }
+        res.json({ message: 'Team added successfully' });
+      }
+    );
+  });
 });
 
 // API 將所有分數歸0
 app.post('/api/reset-scores', (req, res) => {
   const role = req.query.role || '1';  // 預設為第一將
 
-  connection.query(
-    'UPDATE scores SET score = 0 WHERE date=CURDATE() AND role = ?', [role],
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error resetting scores');
-      }
-      res.json({ message: 'All scores have been reset to 0' });
+  // 先查詢 directions 表格以獲取當前日期
+  connection.query('SELECT value_name FROM directions WHERE key_name = "today"', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving today\'s date');
     }
-  );
+
+    if (results.length === 0) {
+      return res.status(404).send('Today\'s date not found in directions');
+    }
+
+    // 獲取查詢到的日期
+    const today = results[0].value_name;
+
+    // 使用查詢到的日期來重置分數
+    connection.query(
+      'UPDATE scores SET score = 0 WHERE date = ? AND role = ?',
+      [today, role],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error resetting scores');
+        }
+
+        res.json({ message: 'All scores have been reset to 0' });
+      }
+    );
+  });
 });
+
+
+// 刪除隊伍
+app.delete('/api/delete/:id', (req, res) => {
+  const { id } = req.params;
+  const role = req.query.role || '1'; // 預設為第一將
+
+  // 先查詢 directions 表格以獲取當前日期
+  connection.query('SELECT value_name FROM directions WHERE key_name = "today"', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error retrieving today\'s date');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Today\'s date not found in directions');
+    }
+
+    // 獲取查詢到的日期
+    const today = results[0].value_name;
+
+    // 使用查詢到的日期來刪除 scores 表格中的資料
+    connection.query(
+      'DELETE FROM scores WHERE id = ? AND date = ? AND role = ?',
+      [id, today, role],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error deleting team');
+        }
+
+        if (results.affectedRows === 0) {
+          return res.status(404).send('No team found with the given id, date, and role');
+        }
+
+        res.json({ message: 'Team deleted successfully' });
+      }
+    );
+  });
+});
+
 
 // 更新風向
 app.post('/api/update-direction', (req, res) => {
