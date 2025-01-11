@@ -246,7 +246,7 @@
               valCell.style.fontSize = '5em';
             
               row.appendChild(valCell);
-            } else {
+            } else  if (direction.key_name === 'tie_conut') {
               // 若不是 ranker，將其他資料顯示為普通 <td>
               const valCell = document.createElement('td');
               valCell.textContent = `${direction.value_name}`;
