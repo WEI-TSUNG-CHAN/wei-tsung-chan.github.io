@@ -60,7 +60,7 @@ app.get('/api/rank', (req, res) => {
   const role = req.query.role || '1';  // 預設為第一將
 
   // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
-  connection.query('SELECT team_name, sum(score) as score FROM scores where substring(date,1,7)= substring(CURDATE(),1,7) group by team_name order by score desc', (err, results) => {
+  connection.query('SELECT team_name, sum(score) as score FROM scores where true group by team_name order by score desc', (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).send('Error retrieving scores');
