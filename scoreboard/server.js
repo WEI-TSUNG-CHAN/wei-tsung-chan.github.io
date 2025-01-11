@@ -29,19 +29,54 @@ app.use((req, res, next) => {
   next();
 });
 
-// API 取得目前分數
 app.get('/api/scores', (req, res) => {
-  const role = req.query.role || '1';  // 預設為第一將
+  const date = req.query.date;
+  const role = req.query.role || '1'; // 預設為第一將
 
-  // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
-  connection.query('SELECT SQL_NO_CACHE * FROM scores WHERE date=CURDATE() AND role = ? ORDER BY role DESC', [role], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('Error retrieving scores');
-    }
-    res.json(results);
-  });
+  if (!date) {
+    // 如果 date 為空，先查詢 directions 表格
+    connection.query(
+      'SELECT value_name FROM directions WHERE key_name = "today"',
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error retrieving date');
+        }
+        if (results.length === 0) {
+          return res.status(404).send('Today\'s value not found');
+        }
+
+        // 使用查詢到的 date 再查詢分數
+        const today = results[0].value_name;
+        connection.query(
+          'SELECT SQL_NO_CACHE * FROM scores WHERE date = ? AND role = ?',
+          [today, role],
+          (err, scores) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send('Error retrieving scores');
+            }
+            res.json(scores);
+          }
+        );
+      }
+    );
+  } else {
+    // 如果 date 不為空，直接查詢分數
+    connection.query(
+      'SELECT SQL_NO_CACHE * FROM scores WHERE date = ? AND role = ?',
+      [date, role],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error retrieving scores');
+        }
+        res.json(results);
+      }
+    );
+  }
 });
+
 
 // API 取得目前分數
 app.get('/api/news', (req, res) => {

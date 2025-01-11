@@ -267,9 +267,9 @@
 
     // 頁面加載後載入分數並啟動倒數計時
     document.addEventListener("DOMContentLoaded", () => {
+      fetchAndDisplay();  // 呼叫此函式以顯示今天的日期
       loadScores(); // 初始載入分數
       startCountdown(); // 開始倒數計時
-      fetchAndDisplay();  // 呼叫此函式以顯示今天的日期
     });
 
     // 開始倒數計時
@@ -292,8 +292,9 @@
     // 載入目前的分數
     function loadScores() {
       const selectedRole = document.getElementById('role').value;  // 獲取選中的將次
+      const selectedDate = document.getElementById('span-today').innerText;
 
-      fetch(`/api/scores?role=${selectedRole}`)  // 加入將次作為查詢條件
+      fetch(`/api/scores?date=${selectedDate}&role=${selectedRole}`)  // 加入將次作為查詢條件
         .then(response => response.json())
         .then(data => {
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
