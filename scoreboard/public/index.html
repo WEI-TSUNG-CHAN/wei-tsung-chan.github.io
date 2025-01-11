@@ -501,7 +501,6 @@
       const selectedDate = document.getElementById('date-picker').value;
 
       if (selectedDate) {
-        // 可以在這裡將選擇的日期儲存到伺服器或進行其他處理
         fetch('/api/save-date', {
           method: 'POST',
           headers: {
@@ -513,12 +512,16 @@
           .then(data => {
             console.log(data.message);
             alert(`選擇的日期已儲存：${selectedDate}`);
+
+            // 儲存完日期後，重新獲取今天的日期並顯示
+            fetchAndDisplayDate();
           })
           .catch(error => console.error('Error saving selected date:', error));
       } else {
         alert('請選擇一個日期');
       }
     }
+
 
     // 載入今天的日期
     function fetchAndDisplayDate() {
