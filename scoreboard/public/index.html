@@ -239,7 +239,7 @@
   </div>
 
   <div>
-    <h2>選擇風向</h2>
+    <h2>選擇風向: <span id="span-direction"></span></h2>
     <button class="direction-button" onclick="updateDatabase('東')">東</button>
     <button class="direction-button" onclick="updateDatabase('南')">南</button>
     <button class="direction-button" onclick="updateDatabase('西')">西</button>
@@ -247,7 +247,7 @@
   </div>
 
   <div>
-    <h2>選擇莊家</h2>
+    <h2>選擇莊家: <span id="span-ranker"></span></h2>
     <button class="ranker-button" onclick="updateRanker('莊1')">莊1</button>
     <button class="ranker-button" onclick="updateRanker('莊2')">莊2</button>
     <button class="ranker-button" onclick="updateRanker('莊3')">莊3</button>
@@ -255,7 +255,7 @@
   </div>
 
   <div>
-    <h2>選擇日期: <span id="today-date"></span></h2>
+    <h2>選擇日期: <span id="span-today"></span></h2>
     <input type="date" id="date-picker" />
     <button class="save-button" onclick="saveSelectedDate()">儲存日期</button>
   </div>
@@ -269,7 +269,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadScores(); // 初始載入分數
       startCountdown(); // 開始倒數計時
-      fetchAndDisplayDate();  // 呼叫此函式以顯示今天的日期
+      fetchAndDisplay();  // 呼叫此函式以顯示今天的日期
     });
 
     // 開始倒數計時
@@ -477,6 +477,7 @@
         .then(data => {
           console.log(data.message);
           alert(`風向已更新為 ${direction}`);
+          fetchAndDisplay();
         })
         .catch(error => console.error('Error updating direction:', error));
     }
@@ -493,6 +494,7 @@
         .then(data => {
           console.log(data.message);
           alert(`莊家已更新為 ${ranker}`);
+          fetchAndDisplay();
         })
         .catch(error => console.error('Error updating ranker:', error));
     }
@@ -513,8 +515,8 @@
             console.log(data.message);
             alert(`選擇的日期已儲存：${selectedDate}`);
 
-            // 儲存完日期後，重新獲取今天的日期並顯示
-            fetchAndDisplayDate();
+            // 儲存完日期後，重新顯示
+            fetchAndDisplay();
           })
           .catch(error => console.error('Error saving selected date:', error));
       } else {
@@ -523,13 +525,23 @@
     }
 
 
-    // 載入今天的日期
-    function fetchAndDisplayDate() {
-      fetch('/api/get-today')  // 呼叫API獲取今天的日期
+    // 載入最新設定
+    function fetchAndDisplay() {
+      fetch('/api/directions')
         .then(response => response.json())
         .then(data => {
-          const todayDateElement = document.getElementById('today-date');
-          todayDateElement.innerText = `${data.date}`;  // 假設API回傳 { date: "YYYY-MM-DD" }
+          data.forEach(direction => {
+            if (direction.key_name === 'ranker') {
+              const rankerElement = document.getElementById('span-ranker');
+              rankerElement.innerText = `${direction.value_name}`;
+            } else if (direction.key_name === 'direction') {
+              const directionElement = document.getElementById('span-direction');
+              directionElement.innerText = `${direction.value_name}`;
+            } else if (direction.key_name === 'today') {
+              const todayDateElement = document.getElementById('span-today');
+              todayDateElement.innerText = `${direction.value_name}`;
+            }
+          });
         })
         .catch(error => console.error('Error fetching date:', error));
     }
