@@ -354,7 +354,7 @@ app.post('/api/update-ranker', (req, res) => {
 
 // 顯示directions
 app.get('/api/directions', (req, res) => {
-  const query = 'SELECT * FROM directions'; // SQL 查詢語句
+  const query = 'SELECT key_name, CASE WHEN key_name = \'ranker\' THEN CONCAT(value_name, \'_\', (SELECT value_name FROM scoreboard.directions WHERE key_name = \'times\')) ELSE value_name END AS value_name FROM scoreboard.directions';
   connection.query(query, (err, results) => {
     if (err) {
       console.error('資料庫查詢錯誤:', err);

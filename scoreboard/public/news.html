@@ -88,6 +88,18 @@
       /* 讓每個 td 擁有相同寬度，四個欄位等寬 */
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
       /* 加上文字陰影 */
+      position: relative; /* 使 td 能夠包含絕對定位的元素 */
+    }
+
+    .direction-number {
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-size: 0.5em; /* 字體縮小一半 */
+      color: red; /* 字體顏色設為紅色，與莊字相同 */
+      padding: 2px 4px;
+      border-radius: 5px;
+      /* 不要背景色 */
     }
 
     /* 方向資料顯示區 */
@@ -240,12 +252,28 @@
 
               if (directionName === '莊1') {
                 td1.textContent = '莊';
+                const span = document.createElement('span');
+                span.className = 'direction-number';
+                span.textContent = directionNumber;
+                td1.appendChild(span);
               } else if (directionName === '莊2') {
                 td2.textContent = '莊';
+                const span = document.createElement('span');
+                span.className = 'direction-number';
+                span.textContent = directionNumber;
+                td2.appendChild(span);
               } else if (directionName === '莊3') {
                 td3.textContent = '莊';
+                const span = document.createElement('span');
+                span.className = 'direction-number';
+                span.textContent = directionNumber;
+                td3.appendChild(span);
               } else if (directionName === '莊4') {
                 td4.textContent = '莊';
+                const span = document.createElement('span');
+                span.className = 'direction-number';
+                span.textContent = directionNumber;
+                td4.appendChild(span);
               }
 
               // 把這四個 <td> 加入行中
