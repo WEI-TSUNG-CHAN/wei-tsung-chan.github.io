@@ -20,10 +20,14 @@
       text-align: center;
     }
 
-    h1, h2 {
-      color: #ffcc00; /* 黃色文字 */
-      font-weight: bold; /* 加粗 */
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* 加上文字陰影，增加可讀性 */
+    h1,
+    h2 {
+      color: #ffcc00;
+      /* 黃色文字 */
+      font-weight: bold;
+      /* 加粗 */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+      /* 加上文字陰影，增加可讀性 */
     }
 
     .scoreboard {
@@ -53,7 +57,8 @@
       /* 保持邊框顏色 */
       font-weight: bold;
       font-size: 2em;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 加上文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+      /* 加上文字陰影 */
     }
 
     .scoreboard table td[contenteditable="true"] {
@@ -81,7 +86,8 @@
       font-size: 1.2em;
       border: none;
       /* 讓每個 td 擁有相同寬度，四個欄位等寬 */
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 加上文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+      /* 加上文字陰影 */
     }
 
     /* 方向資料顯示區 */
@@ -93,7 +99,8 @@
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 加上文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+      /* 加上文字陰影 */
     }
 
     .directions-key,
@@ -208,6 +215,7 @@
             // 檢查 direction.key_name 是否等於 'ranker'
             let keyName = direction.key_name;
             let valueName = direction.value_name;
+
             if (keyName === 'ranker') {
               // 創建四個 <td>，每個 <td> 預設為空
               const td1 = document.createElement('td');
@@ -225,14 +233,18 @@
               td4.style.fontSize = '4em';
               td4.style.color = 'red';
 
-              // 根據 direction.value_name 的值設置對應的 <td> 內容
-              if (valueName === '莊1') {
+              // 將分割後的部分存入陣列
+              const valueParts = valueName.split('_');
+              const directionName = valueParts[0];
+              const directionNumber = valueParts[1];
+
+              if (directionName === '莊1') {
                 td1.textContent = '莊';
-              } else if (valueName === '莊2') {
+              } else if (directionName === '莊2') {
                 td2.textContent = '莊';
-              } else if (valueName === '莊3') {
+              } else if (directionName === '莊3') {
                 td3.textContent = '莊';
-              } else if (valueName === '莊4') {
+              } else if (directionName === '莊4') {
                 td4.textContent = '莊';
               }
 
@@ -246,9 +258,9 @@
               const valCell = document.createElement('td');
               valCell.textContent = `${valueName}`;
               valCell.style.fontSize = '5em';
-            
+
               row.appendChild(valCell);
-            } else  if (keyName === 'tie_conut') {
+            } else if (keyName === 'tie_conut') {
               // 若不是 ranker，將其他資料顯示為普通 <td>
               const valCell = document.createElement('td');
               valCell.textContent = `${valueName}`;
