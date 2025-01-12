@@ -352,6 +352,29 @@ app.post('/api/update-ranker', (req, res) => {
   );
 });
 
+// API 更新連莊
+app.post('/api/update-times', (req, res) => {
+  const { value } = req.body;
+
+  connection.query(
+    'UPDATE directions SET value_name = ? WHERE key_name = "times"',
+    [value],
+    (err, results) => {
+      if (err) {
+        console.error('Error updating times:', err);
+        return res.status(500).send('Error updating times');
+      }
+
+      // 檢查是否有資料被更新
+      if (results.affectedRows === 0) {
+        return res.status(400).send('No matching key_name found to update');
+      }
+
+      res.json({ message: 'times updated successfully' });
+    }
+  );
+});
+
 // 顯示directions
 app.get('/api/directions', (req, res) => {
   const query = 'SELECT key_name, CASE WHEN key_name = \'ranker\' THEN CONCAT(value_name, \'_\', (SELECT value_name FROM scoreboard.directions WHERE key_name = \'times\')) ELSE value_name END AS value_name FROM scoreboard.directions';

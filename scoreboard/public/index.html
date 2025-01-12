@@ -262,6 +262,12 @@
     <button class="save-button" onclick="saveSelectedDate()">儲存日期</button>
   </div>
 
+  <div>
+    <h2>更新次數: <span id="span-times"></span></h2>
+    <button class="direction-button" onclick="updateTimes('add')">加1</button>
+    <button class="direction-button" onclick="updateTimes('subtract')">減1</button>
+  </div>
+
   <script>
     let countdownTime = 20; // 設定倒數時間為20秒
     const countdownElement = document.getElementById('countdown');
@@ -485,6 +491,7 @@
         .catch(error => console.error('Error updating direction:', error));
     }
 
+    // 切換莊家
     function updateRanker(ranker) {
       fetch('/api/update-ranker', {
         method: 'POST',
@@ -527,6 +534,47 @@
       }
     }
 
+    // 更新 times 的值
+    function updateTimes(action) {
+      // 獲取當前的 times 值
+      fetch('/api/directions')
+        .then(response => response.json())
+        .then(data => {
+          let currentTimes = 0;
+          // 確認是否有找到 'times' 的資料
+          data.forEach(direction => {
+            if (direction.key_name === 'times') {
+              currentTimes = parseInt(direction.value_name) || 0;
+            }
+          });
+
+          // 根據 action 更新 times 的數值
+          if (action === 'add') {
+            currentTimes += 1;
+          } else if (action === 'subtract') {
+            currentTimes -= 1;
+          }
+
+          // 將更新後的值送到後端進行資料庫更新
+          fetch('/api/update-times', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              value: currentTimes
+            })
+          })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data.message);
+              fetchAndDisplay();
+            })
+            .catch(error => console.error('Error updating times:', error));
+        })
+        .catch(error => console.error('Error fetching directions:', error));
+    }
+
 
     // 載入最新設定
     function fetchAndDisplay() {
@@ -543,6 +591,9 @@
             } else if (direction.key_name === 'today') {
               const todayDateElement = document.getElementById('span-today');
               todayDateElement.innerText = `${direction.value_name}`;
+            } else if (direction.key_name === 'times') {
+              const timesElement = document.getElementById('span-times');
+              timesElement.innerText = `${direction.value_name}`;
             }
           });
         })
