@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,8 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f0f8ff; /* 淺藍色背景 */
+      background-color: #f0f8ff;
+      /* 淺藍色背景 */
       color: #333;
       display: flex;
       justify-content: center;
@@ -22,7 +24,8 @@
       height: 600px;
       text-align: center;
       overflow: hidden;
-      background-color: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+      background-color: rgba(255, 255, 255, 0.8);
+      /* 半透明背景 */
       border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       display: flex;
@@ -32,7 +35,8 @@
     }
 
     h1 {
-      color: #ff6347; /* 番茄紅 */
+      color: #ff6347;
+      /* 番茄紅 */
       font-weight: bold;
       text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
     }
@@ -77,33 +81,40 @@
       font-size: 1.2em;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       background-color: rgba(0, 0, 0, 0.7);
-      color: #ffcc00; /* 黃色文字 */
+      color: #ffcc00;
+      /* 黃色文字 */
       transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+      /* 文字陰影 */
     }
 
     .rank-item.high {
-      background-color: rgba(0, 255, 0, 0.9); /* 強烈的綠色背景 */
+      background-color: rgba(0, 255, 0, 0.9);
+      /* 強烈的綠色背景 */
       color: white;
       font-size: 1.5em;
       font-weight: bold;
-      animation: pulse 1s infinite alternate; /* 高亮動畫 */
+      animation: pulse 1s infinite alternate;
+      /* 高亮動畫 */
     }
 
     .rank-item.middle {
-      background-color: rgba(255, 165, 0, 0.9); /* 橙色背景 */
+      background-color: rgba(255, 165, 0, 0.9);
+      /* 橙色背景 */
       color: white;
     }
 
     .rank-item.low {
-      background-color: rgba(255, 69, 0, 0.9); /* 深紅色背景 */
+      background-color: rgba(255, 69, 0, 0.9);
+      /* 深紅色背景 */
       color: white;
     }
 
     .rank-item:hover {
       transform: scale(1.05);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-      background-color: rgba(255, 255, 255, 1); /* 鼠標懸停時完全不透明 */
+      background-color: rgba(255, 255, 255, 1);
+      /* 鼠標懸停時完全不透明 */
     }
 
     .rank-item .team-name {
@@ -130,7 +141,8 @@
       margin-bottom: 20px;
       color: #ff6347;
       text-transform: capitalize;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* 文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      /* 文字陰影 */
     }
 
     /* 強調第一名的閃爍動畫 */
@@ -139,14 +151,15 @@
         transform: scale(1);
         background-color: rgba(0, 255, 0, 0.9);
       }
+
       100% {
         transform: scale(1.1);
         background-color: rgba(0, 200, 0, 0.9);
       }
     }
-
   </style>
 </head>
+
 <body>
 
   <div class="container">
@@ -156,23 +169,23 @@
 
   <script>
     // 當頁面載入時從 API 獲取資料
-    window.onload = function() {
+    window.onload = function () {
       fetch('http://localhost:3000/api/rankings')
         .then(response => response.json())
         .then(data => {
           // 按日期和角色分組資料
-          const groupedByDateAndRole = groupDataByDateAndRole(data);
-          
+          const groupedByDateRoleAndScore = groupDataByDateRoleAndScore(data);
+
           // 創建輪播列表
-          createCarousel(groupedByDateAndRole);
+          createCarousel(groupedByDateRoleAndScore);
         })
         .catch(error => {
           console.error('Error fetching rankings:', error);
         });
     };
 
-    // 將資料按日期和角色分組
-    function groupDataByDateAndRole(data) {
+    // 將資料按日期、角色和分數進行分組
+    function groupDataByDateRoleAndScore(data) {
       const grouped = {};
 
       data.forEach(item => {
@@ -189,6 +202,13 @@
         grouped[date][role].push(item);
       });
 
+      // 排序每個角色的隊伍數據，根據分數從高到低
+      Object.keys(grouped).forEach(date => {
+        Object.keys(grouped[date]).forEach(role => {
+          grouped[date][role].sort((a, b) => b.score - a.score); // 由高到低排序
+        });
+      });
+
       return grouped;
     }
 
@@ -202,7 +222,8 @@
       const carouselContainer = document.getElementById('rankings');
       carouselContainer.innerHTML = ''; // 清空容器
 
-      const dates = Object.keys(groupedData);
+      // 先對日期進行排序
+      const dates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
       let currentIndex = 0;
       let currentRoleIndex = 0;
 
@@ -217,6 +238,13 @@
 
         const date = dates[currentIndex];
         const roles = Object.keys(groupedData[date]);
+
+        // 對角色進行排序，提取「將次」中的數字部分進行排序
+        roles.sort((a, b) => {
+          const numA = parseInt(a.match(/\d+/)); // 提取數字部分
+          const numB = parseInt(b.match(/\d+/)); // 提取數字部分
+          return numA - numB;
+        });
 
         if (currentRoleIndex >= roles.length) {
           currentRoleIndex = 0; // 重設到第一角色
@@ -249,11 +277,11 @@
 
         // 顯示日期和角色的排名資訊
         carouselItem.innerHTML = ` 
-          <div class="date-role-header">${formatDateToTaiwanTimeZone(date)} - 將次 ${role}</div>
-          <div class="rank-list">
-            ${createRankList(data)}
-          </div>
-        `;
+      <div class="date-role-header">${formatDateToTaiwanTimeZone(date)} - 將次 ${role}</div>
+      <div class="rank-list">
+        ${createRankList(data)}
+      </div>
+    `;
 
         carouselContainer.innerHTML = '';
         carouselContainer.appendChild(carouselItem);
@@ -274,7 +302,7 @@
       return data.map((item, index) => {
         const rankClass = index === 0 ? 'high' : index < 3 ? 'middle' : 'low';
 
-        return `
+        return ` 
           <div class="rank-item ${rankClass}">
             <span class="rank">${index + 1}</span>
             <span class="team-name">${item.team_name}</span>
@@ -284,6 +312,7 @@
       }).join('');
     }
   </script>
-  
+
 </body>
+
 </html>
