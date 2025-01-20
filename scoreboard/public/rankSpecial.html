@@ -24,6 +24,7 @@
       text-align: center;
       max-width: 800px;
       width: 100%;
+      perspective: 1200px; /* 透視效果 */
     }
 
     h1 {
@@ -34,18 +35,28 @@
       text-transform: uppercase;
     }
 
+    .carousel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 1s ease;
+    }
+
     .carousel-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       opacity: 0;
-      transform: translateY(100px);
-      transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+      transform: rotateY(90deg);
+      transition: opacity 1s ease, transform 1s ease;
     }
 
     .carousel-item.active {
       opacity: 1;
-      transform: translateY(0);
+      transform: rotateY(0deg);
     }
 
     .rank-list {
@@ -129,7 +140,7 @@
 
   <div class="container">
     <h1>近30天排名</h1>
-    <div id="rankings"></div>
+    <div id="rankings" class="carousel"></div>
   </div>
 
   <script>
