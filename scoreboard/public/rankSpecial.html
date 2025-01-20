@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2025年1月月排名動態展示</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .carousel-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(100px);
+      transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    }
+
+    .carousel-item.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .rank-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    .rank-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 15px;
+      margin: 8px 0;
+      border-radius: 8px;
+      font-size: 1.2em;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+
+    .rank-item.high {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .rank-item.middle {
+      background-color: #FF9800;
+      color: white;
+    }
+
+    .rank-item.low {
+      background-color: #F44336;
+      color: white;
+    }
+
+    .rank-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .rank-item .team-name {
+      font-weight: bold;
+    }
+
+    .rank-item .score {
+      font-size: 1.3em;
+      font-weight: normal;
+    }
+
+    .rank-item .rank {
+      font-size: 1.6em;
+      font-weight: bold;
+    }
+
+    #rankings {
+      width: 100%;
+    }
+
+    .date-role-header {
+      font-size: 1.7em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #555;
+      text-transform: capitalize;
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>近30天排名</h1>
+    <div id="rankings"></div>
+  </div>
+
+  <script>
+    // 當頁面載入時從 API 獲取資料
+    window.onload = function() {
+      fetch('http://localhost:3000/api/rankings')
+        .then(response => response.json())
+        .then(data => {
+          // 按日期和角色分組資料
+          const groupedByDateAndRole = groupDataByDateAndRole(data);
+          
+          // 創建輪播列表
+          createCarousel(groupedByDateAndRole);
+        })
+        .catch(error => {
+          console.error('Error fetching rankings:', error);
+        });
+    };
+
+    // 將資料按日期和角色分組
+    function groupDataByDateAndRole(data) {
+      const grouped = {};
+
+      data.forEach(item => {
+        const date = item.date;
+        const role = item.role;
+
+        if (!grouped[date]) {
+          grouped[date] = {};
+        }
+        if (!grouped[date][role]) {
+          grouped[date][role] = [];
+        }
+
+        grouped[date][role].push(item);
+      });
+
+      return grouped;
+    }
+
+    // 將日期轉換為台灣時區格式 (不顯示時間)
+    function formatDateToTaiwanTimeZone(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('zh-TW', {
+        timeZone: 'Asia/Taipei', // 設定台灣時區
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+
+    // 創建輪播列表
+    function createCarousel(groupedData) {
+      const carouselContainer = document.getElementById('rankings');
+      carouselContainer.innerHTML = ''; // 清空容器
+
+      const dates = Object.keys(groupedData);
+      let currentIndex = 0;
+      let currentRoleIndex = 0;
+
+      // 這個變數用來跟蹤每個日期和角色的顯示次數
+      const displayCount = {};
+
+      // 使用 setInterval 來定時切換
+      const interval = setInterval(() => {
+        if (currentIndex >= dates.length) {
+          currentIndex = 0; // 重設到第一天
+        }
+
+        const date = dates[currentIndex];
+        const roles = Object.keys(groupedData[date]);
+
+        if (currentRoleIndex >= roles.length) {
+          currentRoleIndex = 0; // 重設到第一角色
+          currentIndex++; // 切換到下一天
+        }
+
+        const role = roles[currentRoleIndex];
+        const data = groupedData[date][role];
+
+        // 初始化日期和角色的顯示計數
+        if (!displayCount[date]) {
+          displayCount[date] = {};
+        }
+        if (!displayCount[date][role]) {
+          displayCount[date][role] = 0;
+        }
+
+        // 如果該日期和角色顯示了3次，則跳過
+        if (displayCount[date][role] >= 3) {
+          // 如果已顯示3次，重置該角色的顯示次數，並切換到下一個角色
+          displayCount[date][role] = 0;
+          currentRoleIndex++;
+          return;
+        }
+
+        displayCount[date][role]++;
+
+        const carouselItem = document.createElement('div');
+        carouselItem.classList.add('carousel-item');
+
+        // 顯示日期和角色的排名資訊
+        carouselItem.innerHTML = `
+          <div class="date-role-header">${formatDateToTaiwanTimeZone(date)} - 將次 ${role}</div>
+          <div class="rank-list">
+            ${createRankList(data)}
+          </div>
+        `;
+
+        carouselContainer.innerHTML = '';
+        carouselContainer.appendChild(carouselItem);
+
+        // 為當前顯示的項目加上 active 類別來實現顯示
+        setTimeout(() => {
+          carouselItem.classList.add('active');
+        }, 100);
+
+        // 更新角色索引
+        currentRoleIndex++;
+
+      }, 7000); // 每7秒切換日期和角色
+    }
+
+    // 創建排名列表HTML
+    function createRankList(data) {
+      return data.map((item, index) => {
+        const rankClass = index < 3 ? 'high' : index < 6 ? 'middle' : 'low';
+
+        return `
+          <div class="rank-item ${rankClass}">
+            <span class="rank">${index + 1}</span>
+            <span class="team-name">${item.team_name}</span>
+            <span class="score">${item.score}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+  
+</body>
+</html>

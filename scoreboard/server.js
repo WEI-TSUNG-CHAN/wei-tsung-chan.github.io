@@ -438,6 +438,32 @@ app.get('/api/get-today', (req, res) => {
   );
 });
 
+// 設定日期範圍（過去30天）
+const getPast30Days = () => {
+  const today = new Date();
+  today.setDate(today.getDate() - 30);
+  return today.toISOString().split('T')[0]; // 格式化為 YYYY-MM-DD
+};
+
+// 建立API來獲取近30天的排名資料rankings
+app.get('/api/rankings', (req, res) => {
+  const query = `
+    SELECT id, team_name, score, date, role
+    FROM scoreboard.scores
+    WHERE date >= ?
+    ORDER BY date ASC, role ASC, score DESC;
+  `;
+  
+  const past30Days = getPast30Days();
+
+  connection.query(query, [past30Days], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 
 
