@@ -10,7 +10,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f3f4f6;
+      background-color: #fff8e1;  /* 淺黃色背景，暖色調 */
       color: #333;
     }
 
@@ -22,74 +22,60 @@
 
     h1,
     h2 {
-      color: #ffcc00;
-      /* 黃色文字 */
+      color: #ff4500;  /* 橙紅色文字 */
       font-weight: bold;
-      /* 加粗 */
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-      /* 加上文字陰影，增加可讀性 */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     }
 
     .scoreboard {
       margin-top: 20px;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(255, 69, 0, 0.8);  /* 深紅色背景，強烈的過年氛圍 */
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       width: 200px;
     }
 
-    /* 修改基本素材表格的樣式 */
     table {
       width: 100%;
       border-collapse: collapse;
-      color: #ffcc00;
+      color: #ffd700;  /* 金色文字 */
       background-color: transparent;
-      /* 移除背景色 */
-      opacity: 0.8;
-      /* 設定透明度 */
+      opacity: 0.9;  /* 增加透明度，讓背景顯得更柔和 */
     }
 
     table th,
     table td {
       padding: 10px;
       border: 1px solid rgba(0, 0, 0, 0.5);
-      /* 保持邊框顏色 */
       font-weight: bold;
       font-size: 2em;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-      /* 加上文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
     }
 
     .scoreboard table td[contenteditable="true"] {
-      background-color: rgba(68, 68, 68, 0.7);
-      color: #ffcc00;
+      background-color: rgba(255, 215, 0, 0.7);  /* 金色透明背景 */
+      color: #333;  /* 文字顏色為深灰，與金色對比清晰 */
     }
 
     .scoreboard table td[contenteditable="true"]:focus {
-      border: 2px solid yellow;
+      border: 2px solid #ff4500;  /* 聚焦時邊框顏色改為橙紅色 */
     }
 
-    /* 設定 directions-table 內所有 td 等寬 */
     #directions-table {
       width: 100%;
       table-layout: fixed;
       border: none;
-      /* 強制等寬 */
     }
 
     #directions-table td {
       padding: 10px;
       border: 1px solid rgba(0, 0, 0, 0.5);
-      /* 保持邊框顏色 */
       font-weight: bold;
       font-size: 1.2em;
       border: none;
-      /* 讓每個 td 擁有相同寬度，四個欄位等寬 */
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-      /* 加上文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
       position: relative;
-      /* 使 td 能夠包含絕對定位的元素 */
     }
 
     .direction-number {
@@ -97,25 +83,20 @@
       top: 0;
       right: 0;
       font-size: 0.5em;
-      /* 字體縮小一半 */
-      color: red;
-      /* 字體顏色設為紅色，與莊字相同 */
+      color: #ff4500;  /* 橙紅色數字 */
       padding: 2px 4px;
       border-radius: 5px;
-      /* 不要背景色 */
     }
 
-    /* 方向資料顯示區 */
     .directions-display {
       margin-top: 20px;
-      color: #ffcc00;
+      color: #ffcc00;  /* 黃金色文字 */
       padding: 10px;
       border-radius: 5px;
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-      /* 加上文字陰影 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
     }
 
     .directions-key,
@@ -127,11 +108,13 @@
     }
 
     .error {
-      color: red;
+      color: #ff0000;  /* 鮮紅色錯誤提示 */
       font-size: 1.2em;
       margin-top: 10px;
     }
-  </style>
+</style>
+
+
 </head>
 
 <body>
