@@ -261,7 +261,7 @@
     <button class="direction-button" onclick="updateTimes('add')">加1</button>
     <button class="direction-button" onclick="updateTimes('subtract')">減1</button>
   </div>
-  
+
   <div>
     <h2>選擇日期: <span id="span-today"></span></h2>
     <input type="date" id="date-picker" />
@@ -377,9 +377,17 @@
         .then(data => {
           console.log(data.message);
           loadScores(); // 更新資料後立刻重新載入分數
+          resetCountdown(); // 更新分數後重設倒數計時
         })
         .catch(error => console.error('Error updating score:', error));
     }
+
+    // 重設倒數計時
+    function resetCountdown() {
+      countdownTime = 20;  // 重新設定倒數時間
+      countdownElement.innerText = `目前分數 在 ${countdownTime} 秒更新...`; // 顯示新的倒數時間
+    }
+
 
     // 刪除隊伍
     function deleteTeam(id) {
