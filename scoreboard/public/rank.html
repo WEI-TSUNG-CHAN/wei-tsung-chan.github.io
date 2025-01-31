@@ -142,15 +142,24 @@
       fetch('/api/rank') // 替換成您的 API 路徑
         .then(response => response.json())
         .then(data => {
+          // 依分數進行排序（從高到低）
+          data.sort((a, b) => b.score - a.score);
+
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
           tableBody.innerHTML = ''; // 清空現有的分數
 
-          data.forEach(score => {
+          data.forEach((score, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
               <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
               <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
             `;
+
+            // 為前三名設定相同顏色
+            if (index < 3) {
+              row.style.backgroundColor = "#6A5ACD"; // 深藍紫色背景，與紅色和黃色對比
+            }
+
             tableBody.appendChild(row);
 
             // 取得當前分數欄位
@@ -171,8 +180,9 @@
         })
         .catch(error => console.error('Error loading scores:', error));
     }
-
   </script>
+
+
 
 </body>
 
