@@ -73,8 +73,6 @@
       /* 聚焦時顯示黃色邊框 */
     }
 
-
-
     /* 修改隊伍顏色 */
     .team-row {
       background-color: rgba(255, 69, 0, 0.6);
@@ -93,7 +91,6 @@
       /* 懸停時使用較亮的金色文字 */
     }
 
-
     .total-row td {
       font-weight: bold;
       font-size: 2em;
@@ -101,9 +98,16 @@
       color: #ff4500;
       /* 橙紅色總計文字 */
     }
+
+    #scoreboard-title {
+      color: #FFD700;
+      /* 金黃色，與金色文字搭配，顯眼又不突兀 */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+      /* 增強陰影效果，讓文字更顯眼 */
+      font-size: 1.5em;
+      /* 保持與其他文字一致的字體大小 */
+    }
   </style>
-
-
 
 </head>
 
@@ -113,7 +117,7 @@
     <h1>英雄榜</h1>
 
     <div class="scoreboard">
-      <h2>目前分數</h2>
+      <h2 id="scoreboard-title">目前分數</h2>
       <table id="scoreboard-table">
         <thead>
           <tr>
@@ -142,6 +146,12 @@
       fetch('/api/rank') // 替換成您的 API 路徑
         .then(response => response.json())
         .then(data => {
+          // 顯示當年的月份
+          const year = data[0]?.year; // 假設返回的資料有 year 和 month
+          const month = data[0]?.month;
+          const title = document.getElementById('scoreboard-title');
+          title.innerHTML = `${year}年${month}月`; // 更新標題顯示
+
           // 依分數進行排序（從高到低）
           data.sort((a, b) => b.score - a.score);
 
@@ -181,8 +191,6 @@
         .catch(error => console.error('Error loading scores:', error));
     }
   </script>
-
-
 
 </body>
 

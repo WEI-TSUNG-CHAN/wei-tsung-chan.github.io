@@ -115,7 +115,7 @@ app.get('/api/rank', (req, res) => {
   const role = req.query.role || '1';  // 預設為第一將
 
   // 使用 SQL_NO_CACHE 來禁用 MySQL 查詢快取
-  connection.query('SELECT team_name, sum(score) as score FROM scores where true group by team_name order by score desc', (err, results) => {
+  connection.query('SELECT YEAR(CURRENT_DATE) as year, MONTH(CURRENT_DATE) AS month, team_name, SUM(score) AS score FROM scores WHERE YEAR(date) = YEAR(CURRENT_DATE) AND MONTH(date) = MONTH(CURRENT_DATE) GROUP BY YEAR(CURRENT_DATE), MONTH(CURRENT_DATE), team_name ORDER BY score DESC;', (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).send('Error retrieving scores');
