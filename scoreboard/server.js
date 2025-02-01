@@ -453,7 +453,7 @@ app.get('/api/rankings', (req, res) => {
     WHERE date >= ?
     ORDER BY date ASC, role ASC, score DESC;
   `;
-  
+
   const past30Days = getPast30Days();
 
   connection.query(query, [past30Days], (err, results) => {
@@ -465,7 +465,53 @@ app.get('/api/rankings', (req, res) => {
   });
 });
 
+app.post('/api/save-score-history', (req, res) => {
+  const { team_name, score } = req.body;
 
+  // 查詢 directions 表所有資料
+  const queryDirection = 'SELECT * FROM directions';
+
+  connection.query(queryDirection, (err, results) => {
+    if (err) {
+      res.status(500).send('Error fetching direction data');
+      return;
+    }
+
+    // 從 results 中取得 direction、direction_name 和 direction_number
+    let direction, ranker, times;
+
+    // 假設要找到 key_name 為 'direction' 的資料
+    for (const row of results) {
+      if (row.key_name === 'direction') {
+        direction = row.value_name; // 假設 value_name 直接對應 direction
+      } else if (row.key_name === 'ranker') {
+        ranker = row.value_name; // 假設 value_name 直接對應 ranker
+      } else if (row.key_name === 'times') {
+        times = row.value_name; // 假設 value_name 直接對應 times
+      }
+    }
+
+    // 確保獲得了所有必要的資料
+    if (!direction || !ranker || !times) {
+      res.status(400).send('Missing direction data');
+      return;
+    }
+
+    // 插入資料進 scores_history 表
+    const insertQuery = `
+      INSERT INTO scores_history (team_name, score, direction, ranker, times)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    connection.query(insertQuery, [team_name, score, direction, ranker, times], (err, result) => {
+      if (err) {
+        res.status(500).send('Error saving to database');
+        return;
+      }
+      res.status(200).json({ message: 'Score history saved successfully' });
+    });
+  });
+});
 
 // 啟動伺服器
 app.listen(port, () => {

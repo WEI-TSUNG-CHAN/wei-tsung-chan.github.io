@@ -180,6 +180,7 @@
 
   <script>
     let previousScores = {}; // 儲存前次的分數
+    let lastSavedScores = {}; // 儲存上次已儲存的分數，避免重複儲存
 
     // 頁面加載後載入分數與 Directions 資料
     document.addEventListener("DOMContentLoaded", () => {
@@ -203,28 +204,36 @@
 
     // 載入目前的分數
     function loadScores() {
-      fetch('/api/news') // 請根據您的 API 路徑修改
+      fetch('/api/news')
         .then(response => response.json())
         .then(data => {
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
-          tableBody.innerHTML = ''; // 清空現有的分數
+          tableBody.innerHTML = '';
 
           data.forEach(score => {
             const row = document.createElement('tr');
-            row.innerHTML = ` 
-    <td class="team-name">${score.team_name}</td>
-    <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
-  `;
+            row.innerHTML = `
+          <td class="team-name">${score.team_name}</td>
+          <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
+        `;
             tableBody.appendChild(row);
 
             const scoreCell = row.querySelector('.score');
             const currentScore = Number(score.score);
             const previousScore = previousScores[score.team_name] !== undefined ? Number(previousScores[score.team_name]) : NaN;
 
+            // 檢查是否大幅變動
             if (Math.abs(currentScore - previousScore) > 20) {
-              displayAlert(); // 當分數變動超過20時顯示警示
+              displayAlert(); // 顯示警示訊息
+
+              // 只有在分數大幅變動且未保存過的情況下才儲存
+              if (lastSavedScores[score.team_name] !== currentScore) {
+                saveScoreHistory(score);
+                lastSavedScores[score.team_name] = currentScore; // 更新為已儲存的分數
+              }
             }
 
+            // 顯示分數變動樣式
             if (currentScore !== previousScore) {
               scoreCell.style.color = 'red';
               scoreCell.style.backgroundColor = 'rgba(255, 99, 71, 0.3)';
@@ -233,10 +242,30 @@
               scoreCell.style.backgroundColor = 'rgba(255, 247, 204, 0.5)';
             }
 
+            // 更新前次分數
             previousScores[score.team_name] = score.score;
           });
         })
         .catch(error => console.error('Error loading scores:', error));
+    }
+
+    // 儲存分數歷史紀錄
+    function saveScoreHistory(score) {
+      const data = {
+        team_name: score.team_name,
+        score: score.score
+      };
+
+      fetch('/api/save-score-history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+        .then(response => response.json())
+        .then(data => console.log('Score history saved:', data))
+        .catch(error => console.error('Error saving score history:', error));
     }
 
     // 載入 Directions 資料
@@ -244,6 +273,7 @@
       fetch('/api/directions')
         .then(response => response.json())
         .then(data => {
+          console.log('Loaded directions:', data); // 加入此行以檢查資料結構
           const tableBody = document.getElementById('directions-table').getElementsByTagName('tbody')[0];
           tableBody.innerHTML = ''; // 清空現有的資料
 
@@ -252,19 +282,20 @@
             let keyName = direction.key_name;
             let valueName = direction.value_name;
 
+            console.log('key_name:', keyName, 'value_name:', valueName); // 輸出每個項目的 key_name 和 value_name
+
             if (keyName === 'ranker') {
               const td1 = document.createElement('td');
               const td2 = document.createElement('td');
               const td3 = document.createElement('td');
               const td4 = document.createElement('td');
-              // 設定字體大小為 4em
               td1.style.fontSize = '4em';
-              td1.style.color = 'red';
               td2.style.fontSize = '4em';
-              td2.style.color = 'red';
               td3.style.fontSize = '4em';
-              td3.style.color = 'red';
               td4.style.fontSize = '4em';
+              td1.style.color = 'red';
+              td2.style.color = 'red';
+              td3.style.color = 'red';
               td4.style.color = 'red';
 
               const valueParts = valueName.split('_');
@@ -328,7 +359,9 @@
         });
     }
 
+
   </script>
+
 </body>
 
 </html>
