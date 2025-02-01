@@ -11,7 +11,6 @@
       margin: 0;
       padding: 0;
       background-color: #fff8e1;
-      /* 淺黃色背景，暖色調 */
       color: #333;
     }
 
@@ -24,7 +23,6 @@
     h1,
     h2 {
       color: #ff4500;
-      /* 橙紅色文字 */
       font-weight: bold;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     }
@@ -32,7 +30,6 @@
     .scoreboard {
       margin-top: 20px;
       background-color: rgba(255, 69, 0, 0.7);
-      /* 深紅色背景，強烈的過年氛圍 */
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -43,10 +40,8 @@
       width: 100%;
       border-collapse: collapse;
       color: #ffd700;
-      /* 金色文字 */
       background-color: transparent;
       opacity: 0.9;
-      /* 增加透明度，讓背景顯得更柔和 */
     }
 
     table th,
@@ -60,14 +55,11 @@
 
     .scoreboard table td[contenteditable="true"] {
       background-color: rgba(255, 215, 0, 0.7);
-      /* 金色透明背景 */
       color: #333;
-      /* 文字顏色為深灰，與金色對比清晰 */
     }
 
     .scoreboard table td[contenteditable="true"]:focus {
       border: 2px solid #ff4500;
-      /* 聚焦時邊框顏色改為橙紅色 */
     }
 
     #directions-table {
@@ -78,7 +70,6 @@
 
     #directions-table td {
       padding: 10px;
-      border: 1px solid rgba(0, 0, 0, 0.5);
       font-weight: bold;
       font-size: 1.2em;
       border: none;
@@ -92,7 +83,6 @@
       right: 0;
       font-size: 0.5em;
       color: #ff4500;
-      /* 橙紅色數字 */
       padding: 2px 4px;
       border-radius: 5px;
     }
@@ -100,7 +90,6 @@
     .directions-display {
       margin-top: 20px;
       color: #ffcc00;
-      /* 黃金色文字 */
       padding: 10px;
       border-radius: 5px;
       display: flex;
@@ -119,17 +108,43 @@
 
     .error {
       color: #ff0000;
-      /* 鮮紅色錯誤提示 */
       font-size: 1.2em;
       margin-top: 10px;
     }
+
+    /* 設定警示訊息的位置，固定在分數表格下方 */
+    .alert-message {
+      font-size: 2em;
+      color: #ff0000;
+      background-color: #ffff00;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      opacity: 0;
+      transform: translateY(-30px);
+      /* 初始位置在表格下方 */
+      transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;
+      /* 滑動進來及淡出效果 */
+    }
+
+    .alert-message.show {
+      opacity: 1;
+      transform: translateY(0);
+      /* 滑動顯示 */
+    }
+
+    .alert-message.hide {
+      opacity: 0;
+      transform: translateY(-30px);
+      /* 滑動消失 */
+    }
   </style>
-
-
 </head>
 
 <body>
-
   <div class="container">
     <h1>最新訊息</h1>
     <div>
@@ -141,7 +156,6 @@
       </table>
     </div>
 
-    <!-- 最新分數區塊 -->
     <div class="scoreboard">
       <h2>目前分數</h2>
       <table id="scoreboard-table">
@@ -156,6 +170,11 @@
         </tbody>
       </table>
     </div>
+
+    <!-- 這裡是固定在分數表格下方的警示訊息 -->
+    <div id="alert-message" class="alert-message">
+      麻將比分大幅躍升
+    </div>
   </div>
 
   <script>
@@ -168,6 +187,18 @@
       setInterval(loadScores, 5000); // 每 5 秒刷新分數
       setInterval(loadDirections, 5000);
     });
+
+    // 顯示警示訊息
+    function displayAlert() {
+      const alertMessage = document.getElementById('alert-message');
+      alertMessage.classList.add('show'); // 顯示訊息
+      setTimeout(() => {
+        alertMessage.classList.add('hide'); // 5秒後隱藏訊息
+        setTimeout(() => {
+          alertMessage.classList.remove('show', 'hide'); // 重設狀態，準備下次顯示
+        }, 1000); // 等待動畫結束
+      }, 5000); // 5秒後消失
+    }
 
     // 載入目前的分數
     function loadScores() {
@@ -185,27 +216,24 @@
   `;
             tableBody.appendChild(row);
 
-            // 取得當前分數欄位
             const scoreCell = row.querySelector('.score');
-            const currentScore = Number(score.score); // 強制轉為數字
+            const currentScore = Number(score.score);
             const previousScore = previousScores[score.team_name] !== undefined ? Number(previousScores[score.team_name]) : NaN;
 
-            if (currentScore !== previousScore) {
-              // 分數變動，顏色變紅色
-              scoreCell.style.color = 'red';  // 變動時文字顏色為紅色
-              scoreCell.style.backgroundColor = 'rgba(255, 99, 71, 0.3)';  // 變動時背景顏色，增加透明度 (0.3)
-            } else {
-              // 分數未變動，顏色為深金色，背景淺色
-              scoreCell.style.color = 'white';  // 深金色文字
-              scoreCell.style.backgroundColor = 'rgba(255, 247, 204, 0.5)';  // 淺金色背景，增加透明度 (0.5)
+            if (Math.abs(currentScore - previousScore) > 20) {
+              displayAlert(); // 當分數變動超過20時顯示警示
             }
 
-            // 儲存當前分數，便於下次比對
+            if (currentScore !== previousScore) {
+              scoreCell.style.color = 'red';
+              scoreCell.style.backgroundColor = 'rgba(255, 99, 71, 0.3)';
+            } else {
+              scoreCell.style.color = 'white';
+              scoreCell.style.backgroundColor = 'rgba(255, 247, 204, 0.5)';
+            }
+
             previousScores[score.team_name] = score.score;
           });
-
-
-
         })
         .catch(error => console.error('Error loading scores:', error));
     }
@@ -213,30 +241,21 @@
     // 載入 Directions 資料
     function loadDirections() {
       fetch('/api/directions')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
           const tableBody = document.getElementById('directions-table').getElementsByTagName('tbody')[0];
           tableBody.innerHTML = ''; // 清空現有的資料
 
-          // 為每筆資料創建一個新行
-          const row = document.createElement('tr'); // 創建新的一行
+          const row = document.createElement('tr');
           data.forEach(direction => {
-            // 檢查 direction.key_name 是否等於 'ranker'
             let keyName = direction.key_name;
             let valueName = direction.value_name;
 
             if (keyName === 'ranker') {
-              // 創建四個 <td>，每個 <td> 預設為空
               const td1 = document.createElement('td');
               const td2 = document.createElement('td');
               const td3 = document.createElement('td');
               const td4 = document.createElement('td');
-
               // 設定字體大小為 4em
               td1.style.fontSize = '4em';
               td1.style.color = 'red';
@@ -247,7 +266,6 @@
               td4.style.fontSize = '4em';
               td4.style.color = 'red';
 
-              // 將分割後的部分存入陣列
               const valueParts = valueName.split('_');
               const directionName = valueParts[0];
               const directionNumber = valueParts[1];
@@ -286,39 +304,30 @@
                 }
               }
 
-              // 把這四個 <td> 加入行中
               row.appendChild(td1);
               row.appendChild(td2);
               row.appendChild(td3);
               row.appendChild(td4);
             } else if (keyName === 'direction') {
-              // 若不是 ranker，將其他資料顯示為普通 <td>
               const valCell = document.createElement('td');
               valCell.textContent = `${valueName}`;
               valCell.style.fontSize = '5em';
-
               row.appendChild(valCell);
             } else if (keyName === 'tie_conut') {
-              // 若不是 ranker，將其他資料顯示為普通 <td>
               const valCell = document.createElement('td');
               valCell.textContent = `${valueName}`;
               valCell.style.fontSize = '2em';
               row.appendChild(valCell);
             }
           });
-          tableBody.appendChild(row); // 把整行加入到表格中
+          tableBody.appendChild(row);
         })
         .catch(error => {
           console.error('Error loading directions:', error);
-          const errorMessage = document.createElement('div');
-          errorMessage.textContent = '無法載入資料，請稍後再試。';
-          errorMessage.className = 'error';
-          document.getElementById('directions-display').appendChild(errorMessage);
         });
     }
 
   </script>
-
 </body>
 
 </html>
