@@ -114,9 +114,11 @@
 
     /* 設定警示訊息的位置，固定在分數表格下方 */
     .alert-message {
-      font-size: 2em;
-      color: #ff0000;
-      background-color: #ffff00;
+      font-size: 3em;
+      color: #ffffff;
+      /* 文字顏色設為白色 */
+      background: linear-gradient(135deg, #6e7aeb, #4a5ef7);
+      /* 漸層背景 */
       padding: 20px;
       border-radius: 10px;
       margin-top: 20px;
@@ -125,10 +127,9 @@
       position: relative;
       opacity: 0;
       transform: translateY(-30px);
-      /* 初始位置在表格下方 */
       transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;
-      /* 滑動進來及淡出效果 */
     }
+
 
     .alert-message.show {
       opacity: 1;
@@ -173,7 +174,7 @@
 
     <!-- 這裡是固定在分數表格下方的警示訊息 -->
     <div id="alert-message" class="alert-message">
-      麻將比分大幅異動
+      比分大幅異動
     </div>
   </div>
 
