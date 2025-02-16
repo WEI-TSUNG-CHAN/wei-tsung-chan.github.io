@@ -11,6 +11,7 @@
       margin: 0;
       padding: 0;
       background-color: #fff8e1;
+      /* 輕盈的黃色背景 */
       color: #333;
     }
 
@@ -22,14 +23,16 @@
 
     h1,
     h2 {
-      color: #ff4500;
+      color: #ff9a8b;
+      /* 春天感的溫暖粉色 */
       font-weight: bold;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     }
 
     .scoreboard {
       margin-top: 20px;
-      background-color: rgba(255, 69, 0, 0.7);
+      background-color: rgba(135, 206, 235, 0.7);
+      /* 春天的藍色 */
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -54,12 +57,14 @@
     }
 
     .scoreboard table td[contenteditable="true"] {
-      background-color: rgba(255, 215, 0, 0.7);
+      background-color: rgba(144, 238, 144, 0.7);
+      /* 淺綠色 */
       color: #333;
     }
 
     .scoreboard table td[contenteditable="true"]:focus {
-      border: 2px solid #ff4500;
+      border: 2px solid #ff9a8b;
+      /* 粉色邊框 */
     }
 
     #directions-table {
@@ -82,7 +87,8 @@
       top: 0;
       right: 0;
       font-size: 0.5em;
-      color: #ff4500;
+      color: #ff9a8b;
+      /* 粉色 */
       padding: 2px 4px;
       border-radius: 5px;
     }
@@ -90,6 +96,7 @@
     .directions-display {
       margin-top: 20px;
       color: #ffcc00;
+      /* 春天感的黃色 */
       padding: 10px;
       border-radius: 5px;
       display: flex;
@@ -112,13 +119,10 @@
       margin-top: 10px;
     }
 
-    /* 設定警示訊息的位置，固定在分數表格下方 */
     .alert-message {
       font-size: 3em;
       color: #ffffff;
-      /* 文字顏色設為白色 */
       background: linear-gradient(135deg, #6e7aeb, #4a5ef7);
-      /* 漸層背景 */
       padding: 20px;
       border-radius: 10px;
       margin-top: 20px;
@@ -130,19 +134,17 @@
       transition: transform 0.5s ease-in-out, opacity 1s ease-in-out;
     }
 
-
     .alert-message.show {
       opacity: 1;
       transform: translateY(0);
-      /* 滑動顯示 */
     }
 
     .alert-message.hide {
       opacity: 0;
       transform: translateY(-30px);
-      /* 滑動消失 */
     }
   </style>
+
 </head>
 
 <body>
