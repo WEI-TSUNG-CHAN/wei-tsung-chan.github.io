@@ -10,7 +10,8 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #e0f7fa; /* 淺藍色背景 */
+      background-color: #f1f8ff;
+      /* 淺藍灰色背景 */
       color: #333;
     }
 
@@ -21,25 +22,30 @@
     }
 
     h1 {
-      color: #ffb74d; /* 溫暖的橙黃色文字 */
+      color: #ffb74d;
+      /* 溫暖的橙黃色文字 */
     }
 
     h2 {
-      color: #ffb74d; /* 溫暖的橙黃色文字 */
+      color: #ffb74d;
+      /* 溫暖的橙黃色文字 */
     }
 
     .scoreboard {
       margin-top: 20px;
-      background-color: rgba(173, 216, 230, 0.9); /* 淺藍色背景 */
+      background-color: rgba(211, 239, 252, 0.85);
+      /* 淺藍色背景，適度透明 */
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      /* 柔和的陰影 */
     }
 
     .scoreboard table {
       width: 100%;
       border-collapse: collapse;
-      color: #607d8b; /* 淺灰藍色文字 */
+      color: #607d8b;
+      /* 淺灰藍色文字 */
       background-color: transparent;
     }
 
@@ -49,50 +55,65 @@
       border: 1px solid rgba(255, 255, 255, 0.5);
       cursor: pointer;
       font-weight: bold;
-      font-size: 1.5em;
-      background-color: rgba(255, 255, 255, 0.3); /* 淺白色背景 */
+      font-size: 1.4em;
+      background-color: rgba(255, 255, 255, 0.3);
+      /* 淺白色背景 */
     }
 
     td[contenteditable="true"] {
-      background-color: rgba(204, 255, 255, 0.6); /* 淺藍色背景 */
+      background-color: rgba(204, 255, 255, 0.4);
+      /* 淺藍色背景 */
       color: #333;
     }
 
     td[contenteditable="true"]:focus {
-      border: 2px solid #ffb74d; /* 聚焦時顯示橙黃色邊框 */
+      border: 2px solid #ffb74d;
+      /* 聚焦時顯示橙黃色邊框 */
     }
 
-    /* 修改隊伍顏色 */
     .team-row {
-      background-color: rgba(173, 216, 230, 0.7); /* 淺藍色背景 */
-      color: #333; /* 深色文字 */
+      background-color: rgba(211, 239, 252, 0.7);
+      /* 更柔和的藍色背景 */
+      color: #333;
+      /* 深色文字 */
       font-size: 1.2em;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      /* 減弱的文字陰影 */
     }
 
     .team-row:hover {
-      background-color: rgba(173, 216, 230, 0.9); /* 滑鼠懸停時更淺的藍色 */
-      color: #ffb74d; /* 懸停時顯示橙黃色文字 */
+      background-color: rgba(173, 216, 230, 0.8);
+      /* 懸停時稍微明亮的藍色 */
+      color: #ffb74d;
+      /* 懸停時顯示橙黃色文字 */
     }
 
     .total-row td {
       font-weight: bold;
       font-size: 2em;
       text-align: center;
-      color: #ffb74d; /* 橙黃色總計文字 */
+      color: #ffb74d;
+      /* 橙黃色總計文字 */
     }
 
     #scoreboard-title {
-      color: #333; /* 深色文字 */
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+      color: #333;
+      /* 深色文字 */
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
       font-size: 1.5em;
     }
 
     .score {
-      color: white; /* 默認分數文字顏色為白色 */
+      color: white;
+      /* 默認分數文字顏色為白色 */
+      font-size: 1.8em;
+      /* 增大分數文字 */
+      font-weight: bold;
+      /* 加粗文字 */
     }
-
   </style>
+
+
 
 </head>
 
@@ -153,11 +174,11 @@
             // 為前三名設定不同藍色背景（春天色系）
             if (index < 3) {
               if (index === 0) {
-                row.style.backgroundColor = "rgba(135, 206, 250, 0.7)"; /* 第一名 天空藍 */
+                row.style.backgroundColor = "rgba(255, 223, 0, 0.3)"; /* 第一名 天空藍 */
               } else if (index === 1) {
-                row.style.backgroundColor = "rgba(176, 224, 230, 0.6)"; /* 第二名 淺藍綠 */
+                row.style.backgroundColor = "rgba(255, 99, 71, 0.3)"; /* 第二名 淺藍綠 */
               } else {
-                row.style.backgroundColor = "rgba(173, 216, 230, 0.5)"; /* 第三名 淺藍 */
+                row.style.backgroundColor = "rgba(144, 238, 144, 0.3)"; /* 第三名 淺藍 */
               }
             }
 
