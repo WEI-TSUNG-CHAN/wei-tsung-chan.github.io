@@ -164,12 +164,14 @@
           const tableBody = document.getElementById('scoreboard-table').getElementsByTagName('tbody')[0];
           tableBody.innerHTML = ''; // 清空現有的分數
 
+          let containerVisible = false; // 記錄container是否應顯示
+
           data.forEach((score, index) => {
             const row = document.createElement('tr');
             row.innerHTML = ` 
-              <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
-              <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
-            `;
+          <td contenteditable="true" data-id="${score.id}" data-column="team_name">${score.team_name}</td>
+          <td contenteditable="true" class="score" data-id="${score.id}" data-column="score">${score.score}</td>
+        `;
 
             // 為前三名設定不同藍色背景（春天色系）
             if (index < 3) {
@@ -192,6 +194,7 @@
             // 如果分數變動，則顯示為紅色
             if (currentScore !== previousScore) {
               scoreCell.style.color = 'red'; // 分數變動時顯示紅色
+              containerVisible = true; // 若有紅色，顯示 container
             } else {
               scoreCell.style.color = 'black'; // 分數未變動時顯示原色
             }
@@ -199,9 +202,18 @@
             // 儲存當前分數
             previousScores[score.team_name] = score.score;
           });
+
+          // 控制container的顯示或隱藏
+          const container = document.querySelector('.container');
+          if (containerVisible) {
+            container.style.display = 'block'; // 顯示 container
+          } else {
+            container.style.display = 'none'; // 隱藏 container
+          }
         })
         .catch(error => console.error('Error loading scores:', error));
     }
+
   </script>
 
 </body>
