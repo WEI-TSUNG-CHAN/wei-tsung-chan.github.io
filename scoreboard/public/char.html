@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喜字跳動特效</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px; /* 設定寬度為200px */
+            margin-bottom: 20px;
+            border: 1px solid #ccc; /* 添加細邊框 */
+            padding: 5px; /* 增加內邊距 */
+        }
+
+        .button {
+            width: 100px;
+            height: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #ff6347;
+            color: white;
+            border: 1px solid #ccc; /* 添加細邊框 */
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .happy-text {
+            font-size: 100px;
+            font-weight: bold;
+            animation: jump 0.5s ease-in-out infinite;
+            visibility: hidden;
+            margin-right: 20px; /* 調整文字與按鈕間距 */
+        }
+
+        /* 四個不同顏色 */
+        .red { color: #ff6347; }
+        .blue { color: #1e90ff; }
+        .green { color: #32cd32; }
+        .yellow { color: #ffeb3b; }
+
+        @keyframes jump {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            25% {
+                transform: translateY(-20px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            75% {
+                transform: translateY(20px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 第一組 -->
+    <div class="container">
+        <button class="button" onclick="startAnimation(1)">莊1跳動</button>
+        <div class="happy-text red" id="happyText1">喜</div>
+    </div>
+
+    <!-- 第二組 -->
+    <div class="container">
+        <button class="button" onclick="startAnimation(2)">莊2跳動</button>
+        <div class="happy-text blue" id="happyText2">喜</div>
+    </div>
+
+    <!-- 第三組 -->
+    <div class="container">
+        <button class="button" onclick="startAnimation(3)">莊3跳動</button>
+        <div class="happy-text green" id="happyText3">喜</div>
+    </div>
+
+    <!-- 第四組 -->
+    <div class="container">
+        <button class="button" onclick="startAnimation(4)">莊4跳動</button>
+        <div class="happy-text yellow" id="happyText4">喜</div>
+    </div>
+
+    <script>
+        function startAnimation(groupNumber) {
+            const happyText = document.querySelector(`#happyText${groupNumber}`);
+            happyText.style.visibility = 'visible';  // 顯示文字
+
+            // 開始跳動動畫
+            happyText.style.animation = 'jump 0.5s ease-in-out infinite';
+
+            // 設定5秒後停止跳動並隱藏文字
+            setTimeout(() => {
+                happyText.style.animation = 'none';
+                happyText.style.visibility = 'hidden';  // 隱藏文字
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
