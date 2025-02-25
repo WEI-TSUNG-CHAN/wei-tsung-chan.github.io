@@ -19,20 +19,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 200px; /* 設定寬度為200px */
+            width: 200px; /* 固定容器寬度 */
+            height: 100px; /* 固定容器高度 */
             margin-bottom: 20px;
-            border: 1px solid #ccc; /* 添加細邊框 */
-            padding: 5px; /* 增加內邊距 */
+            border: 1px solid #ccc;
+            padding: 5px;
+            box-sizing: border-box;
         }
 
         .button {
-            width: 100px;
+            width: 100px; /* 固定按鈕大小 */
             height: 50px;
-            font-size: 16px;
+            font-size: 16px; /* 固定字體大小 */
             cursor: pointer;
             background-color: #ff6347;
             color: white;
-            border: 1px solid #ccc; /* 添加細邊框 */
+            border: 1px solid #ccc;
             border-radius: 5px;
             display: flex;
             justify-content: center;
@@ -40,11 +42,11 @@
         }
 
         .happy-text {
-            font-size: 100px;
+            font-size: 60px; /* 固定文字大小 */
             font-weight: bold;
             animation: jump 0.5s ease-in-out infinite;
-            visibility: hidden;
-            margin-right: 20px; /* 調整文字與按鈕間距 */
+            visibility: visible; /* 初始顯示文字 */
+            margin-right: 20px; /* 調整按鈕和文字間距 */
         }
 
         /* 四個不同顏色 */
