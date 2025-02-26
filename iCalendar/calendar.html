@@ -32,6 +32,7 @@
             padding: 15px;
             text-align: center;
             font-size: 16px;
+            vertical-align: top; /* 讓文字靠上對齊 */
         }
 
         th {
@@ -41,22 +42,15 @@
 
         td {
             background-color: #ecf0f1;
+            word-wrap: break-word; /* 使 td 內容自動換行 */
+            word-break: break-word; /* 防止長單詞超出 */
+            white-space: normal; /* 讓文字正常換行 */
+            max-width: 150px; /* 限制 td 的最大寬度 */
         }
 
-        input {
-            width: 90%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            text-align: center;
-            background-color: #fff;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            border-color: #3498db;
-            outline: none;
+        .content {
+            white-space: normal; /* 確保文字可以換行 */
+            word-wrap: break-word; /* 使長字串自動換行 */
         }
 
         tr:nth-child(even) td {
@@ -73,8 +67,8 @@
                 font-size: 14px;
             }
 
-            input {
-                width: 80%;
+            td {
+                padding: 10px;
             }
         }
     </style>
@@ -85,9 +79,6 @@
         <thead>
             <tr>
                 <th>時間/星期</th>
-                <th id="mon">星期一<br>2/26</th>
-                <th id="tue">星期二<br>2/27</th>
-                <th id="wed">星期三<br>2/28</th>
                 <th id="thu">星期四<br>3/1</th>
                 <th id="fri">星期五<br>3/2</th>
                 <th id="sat">星期六<br>3/3</th>
@@ -97,33 +88,24 @@
         <tbody>
             <tr>
                 <td>早上</td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
             </tr>
             <tr>
                 <td>中午</td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
             </tr>
             <tr>
                 <td>晚上</td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder="老王,小詹,小龍,胖澤"></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
-                <td><input type="text" placeholder=""></td>
+                <td><div class="content">老王,小詹,小龍,胖澤</div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
             </tr>
         </tbody>
     </table>
@@ -152,9 +134,6 @@
 
         function populateCalendar() {
             const weekDates = getCurrentWeekDates();
-            document.getElementById('mon').innerHTML = `星期一<br>${weekDates[0]}`;
-            document.getElementById('tue').innerHTML = `星期二<br>${weekDates[1]}`;
-            document.getElementById('wed').innerHTML = `星期三<br>${weekDates[2]}`;
             document.getElementById('thu').innerHTML = `星期四<br>${weekDates[3]}`;
             document.getElementById('fri').innerHTML = `星期五<br>${weekDates[4]}`;
             document.getElementById('sat').innerHTML = `星期六<br>${weekDates[5]}`;
