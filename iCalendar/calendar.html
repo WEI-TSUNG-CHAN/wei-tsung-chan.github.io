@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易行事曆</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        td {
+            background-color: #ecf0f1;
+        }
+
+        input {
+            width: 90%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f9fafb;
+        }
+
+        tr:hover td {
+            background-color: #f0f4f7;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+
+            input {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>當周行事曆</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>時間/星期</th>
+                <th id="mon">星期一<br>2/26</th>
+                <th id="tue">星期二<br>2/27</th>
+                <th id="wed">星期三<br>2/28</th>
+                <th id="thu">星期四<br>3/1</th>
+                <th id="fri">星期五<br>3/2</th>
+                <th id="sat">星期六<br>3/3</th>
+                <th id="sun">星期天<br>3/4</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>早上</td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+            </tr>
+            <tr>
+                <td>中午</td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+            </tr>
+            <tr>
+                <td>晚上</td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder="老王,小詹,小龍,胖澤"></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+                <td><input type="text" placeholder=""></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function formatDate(date) {
+            const month = date.getMonth() + 1; // 月是從0開始的，所以需要加1
+            const day = date.getDate();
+            return `${month}/${day}`;
+        }
+
+        function getCurrentWeekDates() {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 週一是1，週天是0，所以計算週一日期
+            const monday = new Date(today.setDate(today.getDate() + diff));
+            
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                dates.push(formatDate(date));
+            }
+            return dates;
+        }
+
+        function populateCalendar() {
+            const weekDates = getCurrentWeekDates();
+            document.getElementById('mon').innerHTML = `星期一<br>${weekDates[0]}`;
+            document.getElementById('tue').innerHTML = `星期二<br>${weekDates[1]}`;
+            document.getElementById('wed').innerHTML = `星期三<br>${weekDates[2]}`;
+            document.getElementById('thu').innerHTML = `星期四<br>${weekDates[3]}`;
+            document.getElementById('fri').innerHTML = `星期五<br>${weekDates[4]}`;
+            document.getElementById('sat').innerHTML = `星期六<br>${weekDates[5]}`;
+            document.getElementById('sun').innerHTML = `星期天<br>${weekDates[6]}`;
+        }
+
+        populateCalendar();
+    </script>
+</body>
+</html>
