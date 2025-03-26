@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube 直播聊天室</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 400px;
+        }
+        #chatLink {
+            margin-top: 20px;
+            font-size: 16px;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>YouTube 直播聊天室</h1>
+
+    <p>請輸入 YouTube 直播的網址：</p>
+    <input type="text" id="youtubeUrl" placeholder="例如：https://www.youtube.com/watch?v=直播影片ID" />
+    <button onclick="loadChatLink()">查看聊天室</button>
+
+    <div id="chatLinkContainer" style="display:none;">
+        <p>點擊下方連結進入聊天室：</p>
+        <a id="chatLink" target="_blank" href="">查看聊天室</a>
+    </div>
+
+    <script>
+        function loadChatLink() {
+            var youtubeUrl = document.getElementById('youtubeUrl').value;
+            var videoId = getVideoIdFromUrl(youtubeUrl);
+
+            if (videoId) {
+                var chatUrl = "https://www.youtube.com/live_chat?v=" + videoId;
+                document.getElementById('chatLink').href = chatUrl;
+                document.getElementById('chatLinkContainer').style.display = 'block';
+            } else {
+                alert("請輸入有效的 YouTube 直播網址！");
+            }
+        }
+
+        function getVideoIdFromUrl(url) {
+            var regExp = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/\S+|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            var match = url.match(regExp);
+            return match ? match[1] : null;
+        }
+    </script>
+
+</body>
+</html>
