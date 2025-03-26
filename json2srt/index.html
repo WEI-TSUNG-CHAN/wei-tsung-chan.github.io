@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to SRT Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>JSON to SRT Converter</h1>
+    <p>Paste your JSON data below:</p>
+    <textarea id="jsonInput"></textarea>
+    <button onclick="convertToSRT()">Convert to SRT</button>
+    <br>
+    <a id="downloadLink" style="display: none" download="output.srt">
+        <button>Download SRT</button>
+    </a>
+
+    <script>
+        function convertToSRT() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            try {
+                const jsonData = JSON.parse(jsonInput);
+                let srtOutput = '';
+                
+                jsonData.forEach((item, index) => {
+                    const startTime = formatTime(item.timestamp[0]);
+                    const endTime = formatTime(item.timestamp[1]);
+                    srtOutput += `${index + 1}\n${startTime} --> ${endTime}\n${item.text}\n\n`;
+                });
+                
+                // Create a Blob with the SRT data and link it for downloading
+                const blob = new Blob([srtOutput], { type: 'text/plain' });
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.style.display = 'block'; // Make download button visible
+            } catch (error) {
+                alert('Invalid JSON format!');
+            }
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            const milliseconds = Math.floor((seconds % 1) * 1000);
+            return `${pad(hours)}:${pad(minutes)}:${pad(secs)},${pad(milliseconds, 3)}`;
+        }
+
+        function pad(number, length = 2) {
+            return number.toString().padStart(length, '0');
+        }
+    </script>
+
+</body>
+</html>
