@@ -1,57 +1,135 @@
 <!doctype html>
 <html>
+
 <head>
 	<title>HTML Editor - Full Version</title>
 </head>
+
 <body>
-<h3>日期&nbsp;<select><option selected="selected" value="">2025-05-31</option><option selected="selected" value="">2025-06-01</option><option selected="selected" value="">2025-06-02</option><option selected="selected" value="">2025-06-03</option><option selected="selected" value="">2025-06-04</option></select>&nbsp; 將數&nbsp;<select name="將數"><option selected="selected" value=""></option><option selected="selected" value="">第一將</option><option selected="selected" value="">第二將</option><option selected="selected" value="">第三將</option><option selected="selected" value="">第四將</option><option selected="selected" value="">第五將</option><option selected="selected" value="">第六將</option><option selected="selected" value="">第七將</option><option selected="selected" value="">第八將</option></select></h3>
+	<h3>日期&nbsp;<select>
+			<option selected="selected" value="">2025-05-31</option>
+			<option selected="selected" value="">2025-06-01</option>
+			<option selected="selected" value="">2025-06-02</option>
+			<option selected="selected" value="">2025-06-03</option>
+			<option selected="selected" value="">2025-06-04</option>
+		</select>&nbsp;將數&nbsp;<select name="將數">
+			<option selected="selected" value=""></option>
+			<option selected="selected" value="">第一將</option>
+			<option selected="selected" value="">第二將</option>
+			<option selected="selected" value="">第三將</option>
+			<option selected="selected" value="">第四將</option>
+			<option selected="selected" value="">第五將</option>
+			<option selected="selected" value="">第六將</option>
+			<option selected="selected" value="">第七將</option>
+			<option selected="selected" value="">第八將</option>
+		</select>
+	</h3>
 
-<p><input name="老詹" type="button" value="老詹" /> <input name="老王" type="button" value="老王" /> <input name="小龍" type="button" value="小龍" /> <input name="閃亮" type="button" value="閃亮" /> <input name="胖澤" type="button" value="胖澤" /></p>
+	<p><input name="老詹" type="button" value="老詹" />
+		<input name="老王" type="button" value="老王" />
+		<input name="小龍" type="button" value="小龍" />
+		<input name="閃亮" type="button" value="閃亮" />
+		<input name="胖澤" type="button" value="胖澤" />
+	</p>
 
-<p><input name="新增人員" type="button" value="新增人員" /></p>
+	<p><input name="新增人員" type="button" value="新增人員" /></p>
 
-<p><input name="" type="button" value="東" /> <input type="button" value="南" /> <input type="button" value="西" /> <input type="button" value="北" /> <strong>連莊: 2</strong>&nbsp;<input type="button" value="加一" /><input type="button" value="減一" /></p>
+	<p><label>東</label>
+		<input name="" type="button" value="東" />
+		<input type="button" value="南" />
+		<input type="button" value="西" />
+		<input type="button" value="北" />
+		<strong>連莊:</strong><label>2</label>
+		<input type="button" value="加一" />
+		<input type="button" value="減一" />
+		<strong>底: </strong><label>5</label>
+	</p>
 
-<table border="1" cellpadding="1" cellspacing="1" style="width: 360px;">
-	<tbody>
-		<tr>
-			<td>莊</td>
-			<td>人員</td>
-			<td>分數</td>
-			<td>自/胡/放</td>
-		</tr>
-		<tr>
-			<td><input checked="checked" name="player" type="radio" value="1" /></td>
-			<td><input maxlength="4" name="小龍" size="4" type="text" value="小龍" /><input type="button" value="-" /></td>
-			<td>118</td>
-			<td>1 / 1/ 1</td>
-		</tr>
-		<tr>
-			<td><input name="player" type="radio" value="2" /></td>
-			<td><input maxlength="4" name="莎拉" size="4" type="text" value="莎拉" /><input type="button" value="-" /></td>
-			<td>-31</td>
-			<td>1 / 0/ 1</td>
-		</tr>
-		<tr>
-			<td><input name="player" type="radio" value="3" /></td>
-			<td><input maxlength="4" name="老王" size="4" type="text" value="老王" /><input type="button" value="-" /></td>
-			<td>-74</td>
-			<td>0 / 1/ 1</td>
-		</tr>
-		<tr>
-			<td><input name="player" type="radio" value="4" /></td>
-			<td><input maxlength="4" name="胖澤" size="4" type="text" value="胖澤" /><input type="button" value="-" /></td>
-			<td>-13</td>
-			<td>0 / 1/ 1</td>
-		</tr>
-		<tr>
-			<td colspan="2">合計</td>
-			<td>0</td>
-			<td>2 / 3/ 4</td>
-		</tr>
-	</tbody>
-</table>
-
-<p><select><option selected="selected" value="">自摸</option><option selected="selected" value="">胡牌</option></select>&nbsp; 贏&nbsp; <select><option value="">小龍</option><option selected="selected" value="">莎拉</option><option value="">老王</option><option value="">胖澤</option></select> &nbsp;輸&nbsp;<select><option value="">小龍</option><option value="">莎拉</option><option value="">老王</option><option value="">胖澤</option></select>&nbsp;</p>
+	<table border="1" cellpadding="1" cellspacing="1" style="width: 360px;">
+		<tbody>
+			<tr>
+				<td>莊</td>
+				<td>人員</td>
+				<td>分數</td>
+				<td>自</td>
+				<td>胡</td>
+				<td>槍</td>
+			</tr>
+			<tr>
+				<td><input checked="checked" name="player" type="radio" value="1" /></td>
+				<td><input maxlength="4" name="小龍" size="4" type="text" value="小龍" />
+					<input type="button" value="-" />
+				</td>
+				<td>118</td>
+				<td>1</td>
+				<td>1</td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td><input name="player" type="radio" value="2" /></td>
+				<td><input maxlength="4" name="莎拉" size="4" type="text" value="莎拉" />
+					<input type="button" value="-" />
+				</td>
+				<td>-31</td>
+				<td>0</td>
+				<td>1</td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td><input name="player" type="radio" value="3" /></td>
+				<td><input maxlength="4" name="老王" size="4" type="text" value="老王" />
+					<input type="button" value="-" />
+				</td>
+				<td>-74</td>
+				<td>0</td>
+				<td>1</td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td><input name="player" type="radio" value="4" /></td>
+				<td><input maxlength="4" name="胖澤" size="4" type="text" value="胖澤" />
+					<input type="button" value="-" />
+				</td>
+				<td>-13</td>
+				<td>0</td>
+				<td>1</td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td colspan="2">合計</td>
+				<td>0</td>
+				<td>1</td>
+				<td>4</td>
+				<td>4</td>
+			</tr>
+		</tbody>
+	</table>
+	<br>
+	<strong>計算公式</strong>
+	<div>類型&nbsp;
+		<select>
+			<option selected="selected" value="">自摸</option>
+			<option value="">胡牌</option>
+			<option value="">三響</option>
+		</select>
+		<br>贏家
+		<input type="checkbox" name="PLAYER" value="小龍" checked><label>小龍</label>
+		<input type="checkbox" name="PLAYER" value="莎拉"><label>莎拉</label>
+		<input type="checkbox" name="PLAYER" value="老王"><label>老王</label>
+		<input type="checkbox" name="PLAYER" value="胖澤"><label>胖澤</label>
+		<br>輸家
+		<input type="checkbox" name="PLAYER" value="小龍"><label>小龍</label>
+		<input type="checkbox" name="PLAYER" value="莎拉" checked><label>莎拉</label>
+		<input type="checkbox" name="PLAYER" value="老王" checked><label>老王</label>
+		<input type="checkbox" name="PLAYER" value="胖澤" checked><label>胖澤</label>
+		<br>台數 <input type="text" size="4" value="1" />
+		<br><input type="button" value="計算" />
+	</div>
+	<br>
+	<strong>計算說明</strong>
+	<div>
+		
+	</div>
 </body>
+
 </html>
