@@ -6,22 +6,23 @@
 </head>
 
 <body>
-	<h3>日期&nbsp;<select>
-			<option selected="selected" value="">2025-05-31</option>
-			<option selected="selected" value="">2025-06-01</option>
-			<option selected="selected" value="">2025-06-02</option>
-			<option selected="selected" value="">2025-06-03</option>
+	<h3>日期&nbsp;
+		<select>
+			<option value="">2025-05-31</option>
+			<option value="">2025-06-01</option>
+			<option value="">2025-06-02</option>
+			<option value="">2025-06-03</option>
 			<option selected="selected" value="">2025-06-04</option>
-		</select>&nbsp;將數&nbsp;<select name="將數">
-			<option selected="selected" value=""></option>
+		</select>&nbsp;將數&nbsp;
+		<select name="將數">
 			<option selected="selected" value="">第一將</option>
-			<option selected="selected" value="">第二將</option>
-			<option selected="selected" value="">第三將</option>
-			<option selected="selected" value="">第四將</option>
-			<option selected="selected" value="">第五將</option>
-			<option selected="selected" value="">第六將</option>
-			<option selected="selected" value="">第七將</option>
-			<option selected="selected" value="">第八將</option>
+			<option value="">第二將</option>
+			<option value="">第三將</option>
+			<option value="">第四將</option>
+			<option value="">第五將</option>
+			<option value="">第六將</option>
+			<option value="">第七將</option>
+			<option value="">第八將</option>
 		</select>
 	</h3>
 
@@ -106,30 +107,67 @@
 	</table>
 	<br>
 	<strong>計算公式</strong>
-	<div>類型&nbsp;
+	<div>類型
 		<select>
-			<option selected="selected" value="">自摸</option>
-			<option value="">胡牌</option>
-			<option value="">三響</option>
+			<option selected="selected" value="1">自摸</option>
+			<option value="2">胡牌</option>
+			<option value="3">三響</option>
+			<option value="4">調整</option>
 		</select>
-		<br>贏家
-		<input type="checkbox" name="PLAYER" value="小龍" checked><label>小龍</label>
-		<input type="checkbox" name="PLAYER" value="莎拉"><label>莎拉</label>
-		<input type="checkbox" name="PLAYER" value="老王"><label>老王</label>
-		<input type="checkbox" name="PLAYER" value="胖澤"><label>胖澤</label>
-		<br>輸家
-		<input type="checkbox" name="PLAYER" value="小龍"><label>小龍</label>
-		<input type="checkbox" name="PLAYER" value="莎拉" checked><label>莎拉</label>
-		<input type="checkbox" name="PLAYER" value="老王" checked><label>老王</label>
-		<input type="checkbox" name="PLAYER" value="胖澤" checked><label>胖澤</label>
-		<br>台數 <input type="text" size="4" value="1" />
-		<br><input type="button" value="計算" />
+		&nbsp;玩家
+		<select>
+			<option selected="selected" value="小龍">小龍</option>
+			<option value="莎拉">莎拉</option>
+			<option value="老王">老王</option>
+			<option value="胖澤">胖澤</option>
+		</select>
+		<br>對家
+		<br><input type="checkbox" name="PLAYER" value="小龍">
+		<label>小龍</label>
+		<input id="tableLabel_1" type="text" size="4" value="" />
+		<button onclick="changeValue(1,-1)">➖</button>
+		<input type="range" id="tableSlider_1" min="1" max="99" value="1" oninput="updateLabel(1)">
+		<button onclick="changeValue(1,1)">➕</button>
+		<br><input type="checkbox" name="PLAYER" value="莎拉" checked>
+		<label>莎拉</label>
+		<input id="tableLabel_2" type="text" size="4" value="" />
+		<button onclick="changeValue(2,-1)">➖</button>
+		<input type="range" id="tableSlider_2" min="1" max="99" value="2" oninput="updateLabel(2)">
+		<button onclick="changeValue(2,1)">➕</button>
+		<br><input type="checkbox" name="PLAYER" value="老王" checked>
+		<label>老王</label>
+		<input id="tableLabel_3" type="text" size="4" value="" />
+		<button onclick="changeValue(3,-1)">➖</button>
+		<input type="range" id="tableSlider_3" min="1" max="99" value="3" oninput="updateLabel(3)">
+		<button onclick="changeValue(3,1)">➕</button>
+		<br><input type="checkbox" name="PLAYER" value="胖澤" checked>
+		<label>胖澤</label>
+		<input id="tableLabel_4" type="text" size="4" value="" />
+		<button onclick="changeValue(4,-1)">➖</button>
+		<input type="range" id="tableSlider_4" min="1" max="99" value="4" oninput="updateLabel(4)">
+		<button onclick="changeValue(4,1)">➕</button>
+		<br><input type="button" value="清除" /><input type="button" value="計算" /><input type="button" value="確認" />
 	</div>
-	<br>
-	<strong>計算說明</strong>
-	<div>
-		
-	</div>
+
+	<script>
+		// 更新分數
+		function updateLabel(player_num) {
+			let val = document.getElementById("tableSlider_" + player_num).value;
+			document.getElementById("tableLabel_" + player_num).value = `${val}`;
+		}
+
+		// 更新拖曳bar
+		function changeValue(player_num, delta) {
+			let slider = document.getElementById("tableSlider_" + player_num);
+			let current = parseInt(slider.value);
+			let newVal = current + delta;
+			slider.value = newVal;
+			updateLabel(player_num);
+		}
+
+		// 初始化文字
+		updateLabel();
+	</script>
 </body>
 
 </html>
