@@ -1,12 +1,16 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Mahjong Scoring</title>
   <style>
-    .red { color: red; }
+    .red {
+      color: red;
+    }
   </style>
 </head>
+
 <body>
   <h3>日期&nbsp;
     <select id="dateSelect"></select>&nbsp;將數&nbsp;
@@ -35,15 +39,13 @@
     <input name="嫚嫚" type="button" value="嫚嫚" />
   </p>
 
-  <p><input id="addPlayer" type="button" value="新增玩家" /></p>
-
   <p>
     <label id="windLabel">東</label>
     <input id="windEast" type="button" value="東" />
     <input id="windSouth" type="button" value="南" />
     <input id="windWest" type="button" value="西" />
     <input id="windNorth" type="button" value="北" />
-    <strong>連莊:</strong><label id="continuanceLabel">2</label>
+    <strong>連莊:</strong><label id="continuanceLabel">0</label>
     <input id="continuanceAdd" type="button" value="加一" />
     <input id="continuanceSub" type="button" value="減一" />
     <strong>底: </strong><label id="baseLabel">5</label>
@@ -137,7 +139,7 @@
     </tr>
     <tr>
       <td>對家</td>
-      <td>分數</td>
+      <td>台數</td>
       <td>功能</td>
     </tr>
     <!-- Opponent rows -->
@@ -148,7 +150,8 @@
       <td><input class="scoreInput" id="calcScore_1" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
         <button onclick="changeValue(1,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_1" min="0" max="50" value="0" oninput="updateCalcLabel(1)" disabled>
+        <input type="range" class="scoreSlider" id="calcSlider_1" min="0" max="50" value="0"
+          oninput="updateCalcLabel(1)" disabled>
         <button onclick="changeValue(1,1)">➕</button>
       </td>
     </tr>
@@ -159,7 +162,8 @@
       <td><input class="scoreInput" id="calcScore_2" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
         <button onclick="changeValue(2,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_2" min="0" max="50" value="0" oninput="updateCalcLabel(2)" disabled>
+        <input type="range" class="scoreSlider" id="calcSlider_2" min="0" max="50" value="0"
+          oninput="updateCalcLabel(2)" disabled>
         <button onclick="changeValue(2,1)">➕</button>
       </td>
     </tr>
@@ -170,7 +174,8 @@
       <td><input class="scoreInput" id="calcScore_3" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
         <button onclick="changeValue(3,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_3" min="0" max="50" value="0" oninput="updateCalcLabel(3)" disabled>
+        <input type="range" class="scoreSlider" id="calcSlider_3" min="0" max="50" value="0"
+          oninput="updateCalcLabel(3)" disabled>
         <button onclick="changeValue(3,1)">➕</button>
       </td>
     </tr>
@@ -181,13 +186,15 @@
       <td><input class="scoreInput" id="calcScore_4" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
         <button onclick="changeValue(4,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_4" min="0" max="50" value="0" oninput="updateCalcLabel(4)" disabled>
+        <input type="range" class="scoreSlider" id="calcSlider_4" min="0" max="50" value="0"
+          oninput="updateCalcLabel(4)" disabled>
         <button onclick="changeValue(4,1)">➕</button>
       </td>
     </tr>
     <tr>
       <td colspan="3" nowrap><input id="clearCalc" type="button" value="清除" />
-        <input id="submitCalc" type="button" value="確認" /></td>
+        <input id="submitCalc" type="button" value="確認" />
+      </td>
     </tr>
   </table>
 
@@ -224,15 +231,6 @@
       });
     });
 
-    // Add player: clears all name fields
-    document.getElementById('addPlayer').addEventListener('click', () => {
-      document.querySelectorAll('.playerNameInput').forEach(input => {
-        input.value = '';
-      });
-      refreshCalcPlayers();
-      fetchStats();
-    });
-
     // Clear name button in stats table
     document.querySelectorAll('.clearNameBtn').forEach((btn, idx) => {
       btn.addEventListener('click', () => {
@@ -256,6 +254,11 @@
       fetch(`/stats?year=${year}&month=${parseInt(month, 10)}`)
         .then(res => res.json())
         .then(data => {
+          console.log('Fetched data:', data);
+          if (!Array.isArray(data)) {
+            console.error('錯誤：伺服器回傳的資料不是陣列');
+            return;
+          }
           // Update stats table
           document.querySelectorAll('.statRow').forEach(row => {
             const name = row.querySelector('.playerNameInput').value;
@@ -289,10 +292,10 @@
           // Update totals
           const totals = { total_score: 0, total_zi: 0, total_hu: 0, total_qiang: 0 };
           data.forEach(r => {
-            totals.total_score += r.total_score;
-            totals.total_zi += r.total_zi;
-            totals.total_hu += r.total_hu;
-            totals.total_qiang += r.total_qiang;
+            totals.total_score += Number(r.total_score);
+            totals.total_zi += Number(r.total_zi);
+            totals.total_hu += Number(r.total_hu);
+            totals.total_qiang += Number(r.total_qiang);
           });
           document.getElementById('totalScore').textContent = totals.total_score;
           document.getElementById('totalZi').textContent = totals.total_zi;
@@ -309,7 +312,7 @@
     // Initialize calculation players based on stats table
     function refreshCalcPlayers() {
       const playerSelect = document.getElementById('playerSelect');
-      playerSelect.innerHTML = '';
+      playerSelect.innerHTML = '<option value="">請選擇</option>';
       const names = Array.from(document.querySelectorAll('.playerNameInput'))
         .map(inp => inp.value)
         .filter(name => name.trim() !== '');
@@ -347,13 +350,23 @@
     // Change slider value
     function changeValue(playerNum, delta) {
       const slider = document.getElementById("calcSlider_" + playerNum);
-      if (slider.disabled) return;
+      const scoreInput = document.getElementById("calcScore_" + playerNum);
+
+      // 若還是 disabled，就強制啟用（代表未勾選 checkbox，但使用者按了加減）
+      if (slider.disabled) {
+        slider.disabled = false;
+        scoreInput.disabled = false;
+        const checkbox = document.querySelector(`.calcRow[data-index="${playerNum}"] .oppCheckbox`);
+        if (checkbox) checkbox.checked = true;
+      }
+
       let current = parseInt(slider.value);
       let newVal = current + delta;
       if (newVal < 0) newVal = 0;
       slider.value = newVal;
       updateCalcLabel(playerNum);
     }
+
 
     // Handle type and player select changes to enable/disable sliders and checkboxes
     function updateCalcAccessibility() {
@@ -389,8 +402,8 @@
     // When a checkbox is toggled, enable/disable corresponding slider and score input
     document.querySelectorAll('.oppCheckbox').forEach((cb, idx) => {
       cb.addEventListener('change', (e) => {
-        const slider = document.getElementById(`calcSlider_${idx+1}`);
-        const scoreInput = document.getElementById(`calcScore_${idx+1}`);
+        const slider = document.getElementById(`calcSlider_${idx + 1}`);
+        const scoreInput = document.getElementById(`calcScore_${idx + 1}`);
         if (e.target.checked) {
           slider.disabled = false;
           scoreInput.disabled = false;
@@ -514,21 +527,32 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date, players: payloadPlayers })
       })
-        .then(res => res.json())
+        .then(async res => {
+          if (!res.ok) {
+            const text = await res.text(); // 把錯誤訊息印出來
+            throw new Error(`Server error ${res.status}: ${text}`);
+          }
+          return res.json();
+        })
         .then(resp => {
           if (resp.success) {
             alert('記錄成功');
             fetchStats();
             document.getElementById('clearCalc').click();
           } else {
-            alert('記錄失敗');
+            alert('記錄失敗：' + (resp.message || '未知原因'));
           }
+        })
+        .catch(err => {
+          console.error('新增分數錯誤:', err);
+          alert('記錄失敗，請開啟開發者工具查看 console 錯誤詳情。');
         });
+
     });
 
     // Update wind and continuance (連莊) - optional functionality
     let currentWind = '東';
-    let continuance = 2;
+    let continuance = 0;
     document.getElementById('windEast').addEventListener('click', () => { currentWind = '東'; document.getElementById('windLabel').textContent = '東'; });
     document.getElementById('windSouth').addEventListener('click', () => { currentWind = '南'; document.getElementById('windLabel').textContent = '南'; });
     document.getElementById('windWest').addEventListener('click', () => { currentWind = '西'; document.getElementById('windLabel').textContent = '西'; });
@@ -548,4 +572,5 @@
     updateCalcAccessibility();
   </script>
 </body>
+
 </html>

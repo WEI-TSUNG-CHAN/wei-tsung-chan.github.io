@@ -2,7 +2,7 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 
 const dbConfig = {
@@ -14,8 +14,8 @@ const dbConfig = {
 
 const pool = mysql.createPool(dbConfig);
 
-function sendResponse(res, statusCode, data, contentType='application/json') {
-  res.writeHead(statusCode, {'Content-Type': contentType});
+function sendResponse(res, statusCode, data, contentType = 'application/json') {
+  res.writeHead(statusCode, { 'Content-Type': contentType });
   res.end(data);
 }
 
@@ -55,7 +55,7 @@ function getStats(req, res) {
     sendResponse(res, 400, JSON.stringify({ error: 'Missing year or month' }));
     return;
   }
-  const startDate = `\${year}-\${month.toString().padStart(2, '0')}-01`;
+  const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
   const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
 
   const sql = `
@@ -72,9 +72,16 @@ function getStats(req, res) {
     if (err) {
       sendResponse(res, 500, JSON.stringify({ error: 'Database query error' }));
     } else {
-      sendResponse(res, 200, JSON.stringify(results));
+      // 保險檢查 results 是否為陣列
+      if (Array.isArray(results) && results.length > 0) {
+        sendResponse(res, 200, JSON.stringify(results));
+      } else {
+        // 查無資料，回傳空陣列
+        sendResponse(res, 200, JSON.stringify([]));
+      }
     }
   });
+
 }
 
 function recordGame(req, res) {
@@ -92,17 +99,21 @@ function recordGame(req, res) {
         return;
       }
       const insertSql = `
-        INSERT INTO player_records (date, player_name, score, zi, hu, qiang)
-        VALUES ?
-      `;
-      const values = players.map(p => [date, p.name, p.score, p.zi, p.hu, p.qiang]);
-      pool.query(insertSql, [values], (err) => {
+  INSERT INTO player_records (date, player_name, score, zi, hu, qiang)
+  VALUES ${players.map(() => '(?, ?, ?, ?, ?, ?)').join(',')}
+`;
+
+      const values = players.flatMap(p => [date, p.name, p.score, p.zi, p.hu, p.qiang]);
+
+      pool.query(insertSql, values, (err) => {
         if (err) {
+          console.error('DB insert failed:', err);  // 加這行幫你看錯誤
           sendResponse(res, 500, JSON.stringify({ error: 'Database insert error' }));
         } else {
           sendResponse(res, 200, JSON.stringify({ success: true }));
         }
       });
+
     } catch (e) {
       sendResponse(res, 400, JSON.stringify({ error: 'Invalid JSON' }));
     }
