@@ -3,13 +3,137 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mahjong Scoring</title>
   <style>
+    body {
+      font-family: sans-serif;
+      margin: 10px;
+    }
+
     .red {
       color: red;
     }
+
+    select,
+    input[type="text"],
+    input[type="button"],
+    button {
+      font-size: 1rem;
+      margin: 4px 2px;
+    }
+
+    #nameButtons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    #nameButtons input[type="button"] {
+      width: calc(33.33% - 10px);
+      /* 三欄扣掉 gap */
+      box-sizing: border-box;
+      padding: 12px 0;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1em;
+    }
+
+    td,
+    th {
+      padding: 6px;
+      border: 1px solid #ccc;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .calcRow .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .calcRow input[type="range"] {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .calcRow button {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+    }
+
+    .calcRow td:nth-child(3) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px;
+      box-sizing: border-box;
+    }
+
+    .calcRow button {
+      padding: 6px 10px;
+      font-size: 1.1rem;
+    }
+
+    .calcRow .scoreSlider {
+      flex-grow: 1;
+      max-width: 100px;
+    }
+
+
+    @media (max-width: 600px) {
+      h3 {
+        font-size: 1rem;
+      }
+
+      td,
+      th {
+        font-size: 0.8rem;
+        padding: 4px;
+      }
+
+      input[type="button"],
+      select,
+      button {
+        font-size: 0.9rem;
+      }
+
+      #nameButtons input[type="button"] {
+        font-size: 1rem;
+        padding: 14px 0;
+      }
+
+      @media (max-width: 600px) {
+        .calcRow td:nth-child(3) {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .calcRow .scoreSlider {
+          max-width: 100%;
+          width: 100%;
+        }
+      }
+
+    }
   </style>
 </head>
+
 
 <body>
   <h3>日期&nbsp;
@@ -32,7 +156,6 @@
     <input name="小龍" type="button" value="小龍" />
     <input name="胖澤" type="button" value="胖澤" />
     <input name="閃亮" type="button" value="閃亮" />
-    <br>
     <input name="莎菈" type="button" value="莎菈" />
     <input name="皮皮" type="button" value="皮皮" />
     <input name="苦瓜" type="button" value="苦瓜" />
@@ -149,10 +272,12 @@
       </td>
       <td><input class="scoreInput" id="calcScore_1" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
-        <button onclick="changeValue(1,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_1" min="0" max="50" value="0"
-          oninput="updateCalcLabel(1)" disabled>
-        <button onclick="changeValue(1,1)">➕</button>
+        <div class="slider-container">
+          <button onclick="changeValue(1,-1)">➖</button>
+          <input type="range" class="scoreSlider" id="calcSlider_1" min="0" max="50" value="0"
+            oninput="updateCalcLabel(1)" disabled>
+          <button onclick="changeValue(1,1)">➕</button>
+        </div>
       </td>
     </tr>
     <tr class="calcRow" data-index="2">
@@ -161,10 +286,12 @@
       </td>
       <td><input class="scoreInput" id="calcScore_2" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
-        <button onclick="changeValue(2,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_2" min="0" max="50" value="0"
-          oninput="updateCalcLabel(2)" disabled>
-        <button onclick="changeValue(2,1)">➕</button>
+        <div class="slider-container">
+          <button onclick="changeValue(2,-1)">➖</button>
+          <input type="range" class="scoreSlider" id="calcSlider_2" min="0" max="50" value="0"
+            oninput="updateCalcLabel(2)" disabled>
+          <button onclick="changeValue(2,1)">➕</button>
+        </div>
       </td>
     </tr>
     <tr class="calcRow" data-index="3">
@@ -173,10 +300,12 @@
       </td>
       <td><input class="scoreInput" id="calcScore_3" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
-        <button onclick="changeValue(3,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_3" min="0" max="50" value="0"
-          oninput="updateCalcLabel(3)" disabled>
-        <button onclick="changeValue(3,1)">➕</button>
+        <div class="slider-container">
+          <button onclick="changeValue(3,-1)">➖</button>
+          <input type="range" class="scoreSlider" id="calcSlider_3" min="0" max="50" value="0"
+            oninput="updateCalcLabel(3)" disabled>
+          <button onclick="changeValue(3,1)">➕</button>
+        </div>
       </td>
     </tr>
     <tr class="calcRow" data-index="4">
@@ -185,10 +314,12 @@
       </td>
       <td><input class="scoreInput" id="calcScore_4" type="text" size="4" value="0" disabled /></td>
       <td nowrap>
-        <button onclick="changeValue(4,-1)">➖</button>
-        <input type="range" class="scoreSlider" id="calcSlider_4" min="0" max="50" value="0"
-          oninput="updateCalcLabel(4)" disabled>
-        <button onclick="changeValue(4,1)">➕</button>
+        <div class="slider-container">
+          <button onclick="changeValue(4,-1)">➖</button>
+          <input type="range" class="scoreSlider" id="calcSlider_4" min="0" max="50" value="0"
+            oninput="updateCalcLabel(4)" disabled>
+          <button onclick="changeValue(4,1)">➕</button>
+        </div>
       </td>
     </tr>
     <tr>
