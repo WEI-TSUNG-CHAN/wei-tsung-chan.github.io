@@ -54,6 +54,9 @@
 	<table border="1" cellpadding="1" cellspacing="1" style="width: 360px;">
 		<tbody>
 			<tr>
+				<td colspan="6"><strong>統計資訊</strong></td>
+			</tr>
+			<tr>
 				<td>莊</td>
 				<td>玩家</td>
 				<td>分數</td>
@@ -63,7 +66,7 @@
 			</tr>
 			<tr>
 				<td><input checked="checked" name="player" type="radio" value="1" /></td>
-				<td><input maxlength="4" name="小龍" size="4" type="text" value="小龍" />
+				<td><input maxlength="4" name="小龍" size="4" type="text" value="小龍" disabled />
 					<input type="button" value="-" />
 				</td>
 				<td>118</td>
@@ -73,7 +76,7 @@
 			</tr>
 			<tr>
 				<td><input name="player" type="radio" value="2" /></td>
-				<td><input maxlength="4" name="莎拉" size="4" type="text" value="莎拉" />
+				<td><input maxlength="4" name="莎拉" size="4" type="text" value="莎拉" disabled />
 					<input type="button" value="-" />
 				</td>
 				<td>-31</td>
@@ -83,7 +86,7 @@
 			</tr>
 			<tr>
 				<td><input name="player" type="radio" value="3" /></td>
-				<td><input maxlength="4" name="老王" size="4" type="text" value="老王" />
+				<td><input maxlength="4" name="老王" size="4" type="text" value="老王" disabled />
 					<input type="button" value="-" />
 				</td>
 				<td>-74</td>
@@ -93,7 +96,7 @@
 			</tr>
 			<tr>
 				<td><input name="player" type="radio" value="4" /></td>
-				<td><input maxlength="4" name="胖澤" size="4" type="text" value="胖澤" />
+				<td><input maxlength="4" name="胖澤" size="4" type="text" value="胖澤" disabled />
 					<input type="button" value="-" />
 				</td>
 				<td>-13</td>
@@ -111,48 +114,79 @@
 		</tbody>
 	</table>
 	<br>
-	<strong>計算公式</strong>
-	<div>類型
-		<select>
-			<option value="1">自摸</option>
-			<option selected="selected" value="2">胡牌</option>
-			<option value="3">三響</option>
-			<option value="4">調整</option>
-		</select>
-		&nbsp;玩家
-		<select>
-			<option value="小龍">小龍</option>
-			<option selected="selected" value="莎拉">莎拉</option>
-			<option value="老王">老王</option>
-			<option value="胖澤">胖澤</option>
-		</select>
-		<br>對家
-		<br><input type="checkbox" name="PLAYER" value="小龍">
-		<label>小龍</label>
-		<input id="tableLabel_1" type="text" size="4" value="0" />
-		<button onclick="changeValue(1,-1)">➖</button>
-		<input type="range" id="tableSlider_1" min="0" max="50" value="0" oninput="updateLabel(1)">
-		<button onclick="changeValue(1,1)">➕</button>
-		<br><input type="checkbox" name="PLAYER" value="莎拉" checked>
-		<label>莎拉</label>
-		<input id="tableLabel_2" type="text" size="4" value="0" />
-		<button onclick="changeValue(2,-1)">➖</button>
-		<input type="range" id="tableSlider_2" min="0" max="50" value="0" oninput="updateLabel(2)">
-		<button onclick="changeValue(2,1)">➕</button>
-		<br><input type="checkbox" name="PLAYER" value="老王">
-		<label>老王</label>
-		<input id="tableLabel_3" type="text" size="4" value="0" />
-		<button onclick="changeValue(3,-1)">➖</button>
-		<input type="range" id="tableSlider_3" min="0" max="50" value="0" oninput="updateLabel(3)">
-		<button onclick="changeValue(3,1)">➕</button>
-		<br><input type="checkbox" name="PLAYER" value="胖澤">
-		<label>胖澤</label>
-		<input id="tableLabel_4" type="text" size="4" value="0" />
-		<button onclick="changeValue(4,-1)">➖</button>
-		<input type="range" id="tableSlider_4" min="0" max="50" value="0" oninput="updateLabel(4)">
-		<button onclick="changeValue(4,1)">➕</button>
-		<br><input type="button" value="清除" /><input type="button" value="計算" /><input type="button" value="確認" />
-	</div>
+
+	<table border="1" style="width: 360px;">
+		<tr>
+			<td colspan="3"><strong>計算公式</strong></td>
+		</tr>
+		<tr>
+			<td colspan="3">類型
+				<select>
+					<option value="1">自摸</option>
+					<option selected="selected" value="2">胡牌</option>
+					<option value="3">三響</option>
+					<option value="4">調整</option>
+				</select>
+				&nbsp;玩家
+				<select>
+					<option value="小龍">小龍</option>
+					<option selected="selected" value="莎拉">莎拉</option>
+					<option value="老王">老王</option>
+					<option value="胖澤">胖澤</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>對家</td>
+			<td>分數</td>
+			<td>功能</td>
+		</tr>
+		<tr>
+			<td nowrap><input type="checkbox" name="PLAYER" value="小龍">
+				<label>小龍</label>
+			</td>
+			<td><input id="tableLabel_1" type="text" size="4" value="0" /></td>
+			<td nowrap><button onclick="changeValue(1,-1)">➖</button>
+				<input type="range" id="tableSlider_1" min="0" max="50" value="0" oninput="updateLabel(1)">
+				<button onclick="changeValue(1,1)">➕</button>
+			</td>
+		</tr>
+		<tr>
+			<td nowrap><input type="checkbox" name="PLAYER" value="莎拉" checked>
+				<label>莎拉</label>
+			</td>
+			<td><input id="tableLabel_2" type="text" size="4" value="0" /></td>
+			<td nowrap><button onclick="changeValue(2,-1)">➖</button>
+				<input type="range" id="tableSlider_2" min="0" max="50" value="0" oninput="updateLabel(2)">
+				<button onclick="changeValue(2,1)">➕</button>
+			</td>
+		</tr>
+		<tr>
+			<td nowrap><input type="checkbox" name="PLAYER" value="老王">
+				<label>老王</label>
+			</td>
+			<td><input id="tableLabel_3" type="text" size="4" value="0" /></td>
+			<td nowrap><button onclick="changeValue(3,-1)">➖</button>
+				<input type="range" id="tableSlider_3" min="0" max="50" value="0" oninput="updateLabel(3)">
+				<button onclick="changeValue(3,1)">➕</button>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="checkbox" name="PLAYER" value="胖澤">
+				<label>胖澤</label>
+			</td>
+			<td><input id="tableLabel_4" type="text" size="4" value="0" /></td>
+			<td nowrap><button onclick="changeValue(4,-1)">➖</button>
+				<input type="range" id="tableSlider_4" min="0" max="50" value="0" oninput="updateLabel(4)">
+				<button onclick="changeValue(4,1)">➕</button>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" nowrap><input type="button" value="清除" />
+				<input type="button" value="確認" /></td>
+		</tr>
+	</table>
 
 	<script>
 		// 更新分數
