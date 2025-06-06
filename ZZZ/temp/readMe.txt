@@ -1,4 +1,4 @@
-幫我用node.js，以express為框架，資料庫為mysql寫一個麻將計分用的程式，附件index.html為我設計的頁面，
+幫我用node.js，不需要express為框架，資料庫為mysql寫一個麻將計分用的程式，附件index.html為我設計的頁面，
 寫好程式幫我打包程式碼並匯出zip檔
 
 1.日期:顯示今天近三天的西元年月日(預設為今天)

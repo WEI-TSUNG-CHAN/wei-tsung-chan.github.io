@@ -1,0 +1,12 @@
+{
+  "name": "mahjong-app",
+  "version": "1.0.0",
+  "description": "Node.js application for Mahjong scoring without Express, using MySQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}
