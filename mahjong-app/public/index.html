@@ -94,43 +94,6 @@
       flex-grow: 1;
       max-width: 100px;
     }
-
-
-    @media (max-width: 600px) {
-      h3 {
-        font-size: 1rem;
-      }
-
-      td,
-      th {
-        font-size: 0.8rem;
-        padding: 4px;
-      }
-
-      input[type="button"],
-      select,
-      button {
-        font-size: 0.9rem;
-      }
-
-      #nameButtons input[type="button"] {
-        font-size: 1rem;
-        padding: 14px 0;
-      }
-
-      @media (max-width: 600px) {
-        .calcRow td:nth-child(3) {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .calcRow .scoreSlider {
-          max-width: 100%;
-          width: 100%;
-        }
-      }
-
-    }
   </style>
 </head>
 
@@ -151,26 +114,26 @@
   </h3>
 
   <p id="nameButtons">
-    <input name="老詹" type="button" value="老詹" />
-    <input name="老王" type="button" value="老王" />
-    <input name="小龍" type="button" value="小龍" />
-    <input name="胖澤" type="button" value="胖澤" />
-    <input name="閃亮" type="button" value="閃亮" />
-    <input name="莎菈" type="button" value="莎菈" />
-    <input name="皮皮" type="button" value="皮皮" />
-    <input name="苦瓜" type="button" value="苦瓜" />
-    <input name="嫚嫚" type="button" value="嫚嫚" />
+    <input name="老詹" type="button" value="老詹"></input>
+    <input name="老王" type="button" value="老王"></input>
+    <input name="小龍" type="button" value="小龍"></input>
+    <input name="胖澤" type="button" value="胖澤"></input>
+    <input name="閃亮" type="button" value="閃亮"></input>
+    <input name="莎菈" type="button" value="莎菈"></input>
+    <input name="皮皮" type="button" value="皮皮"></input>
+    <input name="苦瓜" type="button" value="苦瓜"></input>
+    <input name="嫚嫚" type="button" value="嫚嫚"></input>
   </p>
 
   <p>
     <label id="windLabel">東</label>
-    <input id="windEast" type="button" value="東" />
-    <input id="windSouth" type="button" value="南" />
-    <input id="windWest" type="button" value="西" />
-    <input id="windNorth" type="button" value="北" />
+    <input id="windEast" type="button" value="東"></input>
+    <input id="windSouth" type="button" value="南"></input>
+    <input id="windWest" type="button" value="西"></input>
+    <input id="windNorth" type="button" value="北"></input>
     <strong>連莊:</strong><label id="continuanceLabel">0</label>
-    <input id="continuanceAdd" type="button" value="加一" />
-    <input id="continuanceSub" type="button" value="減一" />
+    <input id="continuanceAdd" type="button" value="加一"></input>
+    <input id="continuanceSub" type="button" value="減一"></input>
     <strong>底: </strong><label id="baseLabel">5</label>
     <strong>台: </strong><label id="unitLabel">2</label>
   </p>
@@ -190,10 +153,10 @@
       </tr>
       <!-- Four rows for player stats -->
       <tr class="statRow" data-index="1">
-        <td><input class="dealerRadio" name="playerDealer" type="radio" value="1" /></td>
+        <td><input class="dealerRadio" name="playerDealer" type="radio" value="1"></input></td>
         <td>
-          <input class="playerNameInput" maxlength="4" name="player1" size="4" type="text" value="" />
-          <input class="clearNameBtn" type="button" value="-" />
+          <input class="playerNameInput" maxlength="4" name="player1" size="4" type="text" value=""></input>
+          <input class="clearNameBtn" type="button" value="-"></input>
         </td>
         <td class="statScore">0</td>
         <td class="statZi">0</td>
@@ -201,10 +164,10 @@
         <td class="statQiang">0</td>
       </tr>
       <tr class="statRow" data-index="2">
-        <td><input class="dealerRadio" name="playerDealer" type="radio" value="2" /></td>
+        <td><input class="dealerRadio" name="playerDealer" type="radio" value="2"></input></td>
         <td>
-          <input class="playerNameInput" maxlength="4" name="player2" size="4" type="text" value="" />
-          <input class="clearNameBtn" type="button" value="-" />
+          <input class="playerNameInput" maxlength="4" name="player2" size="4" type="text" value=""></input>
+          <input class="clearNameBtn" type="button" value="-"></input>
         </td>
         <td class="statScore">0</td>
         <td class="statZi">0</td>
@@ -212,10 +175,10 @@
         <td class="statQiang">0</td>
       </tr>
       <tr class="statRow" data-index="3">
-        <td><input class="dealerRadio" name="playerDealer" type="radio" value="3" /></td>
+        <td><input class="dealerRadio" name="playerDealer" type="radio" value="3"></input></td>
         <td>
-          <input class="playerNameInput" maxlength="4" name="player3" size="4" type="text" value="" />
-          <input class="clearNameBtn" type="button" value="-" />
+          <input class="playerNameInput" maxlength="4" name="player3" size="4" type="text" value=""></input>
+          <input class="clearNameBtn" type="button" value="-"></input>
         </td>
         <td class="statScore">0</td>
         <td class="statZi">0</td>
@@ -223,10 +186,10 @@
         <td class="statQiang">0</td>
       </tr>
       <tr class="statRow" data-index="4">
-        <td><input class="dealerRadio" name="playerDealer" type="radio" value="4" /></td>
+        <td><input class="dealerRadio" name="playerDealer" type="radio" value="4"></input></td>
         <td>
-          <input class="playerNameInput" maxlength="4" name="player4" size="4" type="text" value="" />
-          <input class="clearNameBtn" type="button" value="-" />
+          <input class="playerNameInput" maxlength="4" name="player4" size="4" type="text" value=""></input>
+          <input class="clearNameBtn" type="button" value="-"></input>
         </td>
         <td class="statScore">0</td>
         <td class="statZi">0</td>
@@ -267,64 +230,64 @@
     </tr>
     <!-- Opponent rows -->
     <tr class="calcRow" data-index="1">
-      <td nowrap><input type="checkbox" class="oppCheckbox" value="" />
+      <td nowrap><input type="checkbox" class="oppCheckbox" value=""></input>
         <label class="oppLabel"></label>
       </td>
-      <td><input class="scoreInput" id="calcScore_1" type="text" size="4" value="0" disabled /></td>
+      <td><input class="scoreInput" id="calcScore_1" type="text" size="4" value="0" disabled></input></td>
       <td nowrap>
         <div class="slider-container">
-          <button onclick="changeValue(1,-1)">➖</button>
+          <button class="adjBtn" id="adjBtn_1_1" onclick="changeValue(1,-1)" disabled>➖</button>
           <input type="range" class="scoreSlider" id="calcSlider_1" min="0" max="50" value="0"
             oninput="updateCalcLabel(1)" disabled>
-          <button onclick="changeValue(1,1)">➕</button>
+          <button class="adjBtn" id="adjBtn_2_1" onclick="changeValue(1,1)" disabled>➕</button>
         </div>
       </td>
     </tr>
     <tr class="calcRow" data-index="2">
-      <td nowrap><input type="checkbox" class="oppCheckbox" value="" />
+      <td nowrap><input type="checkbox" class="oppCheckbox" value=""></input>
         <label class="oppLabel"></label>
       </td>
-      <td><input class="scoreInput" id="calcScore_2" type="text" size="4" value="0" disabled /></td>
+      <td><input class="scoreInput" id="calcScore_2" type="text" size="4" value="0" disabled></input></td>
       <td nowrap>
         <div class="slider-container">
-          <button onclick="changeValue(2,-1)">➖</button>
+          <button class="adjBtn" id="adjBtn_1_2" onclick="changeValue(2,-1)" disabled>➖</button>
           <input type="range" class="scoreSlider" id="calcSlider_2" min="0" max="50" value="0"
             oninput="updateCalcLabel(2)" disabled>
-          <button onclick="changeValue(2,1)">➕</button>
+          <button class="adjBtn" id="adjBtn_2_2" onclick="changeValue(2,1)" disabled>➕</button>
         </div>
       </td>
     </tr>
     <tr class="calcRow" data-index="3">
-      <td nowrap><input type="checkbox" class="oppCheckbox" value="" />
+      <td nowrap><input type="checkbox" class="oppCheckbox" value=""></input>
         <label class="oppLabel"></label>
       </td>
-      <td><input class="scoreInput" id="calcScore_3" type="text" size="4" value="0" disabled /></td>
+      <td><input class="scoreInput" id="calcScore_3" type="text" size="4" value="0" disabled></input></td>
       <td nowrap>
         <div class="slider-container">
-          <button onclick="changeValue(3,-1)">➖</button>
+          <button class="adjBtn" id="adjBtn_1_3" onclick="changeValue(3,-1)" disabled>➖</button>
           <input type="range" class="scoreSlider" id="calcSlider_3" min="0" max="50" value="0"
             oninput="updateCalcLabel(3)" disabled>
-          <button onclick="changeValue(3,1)">➕</button>
+          <button class="adjBtn" id="adjBtn_2_3" onclick="changeValue(3,1)" disabled>➕</button>
         </div>
       </td>
     </tr>
     <tr class="calcRow" data-index="4">
-      <td nowrap><input type="checkbox" class="oppCheckbox" value="" />
+      <td nowrap><input type="checkbox" class="oppCheckbox" value=""></input>
         <label class="oppLabel"></label>
       </td>
-      <td><input class="scoreInput" id="calcScore_4" type="text" size="4" value="0" disabled /></td>
+      <td><input class="scoreInput" id="calcScore_4" type="text" size="4" value="0" disabled></input></td>
       <td nowrap>
         <div class="slider-container">
-          <button onclick="changeValue(4,-1)">➖</button>
+          <button class="adjBtn" id="adjBtn_1_4" onclick="changeValue(4,-1)" disabled>➖</button>
           <input type="range" class="scoreSlider" id="calcSlider_4" min="0" max="50" value="0"
             oninput="updateCalcLabel(4)" disabled>
-          <button onclick="changeValue(4,1)">➕</button>
+          <button class="adjBtn" id="adjBtn_2_4" onclick="changeValue(4,1)" disabled>➕</button>
         </div>
       </td>
     </tr>
     <tr>
-      <td colspan="3" nowrap><input id="clearCalc" type="button" value="清除" />
-        <input id="submitCalc" type="button" value="確認" />
+      <td colspan="3" nowrap><input id="clearCalc" type="button" value="清除"></input>
+        <input id="submitCalc" type="button" value="確認"></input>
       </td>
     </tr>
   </table>
@@ -487,6 +450,7 @@
       if (slider.disabled) {
         slider.disabled = false;
         scoreInput.disabled = false;
+
         const checkbox = document.querySelector(`.calcRow[data-index="${playerNum}"] .oppCheckbox`);
         if (checkbox) checkbox.checked = true;
       }
@@ -535,11 +499,17 @@
       cb.addEventListener('change', (e) => {
         const slider = document.getElementById(`calcSlider_${idx + 1}`);
         const scoreInput = document.getElementById(`calcScore_${idx + 1}`);
+        const adjBtn1 = document.getElementById(`adjBtn_1_${idx + 1}`);
+        const adjBtn2 = document.getElementById(`adjBtn_2_${idx + 1}`);
         if (e.target.checked) {
           slider.disabled = false;
           scoreInput.disabled = false;
+          adjBtn1.disabled = false;
+          adjBtn2.disabled = false;
         } else {
           slider.disabled = true;
+          adjBtn1.disabled = true;
+          adjBtn2.disabled = true;
           slider.value = 0;
           scoreInput.value = '0';
         }
@@ -548,13 +518,28 @@
 
     // Clear calculation fields
     document.getElementById('clearCalc').addEventListener('click', () => {
-      document.querySelectorAll('.oppCheckbox').forEach(cb => cb.checked = false);
+      const playerSelect = document.getElementById('playerSelect');
+      playerSelect.value = '';// 改變值
+
+      // 直接呼叫 onchange handler（如果有設定）
+      if (typeof playerSelect.onchange === 'function') {
+        playerSelect.onchange();
+      }
+
+      document.querySelectorAll('.oppCheckbox').forEach(cb => {
+        cb.checked = false;
+        cb.disabled = false;
+      });
+
       document.querySelectorAll('.scoreSlider').forEach(slider => {
         slider.value = 0;
         slider.disabled = true;
       });
       document.querySelectorAll('.scoreInput').forEach(input => {
         input.value = '0';
+        input.disabled = true;
+      });
+      document.querySelectorAll('.adjBtn').forEach(input => {
         input.disabled = true;
       });
     });
@@ -702,6 +687,7 @@
     fetchStats();
     updateCalcAccessibility();
   </script>
+
 </body>
 
 </html>
