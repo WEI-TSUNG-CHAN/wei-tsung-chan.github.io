@@ -51,6 +51,7 @@ function getStats(req, res) {
   const query = url.parse(req.url, true).query;
   const year = parseInt(query.year, 10);
   const month = parseInt(query.month, 10);
+  const roundNumber = parseInt(query.round_number, 10);
   if (!year || !month) {
     sendResponse(res, 400, JSON.stringify({ error: 'Missing year or month' }));
     return;
@@ -58,17 +59,25 @@ function getStats(req, res) {
   const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
   const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
 
-  const sql = `
-    SELECT player_name,
-           SUM(score) AS total_score,
-           SUM(zi) AS total_zi,
-           SUM(hu) AS total_hu,
-           SUM(qiang) AS total_qiang
-    FROM player_records
-    WHERE date BETWEEN ? AND ?
-    GROUP BY player_name
-  `;
-  pool.query(sql, [startDate, endDate], (err, results) => {
+  let sql = `
+  SELECT player_name,
+         SUM(score) AS total_score,
+         SUM(zi) AS total_zi,
+         SUM(hu) AS total_hu,
+         SUM(qiang) AS total_qiang
+  FROM player_records
+  WHERE date BETWEEN ? AND ?
+`;
+
+  const params = [startDate, endDate];
+
+  if (roundNumber) {
+    sql += ' AND round_number = ?';
+    params.push(roundNumber);
+  }
+  sql += ' GROUP BY player_name';
+
+  pool.query(sql, params, (err, results) => {
     if (err) {
       sendResponse(res, 500, JSON.stringify({ error: 'Database query error' }));
     } else {
@@ -93,17 +102,17 @@ function recordGame(req, res) {
     try {
       const data = JSON.parse(body);
       const date = data.date;
-      const players = data.players; // Array of { name, score, zi, hu, qiang }
+      const roundNumber = parseInt(data.round_number, 10); // 新增
+      const players = data.players;
       if (!date || !Array.isArray(players) || players.length !== 4) {
         sendResponse(res, 400, JSON.stringify({ error: 'Invalid data format' }));
         return;
       }
       const insertSql = `
-  INSERT INTO player_records (date, player_name, score, zi, hu, qiang)
-  VALUES ${players.map(() => '(?, ?, ?, ?, ?, ?)').join(',')}
+  INSERT INTO player_records (date, round_number, player_name, score, zi, hu, qiang)
+  VALUES ${players.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',')}
 `;
-
-      const values = players.flatMap(p => [date, p.name, p.score, p.zi, p.hu, p.qiang]);
+      const values = players.flatMap(p => [date, roundNumber, p.name, p.score, p.zi, p.hu, p.qiang]);
 
       pool.query(insertSql, values, (err) => {
         if (err) {

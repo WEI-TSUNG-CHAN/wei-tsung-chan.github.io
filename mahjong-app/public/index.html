@@ -111,6 +111,7 @@
       <option value="7">第七將</option>
       <option value="8">第八將</option>
     </select>
+    <input id="refreshStats" type="button" value="查詢統計"></input>
   </h3>
 
   <p id="nameButtons">
@@ -345,7 +346,8 @@
       // Determine the current month and year from selected date
       const selectedDate = dateSelect.value;
       const [year, month] = selectedDate.split('-');
-      fetch(`/stats?year=${year}&month=${parseInt(month, 10)}`)
+      const dealerCount = document.getElementById('dealerCount').value;
+      fetch(`/stats?year=${year}&month=${parseInt(month, 10)}&round_number=${dealerCount}`)
         .then(res => res.json())
         .then(data => {
           console.log('Fetched data:', data);
@@ -355,24 +357,19 @@
           }
           // Update stats table
           document.querySelectorAll('.statRow').forEach(row => {
-            const name = row.querySelector('.playerNameInput').value;
-            if (name) {
-              const record = data.find(r => r.player_name === name);
-              if (record) {
-                row.querySelector('.statScore').textContent = record.total_score;
-                row.querySelector('.statZi').textContent = record.total_zi;
-                row.querySelector('.statHu').textContent = record.total_hu;
-                row.querySelector('.statQiang').textContent = record.total_qiang;
-                if (record.total_score !== 0) {
-                  row.querySelector('.statScore').classList.add('red');
-                } else {
-                  row.querySelector('.statScore').classList.remove('red');
-                }
+            const name = row.querySelector('.playerNameInput').value.trim();
+            if (!name) return; // 沒填名字就跳過
+
+            const record = data.find(r => r.player_name && r.player_name.trim() === name);
+
+            if (record) {
+              row.querySelector('.statScore').textContent = record.total_score;
+              row.querySelector('.statZi').textContent = record.total_zi;
+              row.querySelector('.statHu').textContent = record.total_hu;
+              row.querySelector('.statQiang').textContent = record.total_qiang;
+              if (record.total_score !== 0) {
+                row.querySelector('.statScore').classList.add('red');
               } else {
-                row.querySelector('.statScore').textContent = '0';
-                row.querySelector('.statZi').textContent = '0';
-                row.querySelector('.statHu').textContent = '0';
-                row.querySelector('.statQiang').textContent = '0';
                 row.querySelector('.statScore').classList.remove('red');
               }
             } else {
@@ -383,14 +380,22 @@
               row.querySelector('.statScore').classList.remove('red');
             }
           });
-          // Update totals
+
+          // Update totals，只統計畫面上已輸入名字的玩家
+          const validNames = Array.from(document.querySelectorAll('.playerNameInput'))
+            .map(input => input.value.trim())
+            .filter(name => name !== '');
+
           const totals = { total_score: 0, total_zi: 0, total_hu: 0, total_qiang: 0 };
           data.forEach(r => {
-            totals.total_score += Number(r.total_score);
-            totals.total_zi += Number(r.total_zi);
-            totals.total_hu += Number(r.total_hu);
-            totals.total_qiang += Number(r.total_qiang);
+            if (validNames.includes(r.player_name)) {
+              totals.total_score += Number(r.total_score);
+              totals.total_zi += Number(r.total_zi);
+              totals.total_hu += Number(r.total_hu);
+              totals.total_qiang += Number(r.total_qiang);
+            }
           });
+
           document.getElementById('totalScore').textContent = totals.total_score;
           document.getElementById('totalZi').textContent = totals.total_zi;
           document.getElementById('totalHu').textContent = totals.total_hu;
@@ -548,6 +553,7 @@
     document.getElementById('submitCalc').addEventListener('click', () => {
       const type = document.getElementById('typeSelect').value;
       const playerName = document.getElementById('playerSelect').value;
+      const round_number = parseInt(document.getElementById('dealerCount').value, 10);
       if (!playerName) {
         alert('請選擇玩家');
         return;
@@ -623,7 +629,7 @@
       const payloadPlayers = [];
       // Gather stats table current zi, hu, qiang counts for all players
       document.querySelectorAll('.statRow').forEach(row => {
-        const name = row.querySelector('.playerNameInput').value;
+        const name = row.querySelector('.playerNameInput').value.trim();
         let ziCount = parseInt(row.querySelector('.statZi').textContent) || 0;
         let huCount = parseInt(row.querySelector('.statHu').textContent) || 0;
         let qiangCount = parseInt(row.querySelector('.statQiang').textContent) || 0;
@@ -641,7 +647,7 @@
       fetch('/record', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, players: payloadPlayers })
+        body: JSON.stringify({ date, round_number, players: payloadPlayers })
       })
         .then(async res => {
           if (!res.ok) {
@@ -686,6 +692,7 @@
     refreshCalcPlayers();
     fetchStats();
     updateCalcAccessibility();
+    document.getElementById('refreshStats').addEventListener('click', fetchStats);
   </script>
 
 </body>
