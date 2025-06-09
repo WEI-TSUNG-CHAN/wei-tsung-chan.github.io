@@ -223,12 +223,12 @@
           <option value="3">三響</option>
           <option value="4">調整</option>
         </select>
-        &nbsp;玩家
+        &nbsp;贏家
         <select id="playerSelect"></select>
       </td>
     </tr>
     <tr>
-      <td>對家</td>
+      <td>輸家</td>
       <td>台數</td>
       <td>功能</td>
     </tr>
@@ -611,7 +611,7 @@
           alert('調整請選擇一位對家');
           return;
         }
-        const calc = opponents[0].sliderVal * unit + base;
+        const calc = opponents[0].sliderVal * unit;
         playerScore = calc;
         records.push({ name: playerName, score: playerScore, zi: 0, hu: 0, qiang: 0 });
         records.push({ name: opponents[0].name, score: -calc, zi: 0, hu: 0, qiang: 0 });
