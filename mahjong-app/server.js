@@ -122,9 +122,54 @@ function recordGame(req, res) {
   });
 }
 
+
+function getAllDirections(req, res) {
+  const sql = 'SELECT * FROM directions';
+  pool.query(sql, (err, results) => {
+    if (err) {
+      sendResponse(res, 500, JSON.stringify({ error: 'DB read error' }));
+    } else {
+      sendResponse(res, 200, JSON.stringify(results || []));
+    }
+  });
+}
+
+function updateDirection(req, res) {
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+  req.on('end', () => {
+    try {
+      const data = JSON.parse(body);
+      if (!data.key_name || !data.value_name) {
+        sendResponse(res, 400, JSON.stringify({ error: 'Missing key or value' }));
+        return;
+      }
+
+      const sql = 'REPLACE INTO directions (key_name, value_name) VALUES (?, ?)';
+      pool.query(sql, [data.key_name, data.value_name], err => {
+        if (err) {
+          console.error('REPLACE failed:', err);
+          sendResponse(res, 500, JSON.stringify({ error: 'DB replace error' }));
+        } else {
+          sendResponse(res, 200, JSON.stringify({ success: true }));
+        }
+      });
+    } catch (e) {
+      sendResponse(res, 400, JSON.stringify({ error: 'Invalid JSON' }));
+    }
+  });
+}
+
+
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  if (req.method === 'GET' && parsedUrl.pathname === '/stats') {
+  if (req.method === 'GET' && parsedUrl.pathname === '/directions/all') {
+    getAllDirections(req, res);
+  } else if (req.method === 'POST' && parsedUrl.pathname === '/directions') {
+    updateDirection(req, res);
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/stats') {
     getStats(req, res);
   } else if (req.method === 'POST' && parsedUrl.pathname === '/record') {
     recordGame(req, res);

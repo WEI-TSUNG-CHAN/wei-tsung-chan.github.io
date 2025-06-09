@@ -297,6 +297,34 @@
   </table>
 
   <script>
+    
+    // 更新 directions 資料表
+    function updateDirection(key, value) {
+      fetch('/directions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key_name: key, value_name: value })
+      }).then(res => {
+        if (!res.ok) console.error("更新 directions 失敗");
+      });
+    }
+
+    function loadInitialSettings() {
+      fetch('/directions/all')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            data.forEach(item => {
+              if (item.key_name === 'baseLabel') {
+                document.getElementById('baseLabel').textContent = item.value_name;
+              } else if (item.key_name === 'unitLabel') {
+                document.getElementById('unitLabel').textContent = item.value_name;
+              }
+            });
+          }
+        });
+    }
+
     // Populate date select with last 3 days including today
     const dateSelect = document.getElementById('dateSelect');
     const today = new Date();
@@ -675,20 +703,23 @@
     // Update wind and continuance (連莊) - optional functionality
     let currentWind = '東';
     let continuance = 0;
-    document.getElementById('windEast').addEventListener('click', () => { currentWind = '東'; document.getElementById('windLabel').textContent = '東'; });
-    document.getElementById('windSouth').addEventListener('click', () => { currentWind = '南'; document.getElementById('windLabel').textContent = '南'; });
-    document.getElementById('windWest').addEventListener('click', () => { currentWind = '西'; document.getElementById('windLabel').textContent = '西'; });
-    document.getElementById('windNorth').addEventListener('click', () => { currentWind = '北'; document.getElementById('windLabel').textContent = '北'; });
+    document.getElementById('windEast').addEventListener('click', () => { currentWind = '東'; document.getElementById('windLabel').textContent = '東'; updateDirection('direction', '東'); });
+    document.getElementById('windSouth').addEventListener('click', () => { currentWind = '南'; document.getElementById('windLabel').textContent = '南'; updateDirection('direction', '南'); });
+    document.getElementById('windWest').addEventListener('click', () => { currentWind = '西'; document.getElementById('windLabel').textContent = '西'; updateDirection('direction', '西'); });
+    document.getElementById('windNorth').addEventListener('click', () => { currentWind = '北'; document.getElementById('windLabel').textContent = '北'; updateDirection('direction', '北'); });
     document.getElementById('continuanceAdd').addEventListener('click', () => {
+      updateDirection('times', (continuance + 1).toString());
       continuance++;
       document.getElementById('continuanceLabel').textContent = continuance;
     });
     document.getElementById('continuanceSub').addEventListener('click', () => {
+      updateDirection('times', (Math.max(continuance - 1, 0)).toString());
       if (continuance > 0) continuance--;
       document.getElementById('continuanceLabel').textContent = continuance;
     });
 
     // Initial setup
+    loadInitialSettings();
     refreshCalcPlayers();
     fetchStats();
     updateCalcAccessibility();
