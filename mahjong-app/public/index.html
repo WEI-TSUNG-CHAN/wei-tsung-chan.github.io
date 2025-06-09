@@ -297,7 +297,7 @@
   </table>
 
   <script>
-    
+
     // 更新 directions 資料表
     function updateDirection(key, value) {
       fetch('/directions', {
@@ -319,11 +319,24 @@
                 document.getElementById('baseLabel').textContent = item.value_name;
               } else if (item.key_name === 'unitLabel') {
                 document.getElementById('unitLabel').textContent = item.value_name;
+              } else if (item.key_name === 'direction') {
+                currentWind = item.value_name;
+                document.getElementById('windLabel').textContent = currentWind;
+              } else if (item.key_name === 'times') {
+                continuance = parseInt(item.value_name, 10) || 0;
+                document.getElementById('continuanceLabel').textContent = continuance;
+              } else if (item.key_name === 'ranker') {
+                const idx = parseInt(item.value_name, 10);
+                if (idx >= 1 && idx <= 4) {
+                  const radio = document.querySelector(`.dealerRadio[value="${idx}"]`);
+                  if (radio) radio.checked = true;
+                }
               }
             });
           }
         });
     }
+
 
     // Populate date select with last 3 days including today
     const dateSelect = document.getElementById('dateSelect');
@@ -716,6 +729,16 @@
       updateDirection('times', (Math.max(continuance - 1, 0)).toString());
       if (continuance > 0) continuance--;
       document.getElementById('continuanceLabel').textContent = continuance;
+    });
+
+
+    // 當點擊「莊」radio button 時，自動更新 directions 資料表的 ranker 欄位（1~4）
+    document.querySelectorAll('.dealerRadio').forEach((radio, idx) => {
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          updateDirection('ranker', (idx + 1).toString());
+        }
+      });
     });
 
     // Initial setup
