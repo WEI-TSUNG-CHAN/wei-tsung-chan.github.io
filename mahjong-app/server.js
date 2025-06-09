@@ -49,49 +49,42 @@ function serveStaticFile(req, res) {
 
 function getStats(req, res) {
   const query = url.parse(req.url, true).query;
-  const year = parseInt(query.year, 10);
-  const month = parseInt(query.month, 10);
+  const date = query.date;
   const roundNumber = parseInt(query.round_number, 10);
-  if (!year || !month) {
-    sendResponse(res, 400, JSON.stringify({ error: 'Missing year or month' }));
+
+  if (!date) {
+    sendResponse(res, 400, JSON.stringify({ error: 'Missing date' }));
     return;
   }
-  const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-  const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
 
   let sql = `
-  SELECT player_name,
-         SUM(score) AS total_score,
-         SUM(zi) AS total_zi,
-         SUM(hu) AS total_hu,
-         SUM(qiang) AS total_qiang
-  FROM player_records
-  WHERE date BETWEEN ? AND ?
-`;
+    SELECT player_name,
+           SUM(score) AS total_score,
+           SUM(zi) AS total_zi,
+           SUM(hu) AS total_hu,
+           SUM(qiang) AS total_qiang
+    FROM player_records
+    WHERE date = ?
+  `;
 
-  const params = [startDate, endDate];
+  const params = [date];
 
   if (roundNumber) {
     sql += ' AND round_number = ?';
     params.push(roundNumber);
   }
+
   sql += ' GROUP BY player_name';
 
   pool.query(sql, params, (err, results) => {
     if (err) {
       sendResponse(res, 500, JSON.stringify({ error: 'Database query error' }));
     } else {
-      // 保險檢查 results 是否為陣列
-      if (Array.isArray(results) && results.length > 0) {
-        sendResponse(res, 200, JSON.stringify(results));
-      } else {
-        // 查無資料，回傳空陣列
-        sendResponse(res, 200, JSON.stringify([]));
-      }
+      sendResponse(res, 200, JSON.stringify(results || []));
     }
   });
-
 }
+
 
 function recordGame(req, res) {
   let body = '';

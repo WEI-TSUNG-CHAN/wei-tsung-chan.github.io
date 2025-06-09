@@ -111,7 +111,7 @@
       <option value="7">第七將</option>
       <option value="8">第八將</option>
     </select>
-    <input id="refreshStats" type="button" value="查詢統計"></input>
+
   </h3>
 
   <p id="nameButtons">
@@ -142,7 +142,10 @@
   <table border="1" cellpadding="1" cellspacing="1" style="width: 360px;">
     <tbody>
       <tr>
-        <td colspan="6"><strong>統計資訊</strong></td>
+        <td colspan="6">
+          <strong>統計資訊</strong>
+          <input id="refreshStats" type="button" value="查詢統計"></input>
+        </td>
       </tr>
       <tr>
         <td>莊</td>
@@ -322,7 +325,6 @@
           }
         }
         refreshCalcPlayers();
-        fetchStats();
       });
     });
 
@@ -337,17 +339,15 @@
         row.querySelector('.statHu').textContent = '0';
         row.querySelector('.statQiang').textContent = '0';
         refreshCalcPlayers();
-        fetchStats();
       });
     });
 
     // Update stats from server for current month
     function fetchStats() {
-      // Determine the current month and year from selected date
       const selectedDate = dateSelect.value;
-      const [year, month] = selectedDate.split('-');
       const dealerCount = document.getElementById('dealerCount').value;
-      fetch(`/stats?year=${year}&month=${parseInt(month, 10)}&round_number=${dealerCount}`)
+
+      fetch(`/stats?date=${selectedDate}&round_number=${dealerCount}`)
         .then(res => res.json())
         .then(data => {
           console.log('Fetched data:', data);
