@@ -435,9 +435,23 @@
               });
           }
 
+          // 更新合計欄位
+          let totalScore = 0, totalZi = 0, totalHu = 0, totalQiang = 0;
+          rows.forEach(row => {
+            totalScore += parseInt(row.querySelector('.statScore').textContent) || 0;
+            totalZi += parseInt(row.querySelector('.statZi').textContent) || 0;
+            totalHu += parseInt(row.querySelector('.statHu').textContent) || 0;
+            totalQiang += parseInt(row.querySelector('.statQiang').textContent) || 0;
+          });
+          document.getElementById('totalScore').textContent = totalScore;
+          document.getElementById('totalZi').textContent = totalZi;
+          document.getElementById('totalHu').textContent = totalHu;
+          document.getElementById('totalQiang').textContent = totalQiang;
+
           refreshCalcPlayers();
         });
     }
+
 
 
     // Initialize calculation players based on stats table
@@ -505,28 +519,47 @@
       const type = document.getElementById('typeSelect').value;
       const player = document.getElementById('playerSelect').value;
       const rows = document.querySelectorAll('.calcRow');
+
       rows.forEach(row => {
         const oppName = row.querySelector('.oppLabel').textContent;
         const checkbox = row.querySelector('.oppCheckbox');
         const slider = row.querySelector('.scoreSlider');
         const scoreInput = row.querySelector('.scoreInput');
-        if (!oppName || oppName === player) {
-          checkbox.checked = false;
-          checkbox.disabled = true;
-          slider.value = 0;
-          slider.disabled = true;
-          scoreInput.value = '0';
-          scoreInput.disabled = true;
-        } else {
+        const adjBtn1 = row.querySelector('.adjBtn:first-of-type');
+        const adjBtn2 = row.querySelector('.adjBtn:last-of-type');
+
+        // 調整類型：只允許勾選任一位，分數欄開啟、允許負數
+        if (type === '4') {
           checkbox.disabled = false;
-          checkbox.checked = false;
-          slider.value = 0;
           slider.disabled = true;
-          scoreInput.value = '0';
           scoreInput.disabled = true;
+          scoreInput.type = 'text'; // 可輸入負數
+          adjBtn1.disabled = true;
+          adjBtn2.disabled = true;
+        } else {
+          if (!oppName || oppName === player) {
+            checkbox.checked = false;
+            checkbox.disabled = true;
+            slider.value = 0;
+            slider.disabled = true;
+            scoreInput.value = '0';
+            scoreInput.disabled = true;
+            adjBtn1.disabled = true;
+            adjBtn2.disabled = true;
+          } else {
+            checkbox.disabled = false;
+            checkbox.checked = false;
+            slider.value = 0;
+            slider.disabled = true;
+            scoreInput.value = '0';
+            scoreInput.disabled = true;
+            adjBtn1.disabled = true;
+            adjBtn2.disabled = true;
+          }
         }
       });
     }
+
 
     document.getElementById('typeSelect').addEventListener('change', updateCalcAccessibility);
     document.getElementById('playerSelect').addEventListener('change', updateCalcAccessibility);
@@ -534,24 +567,37 @@
     // When a checkbox is toggled, enable/disable corresponding slider and score input
     document.querySelectorAll('.oppCheckbox').forEach((cb, idx) => {
       cb.addEventListener('change', (e) => {
+        const type = document.getElementById('typeSelect').value;
+        const checkedCheckboxes = Array.from(document.querySelectorAll('.oppCheckbox')).filter(cb => cb.checked);
+
+        // 調整：只允許一位
+        if (type === '4') {
+          document.querySelectorAll('.oppCheckbox').forEach(otherCb => {
+            if (!otherCb.checked) otherCb.disabled = checkedCheckboxes.length >= 1;
+          });
+        }
+
         const slider = document.getElementById(`calcSlider_${idx + 1}`);
         const scoreInput = document.getElementById(`calcScore_${idx + 1}`);
         const adjBtn1 = document.getElementById(`adjBtn_1_${idx + 1}`);
         const adjBtn2 = document.getElementById(`adjBtn_2_${idx + 1}`);
+
         if (e.target.checked) {
-          slider.disabled = false;
+          slider.disabled = (type !== '4');
           scoreInput.disabled = false;
-          adjBtn1.disabled = false;
-          adjBtn2.disabled = false;
+          scoreInput.type = 'text';
+          adjBtn1.disabled = (type !== '4');
+          adjBtn2.disabled = (type !== '4');
         } else {
           slider.disabled = true;
+          scoreInput.disabled = true;
+          scoreInput.value = '0';
           adjBtn1.disabled = true;
           adjBtn2.disabled = true;
-          slider.value = 0;
-          scoreInput.value = '0';
         }
       });
     });
+
 
     // Clear calculation fields
     document.getElementById('clearCalc').addEventListener('click', () => {
@@ -579,6 +625,10 @@
       document.querySelectorAll('.adjBtn').forEach(input => {
         input.disabled = true;
       });
+      document.querySelectorAll('.oppCheckbox').forEach(cb => {
+        cb.checked = false;
+        cb.disabled = false; // <--- 這行要加
+      });
     });
 
     // 計算公式計分邏輯
@@ -586,10 +636,14 @@
       const type = document.getElementById('typeSelect').value;
       const playerName = document.getElementById('playerSelect').value;
       const round_number = parseInt(document.getElementById('dealerCount').value, 10);
-      if (!playerName) {
-        alert('請選擇玩家');
-        return;
+
+      if (type != '4') {
+        if (!playerName) {
+          alert('請選擇對象');
+          return;
+        }
       }
+
       const base = parseInt(document.getElementById('baseLabel').textContent);
       const unit = parseInt(document.getElementById('unitLabel').textContent);
       const opponents = [];
@@ -643,11 +697,13 @@
           alert('調整請選擇一位對家');
           return;
         }
-        const calc = opponents[0].sliderVal;
+        const scoreInput = document.getElementById(`calcScore_${opponents[0].index}`);
+        const calc = parseInt(scoreInput.value, 10) || 0;
         playerScore = calc;
-        records.push({ name: playerName, score: playerScore, zi: 0, hu: 0, qiang: 0 });
-        records.push({ name: opponents[0].name, score: -calc, zi: 0, hu: 0, qiang: 0 });
+        // records.push({ name: playerName, score: playerScore, zi: 0, hu: 0, qiang: 0 });
+        records.push({ name: opponents[0].name, score: calc, zi: 0, hu: 0, qiang: 0 });
       }
+
 
       // Show confirmation dialog
       let confirmMsg = '請確認以下分數:';
