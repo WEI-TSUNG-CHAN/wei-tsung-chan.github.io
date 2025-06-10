@@ -336,6 +336,11 @@
                 if (item.value_name) {
                   dateInput.value = item.value_name;
                 }
+              } else if (item.key_name === 'round_number') {
+                const roundSelect = document.getElementById('dealerCount');
+                if (item.value_name) {
+                  roundSelect.value = item.value_name;
+                }
               }
             });
           }
@@ -756,6 +761,11 @@
         updateDirection('assign_date', newDate);
         fetchStats();  // 順便刷新統計
       }
+    });
+
+    document.getElementById('dealerCount').addEventListener('change', (e) => {
+      updateDirection('round_number', e.target.value);
+      fetchStats(); // 也可以順便更新統計
     });
 
     // Initial setup
