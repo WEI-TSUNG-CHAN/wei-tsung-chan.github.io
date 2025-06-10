@@ -144,7 +144,7 @@
       <tr>
         <td colspan="6">
           <strong>統計資訊</strong>
-          <input id="refreshStats" type="button" value="查詢統計"></input>
+          <input id="refreshStats" type="button" value="強制更新"></input>
         </td>
       </tr>
       <tr>
@@ -341,10 +341,17 @@
                 if (item.value_name) {
                   roundSelect.value = item.value_name;
                 }
+              } else if (item.key_name.startsWith('player')) {
+                const idx = parseInt(item.key_name.replace('player', ''), 10);
+                if (idx >= 1 && idx <= 4) {
+                  const input = document.querySelector(`.statRow[data-index="${idx}"] .playerNameInput`);
+                  if (input) input.value = item.value_name;
+                }
               }
             });
           }
         });
+      refreshCalcPlayers();
     }
 
     // Name button click to fill next empty player name input in stats
@@ -385,62 +392,50 @@
         .then(res => res.json())
         .then(data => {
           console.log('Fetched data:', data);
-          if (!Array.isArray(data)) {
-            console.error('錯誤：伺服器回傳的資料不是陣列');
-            return;
-          }
-          // Update stats table
-          document.querySelectorAll('.statRow').forEach(row => {
-            const name = row.querySelector('.playerNameInput').value.trim();
-            if (!name) return; // 沒填名字就跳過
 
-            const record = data.find(r => r.player_name && r.player_name.trim() === name);
+          const rows = document.querySelectorAll('.statRow');
 
-            if (record) {
+          // Step 1: 清空所有欄位
+          rows.forEach(row => {
+            row.querySelector('.playerNameInput').value = '';
+            row.querySelector('.statScore').textContent = '0';
+            row.querySelector('.statZi').textContent = '0';
+            row.querySelector('.statHu').textContent = '0';
+            row.querySelector('.statQiang').textContent = '0';
+            row.querySelector('.statScore').classList.remove('red');
+          });
+
+          if (Array.isArray(data) && data.length > 0) {
+            // Step 2: 依 player_records 填資料
+            data.slice(0, 4).forEach((record, idx) => {
+              const row = rows[idx];
+              row.querySelector('.playerNameInput').value = record.player_name;
               row.querySelector('.statScore').textContent = record.total_score;
               row.querySelector('.statZi').textContent = record.total_zi;
               row.querySelector('.statHu').textContent = record.total_hu;
               row.querySelector('.statQiang').textContent = record.total_qiang;
               if (record.total_score !== 0) {
                 row.querySelector('.statScore').classList.add('red');
-              } else {
-                row.querySelector('.statScore').classList.remove('red');
               }
-            } else {
-              row.querySelector('.statScore').textContent = '0';
-              row.querySelector('.statZi').textContent = '0';
-              row.querySelector('.statHu').textContent = '0';
-              row.querySelector('.statQiang').textContent = '0';
-              row.querySelector('.statScore').classList.remove('red');
-            }
-          });
-
-          // Update totals，只統計畫面上已輸入名字的玩家
-          const validNames = Array.from(document.querySelectorAll('.playerNameInput'))
-            .map(input => input.value.trim())
-            .filter(name => name !== '');
-
-          const totals = { total_score: 0, total_zi: 0, total_hu: 0, total_qiang: 0 };
-          data.forEach(r => {
-            if (validNames.includes(r.player_name)) {
-              totals.total_score += Number(r.total_score);
-              totals.total_zi += Number(r.total_zi);
-              totals.total_hu += Number(r.total_hu);
-              totals.total_qiang += Number(r.total_qiang);
-            }
-          });
-
-          document.getElementById('totalScore').textContent = totals.total_score;
-          document.getElementById('totalZi').textContent = totals.total_zi;
-          document.getElementById('totalHu').textContent = totals.total_hu;
-          document.getElementById('totalQiang').textContent = totals.total_qiang;
-          if (totals.total_score !== 0) {
-            document.getElementById('totalScore').classList.add('red');
+            });
           } else {
-            document.getElementById('totalScore').classList.remove('red');
+            // Step 3: 若沒資料，從 directions 抓 player1~4
+            fetch('/directions/all')
+              .then(res => res.json())
+              .then(dirData => {
+                for (let i = 1; i <= 4; i++) {
+                  const row = rows[i - 1];
+                  const key = `player${i}`;
+                  const found = dirData.find(d => d.key_name === key);
+                  if (found) row.querySelector('.playerNameInput').value = found.value_name;
+                }
+              });
           }
+
+          refreshCalcPlayers();
         });
     }
+
 
     // Initialize calculation players based on stats table
     function refreshCalcPlayers() {
