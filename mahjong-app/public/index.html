@@ -359,15 +359,18 @@
       btn.addEventListener('click', () => {
         const name = btn.value;
         const nameInputs = document.querySelectorAll('.playerNameInput');
-        for (let input of nameInputs) {
+        for (let i = 0; i < nameInputs.length; i++) {
+          const input = nameInputs[i];
           if (input.value.trim() === '') {
             input.value = name;
+            updateDirection(`player${i + 1}`, name);  // 即時寫入 directions
             break;
           }
         }
         refreshCalcPlayers();
       });
     });
+
 
     // Clear name button in stats table
     document.querySelectorAll('.clearNameBtn').forEach((btn, idx) => {
