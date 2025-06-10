@@ -100,7 +100,7 @@
 
 <body>
   <h3>日期&nbsp;
-    <select id="dateSelect"></select>&nbsp;將數&nbsp;
+    <input type="date" id="datePicker">&nbsp;將數&nbsp;
     <select id="dealerCount">
       <option value="1">第一將</option>
       <option value="2">第二將</option>
@@ -229,7 +229,7 @@
     </tr>
     <tr>
       <td>輸家</td>
-      <td>台數</td>
+      <td>台數/分數</td>
       <td>功能</td>
     </tr>
     <!-- Opponent rows -->
@@ -331,27 +331,15 @@
                   const radio = document.querySelector(`.dealerRadio[value="${idx}"]`);
                   if (radio) radio.checked = true;
                 }
+              } else if (item.key_name === 'assign_date') {
+                const dateInput = document.getElementById('datePicker');
+                if (item.value_name) {
+                  dateInput.value = item.value_name;
+                }
               }
             });
           }
         });
-    }
-
-
-    // Populate date select with last 3 days including today
-    const dateSelect = document.getElementById('dateSelect');
-    const today = new Date();
-    for (let i = 2; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(today.getDate() - i);
-      const y = d.getFullYear();
-      const m = (d.getMonth() + 1).toString().padStart(2, '0');
-      const day = d.getDate().toString().padStart(2, '0');
-      const option = document.createElement('option');
-      option.value = `${y}-${m}-${day}`;
-      option.textContent = `${y}-${m}-${day}`;
-      if (i === 0) option.selected = true;
-      dateSelect.appendChild(option);
     }
 
     // Name button click to fill next empty player name input in stats
@@ -385,7 +373,7 @@
 
     // Update stats from server for current month
     function fetchStats() {
-      const selectedDate = dateSelect.value;
+      const selectedDate = document.getElementById('datePicker').value;
       const dealerCount = document.getElementById('dealerCount').value;
 
       fetch(`/stats?date=${selectedDate}&round_number=${dealerCount}`)
@@ -590,7 +578,7 @@
       });
     });
 
-    // Submit calculation: compute scores, show confirm, and send to server
+    // 計算公式計分邏輯
     document.getElementById('submitCalc').addEventListener('click', () => {
       const type = document.getElementById('typeSelect').value;
       const playerName = document.getElementById('playerSelect').value;
@@ -652,7 +640,7 @@
           alert('調整請選擇一位對家');
           return;
         }
-        const calc = opponents[0].sliderVal * unit;
+        const calc = opponents[0].sliderVal;
         playerScore = calc;
         records.push({ name: playerName, score: playerScore, zi: 0, hu: 0, qiang: 0 });
         records.push({ name: opponents[0].name, score: -calc, zi: 0, hu: 0, qiang: 0 });
@@ -666,7 +654,11 @@
       if (!confirm(confirmMsg)) return;
 
       // Prepare payload for server
-      const date = document.getElementById('dateSelect').value;
+      const date = document.getElementById('datePicker').value;
+      if (!date) {
+        alert('請選擇日期');
+        return;
+      }
       const payloadPlayers = [];
       // Gather stats table current zi, hu, qiang counts for all players
       document.querySelectorAll('.statRow').forEach(row => {
@@ -683,6 +675,14 @@
           qiangCount += rec.qiang;
         }
         payloadPlayers.push({ name, score: scoreVal, zi: rec ? rec.zi : 0, hu: rec ? rec.hu : 0, qiang: rec ? rec.qiang : 0 });
+      });
+
+      updateDirection('assign_date', date);
+      updateDirection('round_number', round_number.toString());
+
+      document.querySelectorAll('.playerNameInput').forEach((input, idx) => {
+        const name = input.value.trim();
+        if (name) updateDirection(`player${idx + 1}`, name);
       });
 
       fetch('/record', {
@@ -739,6 +739,23 @@
           updateDirection('ranker', (idx + 1).toString());
         }
       });
+    });
+
+    // 台數/分數手動輸入連動拖曳bar
+    document.querySelectorAll('.scoreInput').forEach((input, idx) => {
+      input.addEventListener('input', () => {
+        const val = parseInt(input.value, 10);
+        const slider = document.getElementById(`calcSlider_${idx + 1}`);
+        if (!isNaN(val)) slider.value = val;
+      });
+    });
+
+    document.getElementById('datePicker').addEventListener('change', (e) => {
+      const newDate = e.target.value;
+      if (newDate) {
+        updateDirection('assign_date', newDate);
+        fetchStats();  // 順便刷新統計
+      }
     });
 
     // Initial setup
