@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>設定檔內容</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: 'Orbitron', sans-serif;
+      color: #cfd6e0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #3fbdf4;
+      font-size: 1.8rem;
+      margin: 1rem 0;
+    }
+
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: transparent;
+      border: 1px solid rgba(100, 100, 100, 0.2);
+      border-radius: 8px;
+    }
+
+    th, td {
+      padding: 0.9rem;
+      text-align: center;
+      border: 1px solid rgba(80, 80, 80, 0.3);
+      font-size: 1rem;
+    }
+
+    th {
+      background-color: rgba(35, 40, 50, 0.95);
+      color: #4fc3f7;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: rgba(60, 70, 80, 0.2);
+    }
+
+    td:first-child {
+      color: #66ffe0;
+      font-weight: 600;
+    }
+
+    .highlight-3x {
+      font-size: 4rem;
+      font-weight: bold;
+      color: gold;
+    }
+
+    .highlight-2x {
+      font-size: 2rem;
+      font-weight: bold;
+      color: gold;
+    }
+
+    .highlight-1_5x {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: gold;
+    }
+
+    .dealer {
+      position: relative;
+      font-size: 3rem;
+      font-weight: bold;
+      color: red;
+    }
+
+    .times {
+      position: absolute;
+      top: -0.5em;
+      right: -0.5em;
+      font-size: 0.5em;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>目前設定內容</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Key 名稱</th>
+        <th>Value 值</th>
+        <th>莊1</th>
+        <th>莊2</th>
+        <th>莊3</th>
+        <th>莊4</th>
+      </tr>
+    </thead>
+    <tbody id="settings-body">
+      <tr><td colspan="6">讀取中...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    function loadDirections() {
+      fetch('/directions/all')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('settings-body');
+          tbody.innerHTML = '';
+
+          let timesValue = null;
+
+          data.forEach(item => {
+            const { key_name, value_name } = item;
+            let valueCell = value_name;
+            let extraCols = '<td></td><td></td><td></td><td></td>';
+
+            if (key_name === 'direction') {
+              valueCell = `<span class="highlight-3x">${value_name}</span>`;
+            }
+
+            if (key_name === 'tie_conut') {
+              valueCell = `<span class="highlight-1_5x">${value_name}</span>`;
+            }
+
+            if (key_name === 'round_number') {
+              const num = parseInt(value_name, 10);
+              if (!isNaN(num) && num >= 1 && num <= 8) {
+                valueCell = `<span class="highlight-2x">將 ${num}</span>`;
+              }
+            }
+
+            if (key_name === 'times') {
+              timesValue = value_name; // 延後處理
+              return;
+            }
+
+            if (key_name === 'ranker') return;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${key_name}</td><td>${valueCell}</td>${extraCols}`;
+            tbody.appendChild(row);
+          });
+
+          const ranker = data.find(d => d.key_name === 'ranker');
+          if (ranker) {
+            const dealerCols = ['', '', '', ''];
+            const index = parseInt(ranker.value_name, 10) - 1;
+            if (index >= 0 && index < 4) {
+              dealerCols[index] = `
+                <span class="dealer">
+                  莊
+                  ${timesValue !== null ? `<span class="times">${timesValue}</span>` : ''}
+                </span>`;
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>ranker</td>
+              <td></td>
+              ${dealerCols.map(c => `<td>${c}</td>`).join('')}
+            `;
+            tbody.appendChild(row);
+          }
+        })
+        .catch(err => {
+          document.getElementById('settings-body').innerHTML =
+            `<tr><td colspan="6">載入失敗：${err.message}</td></tr>`;
+        });
+    }
+
+    loadDirections();
+    setInterval(loadDirections, 3000);
+  </script>
+</body>
+</html>
