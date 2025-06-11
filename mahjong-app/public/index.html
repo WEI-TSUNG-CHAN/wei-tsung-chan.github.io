@@ -797,8 +797,13 @@
         if (radio.checked) {
           updateDirection('ranker', (idx + 1).toString());
         }
+        // 連莊初始化為 0
+        continuance = 0;
+        document.getElementById('continuanceLabel').textContent = '0';
+        updateDirection('times', '0');
       });
     });
+
 
     // 台數/分數手動輸入連動拖曳bar
     document.querySelectorAll('.scoreInput').forEach((input, idx) => {
@@ -820,6 +825,10 @@
     document.getElementById('dealerCount').addEventListener('change', (e) => {
       updateDirection('round_number', e.target.value);
       fetchStats(); // 也可以順便更新統計
+      // 將連莊歸零
+      continuance = 0;
+      document.getElementById('continuanceLabel').textContent = '0';
+      updateDirection('times', '0');
     });
 
     // Initial setup

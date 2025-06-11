@@ -7,7 +7,8 @@
   <title>設定檔內容</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       background: transparent;
@@ -31,7 +32,8 @@
       border-radius: 8px;
     }
 
-    th, td {
+    th,
+    td {
       padding: 0.9rem;
       text-align: center;
       border: 1px solid rgba(80, 80, 80, 0.3);
@@ -103,7 +105,9 @@
       </tr>
     </thead>
     <tbody id="settings-body">
-      <tr><td colspan="6">讀取中...</td></tr>
+      <tr>
+        <td colspan="6">讀取中...</td>
+      </tr>
     </tbody>
   </table>
 
@@ -138,7 +142,9 @@
             }
 
             if (key_name === 'times') {
-              timesValue = value_name; // 延後處理
+              if (value_name != 0) {
+                timesValue = value_name; // 延後處理
+              }
               return;
             }
 
@@ -180,4 +186,5 @@
     setInterval(loadDirections, 3000);
   </script>
 </body>
+
 </html>
