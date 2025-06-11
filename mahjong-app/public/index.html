@@ -387,6 +387,7 @@
     });
 
     // Update stats from server for current month
+    // 更新 stats 資料
     function fetchStats() {
       const selectedDate = document.getElementById('datePicker').value;
       const dealerCount = document.getElementById('dealerCount').value;
@@ -394,11 +395,9 @@
       fetch(`/stats?date=${selectedDate}&round_number=${dealerCount}`)
         .then(res => res.json())
         .then(data => {
-          console.log('Fetched data:', data);
-
           const rows = document.querySelectorAll('.statRow');
 
-          // Step 1: 清空所有欄位
+          // 先清空所有欄位
           rows.forEach(row => {
             row.querySelector('.playerNameInput').value = '';
             row.querySelector('.statScore').textContent = '0';
@@ -409,7 +408,7 @@
           });
 
           if (Array.isArray(data) && data.length > 0) {
-            // Step 2: 依 player_records 填資料
+            // 有資料，直接填入
             data.slice(0, 4).forEach((record, idx) => {
               const row = rows[idx];
               row.querySelector('.playerNameInput').value = record.player_name;
@@ -421,8 +420,9 @@
                 row.querySelector('.statScore').classList.add('red');
               }
             });
+            updateAndSumStats(); // 更新總計與下拉選單
           } else {
-            // Step 3: 若沒資料，從 directions 抓 player1~4
+            // 沒資料，改抓 directions
             fetch('/directions/all')
               .then(res => res.json())
               .then(dirData => {
@@ -430,28 +430,35 @@
                   const row = rows[i - 1];
                   const key = `player${i}`;
                   const found = dirData.find(d => d.key_name === key);
-                  if (found) row.querySelector('.playerNameInput').value = found.value_name;
+                  if (found) {
+                    row.querySelector('.playerNameInput').value = found.value_name;
+                  }
                 }
+                updateAndSumStats(); // 這裡也要更新
               });
           }
-
-          // 更新合計欄位
-          let totalScore = 0, totalZi = 0, totalHu = 0, totalQiang = 0;
-          rows.forEach(row => {
-            totalScore += parseInt(row.querySelector('.statScore').textContent) || 0;
-            totalZi += parseInt(row.querySelector('.statZi').textContent) || 0;
-            totalHu += parseInt(row.querySelector('.statHu').textContent) || 0;
-            totalQiang += parseInt(row.querySelector('.statQiang').textContent) || 0;
-          });
-          document.getElementById('totalScore').textContent = totalScore;
-          document.getElementById('totalZi').textContent = totalZi;
-          document.getElementById('totalHu').textContent = totalHu;
-          document.getElementById('totalQiang').textContent = totalQiang;
-
-          refreshCalcPlayers();
         });
     }
 
+    // 小工具函式：更新總計和計算區下拉選單
+    function updateAndSumStats() {
+      const rows = document.querySelectorAll('.statRow');
+      let totalScore = 0, totalZi = 0, totalHu = 0, totalQiang = 0;
+
+      rows.forEach(row => {
+        totalScore += parseInt(row.querySelector('.statScore').textContent) || 0;
+        totalZi += parseInt(row.querySelector('.statZi').textContent) || 0;
+        totalHu += parseInt(row.querySelector('.statHu').textContent) || 0;
+        totalQiang += parseInt(row.querySelector('.statQiang').textContent) || 0;
+      });
+
+      document.getElementById('totalScore').textContent = totalScore;
+      document.getElementById('totalZi').textContent = totalZi;
+      document.getElementById('totalHu').textContent = totalHu;
+      document.getElementById('totalQiang').textContent = totalQiang;
+
+      refreshCalcPlayers(); // 這一行才是關鍵：更新公式的對象下拉清單
+    }
 
 
     // Initialize calculation players based on stats table
@@ -528,16 +535,17 @@
         const adjBtn1 = row.querySelector('.adjBtn:first-of-type');
         const adjBtn2 = row.querySelector('.adjBtn:last-of-type');
 
-        // 調整類型：只允許勾選任一位，分數欄開啟、允許負數
         if (type === '4') {
+          // 調整：可任選一人，允許負數，禁用 slider
           checkbox.disabled = false;
           slider.disabled = true;
           scoreInput.disabled = true;
-          scoreInput.type = 'text'; // 可輸入負數
+          scoreInput.type = 'text';
           adjBtn1.disabled = true;
           adjBtn2.disabled = true;
         } else {
           if (!oppName || oppName === player) {
+            // 名稱空或為自己：禁用
             checkbox.checked = false;
             checkbox.disabled = true;
             slider.value = 0;
@@ -547,10 +555,11 @@
             adjBtn1.disabled = true;
             adjBtn2.disabled = true;
           } else {
+            // 合法對象，啟用 checkbox，等待使用者勾選後啟用功能
             checkbox.disabled = false;
             checkbox.checked = false;
             slider.value = 0;
-            slider.disabled = true;
+            slider.disabled = true; // 初始禁用，勾選後才開
             scoreInput.value = '0';
             scoreInput.disabled = true;
             adjBtn1.disabled = true;
@@ -559,7 +568,6 @@
         }
       });
     }
-
 
     document.getElementById('typeSelect').addEventListener('change', updateCalcAccessibility);
     document.getElementById('playerSelect').addEventListener('change', updateCalcAccessibility);
@@ -583,11 +591,17 @@
         const adjBtn2 = document.getElementById(`adjBtn_2_${idx + 1}`);
 
         if (e.target.checked) {
-          slider.disabled = (type !== '4');
+          if (type === '4') {
+            slider.disabled = true;
+            adjBtn1.disabled = true;
+            adjBtn2.disabled = true;
+          } else {
+            slider.disabled = false;
+            adjBtn1.disabled = false;
+            adjBtn2.disabled = false;
+          }
           scoreInput.disabled = false;
           scoreInput.type = 'text';
-          adjBtn1.disabled = (type !== '4');
-          adjBtn2.disabled = (type !== '4');
         } else {
           slider.disabled = true;
           scoreInput.disabled = true;
@@ -595,6 +609,7 @@
           adjBtn1.disabled = true;
           adjBtn2.disabled = true;
         }
+
       });
     });
 
