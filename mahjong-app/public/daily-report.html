@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>日戰報表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: 'Orbitron', sans-serif;
+            color: rgba(220, 230, 240, 0.85);
+        }
+
+        table {
+            width: 600px;
+            height: 400px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: rgba(20, 24, 30, 0.88);
+            /* 深色背景恢復 */
+            border: 1px solid rgba(100, 100, 100, 0.2);
+            border-radius: 8px;
+        }
+
+        th,
+        td {
+            padding: 0.4rem 0.6rem;
+            /* 欄位緊密 */
+            text-align: center;
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            font-size: 3rem;
+            /* 字體加大 */
+            color: rgba(240, 250, 255, 0.92);
+            /* 白字偏藍，清楚 */
+        }
+
+        th {
+            background-color: rgba(35, 40, 50, 0.95);
+            /* 深色表頭 */
+            color: rgba(79, 195, 247, 0.95);
+            font-weight: 700;
+        }
+
+        td:first-child {
+            color: gold;
+            /* 玩家名稱顏色 */
+            font-weight: 700;
+        }
+
+        h1 {
+            display: none;
+            /* 隱藏標題可讓畫面乾淨 */
+        }
+
+        tbody {
+            display: table-row-group;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>玩家</th>
+                <th>分數</th>
+                <th>自摸</th>
+                <th>胡牌</th>
+                <th>槍</th>
+            </tr>
+        </thead>
+        <tbody id="report-body">
+            <tr>
+                <td colspan="5">載入中...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchDirections() {
+            const res = await fetch('/directions/all');
+            const data = await res.json();
+            const map = {};
+            data.forEach(item => map[item.key_name] = item.value_name);
+            return map;
+        }
+
+        async function fetchStats(date, round_number) {
+            const res = await fetch(`/stats?date=${encodeURIComponent(date)}&round_number=${round_number}`);
+            return res.json();
+        }
+
+        async function renderReport() {
+            const dir = await fetchDirections();
+            const date = dir['assign_date'];
+            const round = dir['round_number'];
+            const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
+            const stats = await fetchStats(date, round);
+            const filtered = stats.filter(s => players.includes(s.player_name));
+
+            const tbody = document.getElementById('report-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">查無資料</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => `
+        <tr>
+          <td>${p.player_name}</td>
+          <td>${p.total_score}</td>
+          <td>${p.total_zi}</td>
+          <td>${p.total_hu}</td>
+          <td>${p.total_qiang}</td>
+        </tr>
+      `).join('');
+        }
+
+        renderReport();
+    </script>
+</body>
+
+</html>
