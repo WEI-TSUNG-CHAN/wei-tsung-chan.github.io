@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>本日戰報 Top 10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background: #101010;
+            font-family: 'Orbitron', sans-serif;
+            color: #f0f0f0;
+            text-align: center;
+        }
+
+        table {
+            width: 600px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: rgba(30, 30, 40, 0.9);
+        }
+
+        th,
+        td {
+            border: 1px solid #666;
+            padding: 0.5em;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        th {
+            background: #222;
+            color: #4fc3f7;
+        }
+
+        td:first-child {
+            font-weight: bold;
+            color: gold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>本日戰報 Top 10</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>排名</th>
+                <th>玩家</th>
+                <th>分數</th>
+                <th>自摸</th>
+                <th>胡牌</th>
+                <th>槍</th>
+            </tr>
+        </thead>
+        <tbody id="report-body">
+            <tr>
+                <td colspan="6">載入中...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        let previousData = [];
+
+        async function fetchDirections() {
+            const res = await fetch('/directions/all');
+            const data = await res.json();
+            const map = {};
+            data.forEach(item => map[item.key_name] = item.value_name);
+            return map;
+        }
+
+        async function fetchStats(date, round) {
+            const res = await fetch(`/stats?date=${encodeURIComponent(date)}&round_number=${round}`);
+            return await res.json();
+        }
+
+        async function renderDailyTop10() {
+            const dir = await fetchDirections();
+            const date = dir['assign_date'];
+            const round = dir['round_number'];
+            const stats = await fetchStats(date, round);
+            const top10 = stats.sort((a, b) => b.total_score - a.total_score).slice(0, 10);
+
+            const tbody = document.getElementById('report-body');
+            if (!top10.length) {
+                tbody.innerHTML = '<tr><td colspan="6">查無資料</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = top10.map((p, i) => {
+                const prev = previousData[i];
+                const changed = !prev || JSON.stringify(prev) !== JSON.stringify(p);
+                return `
+        <tr style="color:${changed ? 'red' : '#f0f0f0'}">
+          <td>${i + 1}</td>
+          <td>${p.player_name}</td>
+          <td>${p.total_score}</td>
+          <td>${p.total_zi}</td>
+          <td>${p.total_hu}</td>
+          <td>${p.total_qiang}</td>
+        </tr>
+      `;
+            }).join('');
+
+            previousData = top10;
+        }
+
+        renderDailyTop10();
+        setInterval(renderDailyTop10, 5000);
+    </script>
+
+</body>
+
+</html>

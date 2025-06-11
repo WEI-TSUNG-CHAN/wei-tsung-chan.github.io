@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>本月戰報表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background: #121212;
+            font-family: 'Orbitron', sans-serif;
+            color: #eee;
+            text-align: center;
+        }
+
+        table {
+            width: 600px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: rgba(20, 20, 30, 0.9);
+        }
+
+        th,
+        td {
+            border: 1px solid #555;
+            padding: 0.5em;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        th {
+            background: #1f1f2f;
+            color: #4fc3f7;
+        }
+
+        td:first-child {
+            font-weight: bold;
+            color: gold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>本月戰報 Top 10</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>排名</th>
+                <th>玩家</th>
+                <th>分數</th>
+                <th>自摸</th>
+                <th>胡牌</th>
+                <th>槍</th>
+            </tr>
+        </thead>
+        <tbody id="report-body">
+            <tr>
+                <td colspan="6">載入中...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        let previousData = [];
+
+        async function fetchDirections() {
+            const res = await fetch('/directions/all');
+            const data = await res.json();
+            const map = {};
+            data.forEach(item => map[item.key_name] = item.value_name);
+            return map;
+        }
+
+        async function renderMonthlyReport() {
+            const dir = await fetchDirections();
+            const assignDate = dir['assign_date'];
+            const res = await fetch(`/stats/month?date=${encodeURIComponent(assignDate)}`);
+            const data = await res.json();
+            const tbody = document.getElementById('report-body');
+
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="6">查無資料</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map((p, i) => {
+                const prev = previousData[i];
+                const changed = !prev || JSON.stringify(prev) !== JSON.stringify(p);
+                return `
+        <tr style="color:${changed ? 'red' : '#eee'}">
+          <td>${i + 1}</td>
+          <td>${p.player_name}</td>
+          <td>${p.total_score}</td>
+          <td>${p.total_zi}</td>
+          <td>${p.total_hu}</td>
+          <td>${p.total_qiang}</td>
+        </tr>
+      `;
+            }).join('');
+
+            previousData = data;
+        }
+
+        renderMonthlyReport();
+        setInterval(renderMonthlyReport, 5000);
+    </script>
+
+</body>
+
+</html>

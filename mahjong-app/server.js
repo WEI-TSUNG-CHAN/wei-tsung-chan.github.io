@@ -4,11 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2');
 
-
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: '730817', // Update with your MySQL root password
+  password: '730817',
   database: 'mahjong'
 };
 
@@ -85,43 +84,70 @@ function getStats(req, res) {
   });
 }
 
+function getMonthlyStats(req, res) {
+  const query = url.parse(req.url, true).query;
+  const date = query.date; // yyyy-mm-dd
+
+  if (!date) {
+    sendResponse(res, 400, JSON.stringify({ error: 'Missing date' }));
+    return;
+  }
+
+  const month = date.slice(0, 7); // yyyy-mm
+
+  const sql = `
+    SELECT player_name,
+           SUM(score) AS total_score,
+           SUM(zi) AS total_zi,
+           SUM(hu) AS total_hu,
+           SUM(qiang) AS total_qiang
+    FROM player_records
+    WHERE DATE_FORMAT(date, '%Y-%m') = ?
+    GROUP BY player_name
+    ORDER BY total_score DESC
+    LIMIT 10
+  `;
+
+  pool.query(sql, [month], (err, results) => {
+    if (err) {
+      sendResponse(res, 500, JSON.stringify({ error: 'DB error' }));
+    } else {
+      sendResponse(res, 200, JSON.stringify(results || []));
+    }
+  });
+}
 
 function recordGame(req, res) {
   let body = '';
-  req.on('data', chunk => {
-    body += chunk.toString();
-  });
+  req.on('data', chunk => { body += chunk.toString(); });
   req.on('end', () => {
     try {
       const data = JSON.parse(body);
       const date = data.date;
-      const roundNumber = parseInt(data.round_number, 10); // 新增
+      const roundNumber = parseInt(data.round_number, 10);
       const players = data.players;
       if (!date || !Array.isArray(players) || players.length !== 4) {
         sendResponse(res, 400, JSON.stringify({ error: 'Invalid data format' }));
         return;
       }
       const insertSql = `
-  INSERT INTO player_records (date, round_number, player_name, score, zi, hu, qiang)
-  VALUES ${players.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',')}
-`;
+        INSERT INTO player_records (date, round_number, player_name, score, zi, hu, qiang)
+        VALUES ${players.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',')}
+      `;
       const values = players.flatMap(p => [date, roundNumber, p.name, p.score, p.zi, p.hu, p.qiang]);
-
-      pool.query(insertSql, values, (err) => {
+      pool.query(insertSql, values, err => {
         if (err) {
-          console.error('DB insert failed:', err);  // 加這行幫你看錯誤
+          console.error('DB insert failed:', err);
           sendResponse(res, 500, JSON.stringify({ error: 'Database insert error' }));
         } else {
           sendResponse(res, 200, JSON.stringify({ success: true }));
         }
       });
-
     } catch (e) {
       sendResponse(res, 400, JSON.stringify({ error: 'Invalid JSON' }));
     }
   });
 }
-
 
 function getAllDirections(req, res) {
   const sql = 'SELECT * FROM directions';
@@ -136,9 +162,7 @@ function getAllDirections(req, res) {
 
 function updateDirection(req, res) {
   let body = '';
-  req.on('data', chunk => {
-    body += chunk.toString();
-  });
+  req.on('data', chunk => { body += chunk.toString(); });
   req.on('end', () => {
     try {
       const data = JSON.parse(body);
@@ -146,7 +170,6 @@ function updateDirection(req, res) {
         sendResponse(res, 400, JSON.stringify({ error: 'Missing key or value' }));
         return;
       }
-
       const sql = 'REPLACE INTO directions (key_name, value_name) VALUES (?, ?)';
       pool.query(sql, [data.key_name, data.value_name], err => {
         if (err) {
@@ -162,7 +185,6 @@ function updateDirection(req, res) {
   });
 }
 
-
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   if (req.method === 'GET' && parsedUrl.pathname === '/directions/all') {
@@ -171,6 +193,8 @@ const server = http.createServer((req, res) => {
     updateDirection(req, res);
   } else if (req.method === 'GET' && parsedUrl.pathname === '/stats') {
     getStats(req, res);
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/stats/month') {
+    getMonthlyStats(req, res);
   } else if (req.method === 'POST' && parsedUrl.pathname === '/record') {
     recordGame(req, res);
   } else {
