@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>本月四位玩家分數統計</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: 'Orbitron', sans-serif;
+      color: rgba(220, 230, 240, 0.85);
+    }
+
+    table {
+      width: 600px;
+      height: 350px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: rgba(20, 24, 30, 0.88);
+      border: 1px solid rgba(100, 100, 100, 0.2);
+      border-radius: 8px;
+    }
+
+    th, td {
+      padding: 0.4rem 0.6rem;
+      text-align: center;
+      border: 1px solid rgba(80, 80, 80, 0.3);
+      font-size: 2.4rem;
+      color: rgba(240, 250, 255, 0.92);
+    }
+
+    th {
+      background-color: rgba(35, 40, 50, 0.95);
+      color: rgba(79, 195, 247, 0.95);
+      font-weight: 700;
+    }
+
+    td:first-child {
+      color: gold;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>玩家</th>
+        <th>分數</th>
+      </tr>
+    </thead>
+    <tbody id="report-body">
+      <tr><td colspan="2">載入中...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchDirections() {
+      const res = await fetch('/directions/all');
+      const data = await res.json();
+      const map = {};
+      data.forEach(item => map[item.key_name] = item.value_name);
+      return map;
+    }
+
+    async function fetchMonthlyStats(date) {
+      const res = await fetch(`/stats/month?date=${encodeURIComponent(date)}`);
+      return res.json();
+    }
+
+    async function renderMonthlyReport() {
+      const dir = await fetchDirections();
+      const date = dir['assign_date'];
+      const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
+      const stats = await fetchMonthlyStats(date);
+
+      // 對應 stats 中每位玩家的總分
+      const statsMap = {};
+      stats.forEach(s => {
+        statsMap[s.player_name] = s.total_score;
+      });
+
+      const tbody = document.getElementById('report-body');
+      tbody.innerHTML = players.map(name => `
+        <tr>
+          <td>${name}</td>
+          <td>${statsMap[name] ?? 0}</td>
+        </tr>
+      `).join('');
+    }
+
+    renderMonthlyReport();
+    setInterval(renderMonthlyReport, 5000);
+  </script>
+</body>
+</html>
