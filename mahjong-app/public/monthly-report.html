@@ -3,39 +3,66 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>本月戰報表</title>
+    <title>本月戰報 Top 10</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
     <style>
+        html,
         body {
-            background: #121212;
+            margin: 0;
+            padding: 0;
+            background: transparent;
             font-family: 'Orbitron', sans-serif;
-            color: #eee;
-            text-align: center;
+            color: rgba(220, 230, 240, 0.85);
         }
 
-        table {
-            width: 600px;
+        h1 {
             margin: 20px auto;
+            text-align: center;
+            font-size: 4rem;
+            font-weight: 800;
+            color: #66fcf1;
+            letter-spacing: 0.1em;
+            text-shadow:
+                0 0 2px #45a29e,
+                0 0 4px #45a29e;
+        }
+
+
+
+        table {
+            width: 1024px;
+            height: 600px;
+            margin: 0 auto;
             border-collapse: collapse;
-            background: rgba(20, 20, 30, 0.9);
+            background-color: rgba(20, 24, 30, 0.88);
+            border: 1px solid rgba(100, 100, 100, 0.2);
+            border-radius: 8px;
         }
 
         th,
         td {
-            border: 1px solid #555;
-            padding: 0.5em;
-            font-size: 1.5rem;
+            height: 10%;
+            padding: 0;
+            box-sizing: border-box;
             text-align: center;
+            vertical-align: middle;
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            font-size: 3rem;
+            color: rgba(240, 250, 255, 0.92);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         th {
-            background: #1f1f2f;
-            color: #4fc3f7;
+            background-color: rgba(35, 40, 50, 0.95);
+            color: rgba(79, 195, 247, 0.95);
+            font-weight: 700;
         }
 
         td:first-child {
-            font-weight: bold;
             color: gold;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -61,8 +88,6 @@
     </table>
 
     <script>
-        let previousData = [];
-
         async function fetchDirections() {
             const res = await fetch('/directions/all');
             const data = await res.json();
@@ -77,34 +102,33 @@
             const res = await fetch(`/stats/month?date=${encodeURIComponent(assignDate)}`);
             const data = await res.json();
             const tbody = document.getElementById('report-body');
+            tbody.innerHTML = '';
 
-            if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="6">查無資料</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data.map((p, i) => {
-                const prev = previousData[i];
-                const changed = !prev || JSON.stringify(prev) !== JSON.stringify(p);
-                return `
-        <tr style="color:${changed ? 'red' : '#eee'}">
+            for (let i = 0; i < 10; i++) {
+                const p = data[i];
+                const row = document.createElement('tr');
+                row.innerHTML = p ? `
           <td>${i + 1}</td>
           <td>${p.player_name}</td>
           <td>${p.total_score}</td>
           <td>${p.total_zi}</td>
           <td>${p.total_hu}</td>
           <td>${p.total_qiang}</td>
-        </tr>
-      `;
-            }).join('');
-
-            previousData = data;
+        ` : `
+          <td>${i + 1}</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        `;
+                tbody.appendChild(row);
+            }
         }
 
         renderMonthlyReport();
         setInterval(renderMonthlyReport, 5000);
     </script>
-
 </body>
 
 </html>

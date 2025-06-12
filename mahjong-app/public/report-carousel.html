@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>戰報輪播</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .iframe-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      background: transparent;
+
+    }
+
+    iframe.show {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    iframe.hide {
+      opacity: 0;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="iframe-container">
+    <iframe id="iframe1" class="show" src="daily-top10-report.html"></iframe>
+    <iframe id="iframe2" class="hide" src=""></iframe>
+  </div>
+
+  <script>
+    const reports = ["daily-top10-report.html", "monthly-report.html"];
+    let current = 0;
+
+    const iframe1 = document.getElementById("iframe1");
+    const iframe2 = document.getElementById("iframe2");
+
+    setInterval(() => {
+      current = (current + 1) % reports.length;
+
+      // Swap src and visibility
+      if (iframe1.classList.contains("show")) {
+        iframe2.src = reports[current];
+        iframe2.classList.remove("hide");
+        iframe2.classList.add("show");
+        iframe1.classList.remove("show");
+        iframe1.classList.add("hide");
+      } else {
+        iframe1.src = reports[current];
+        iframe1.classList.remove("hide");
+        iframe1.classList.add("show");
+        iframe2.classList.remove("show");
+        iframe2.classList.add("hide");
+      }
+    }, 6000);
+  </script>
+</body>
+</html>
