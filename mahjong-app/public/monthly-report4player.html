@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8" />
   <title>本月四位玩家分數統計</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       background: transparent;
@@ -23,8 +25,10 @@
       border-radius: 8px;
     }
 
-    th, td {
-      padding: 0.2rem 0.4rem; /* 更緊密 */
+    th,
+    td {
+      padding: 0.2rem 0.4rem;
+      /* 更緊密 */
       text-align: center;
       border: 1px solid rgba(80, 80, 80, 0.3);
       font-size: 2.4rem;
@@ -53,11 +57,15 @@
       </tr>
     </thead>
     <tbody id="report-body">
-      <tr><td colspan="2">載入中...</td></tr>
+      <tr>
+        <td colspan="2">載入中...</td>
+      </tr>
     </tbody>
   </table>
 
   <script>
+    let previousStatsMap = {};
+
     async function fetchDirections() {
       const res = await fetch('/directions/all');
       const data = await res.json();
@@ -82,16 +90,29 @@
       });
 
       const tbody = document.getElementById('report-body');
-      tbody.innerHTML = players.map(name => `
+      tbody.innerHTML = players.map(name => {
+        const score = statsMap[name] ?? 0;
+        const prevScore = previousStatsMap[name];
+
+        const isChanged = prevScore !== undefined && prevScore !== score;
+        const colorStyle = isChanged ? 'color: red;' : '';
+
+        return `
         <tr>
           <td>${name}</td>
-          <td>${statsMap[name] ?? 0}</td>
+          <td style="${colorStyle}">${score}</td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
+
+      // 儲存目前狀態供下次比對
+      previousStatsMap = { ...statsMap };
     }
 
     renderMonthlyReport();
     setInterval(renderMonthlyReport, 5000);
   </script>
+
 </body>
+
 </html>
