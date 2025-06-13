@@ -111,32 +111,47 @@
             const round = dir['round_number'];
             const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
             const stats = await fetchStats(date, round);
-            const filtered = stats.filter(s => players.includes(s.player_name));
+
+            let displayStats;
+
+            if (stats.length > 0) {
+                // 有資料：使用 stats 的順序
+                displayStats = stats.map(s => ({
+                    player_name: s.player_name,
+                    total_score: s.total_score,
+                    total_zi: s.total_zi,
+                    total_hu: s.total_hu,
+                    total_qiang: s.total_qiang
+                }));
+            } else {
+                // 沒有資料：補空資料，以 directions 的順序為主
+                displayStats = players.map(name => ({
+                    player_name: name,
+                    total_score: 0,
+                    total_zi: 0,
+                    total_hu: 0,
+                    total_qiang: 0
+                }));
+            }
 
             const tbody = document.getElementById('report-body');
 
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">查無資料</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((p, i) => {
+            tbody.innerHTML = displayStats.map((p, i) => {
                 const prev = previousData[i];
                 const changed = prev && isDifferent(prev, p);
 
                 return `
-                <tr>
-                  <td>${p.player_name}</td>
-                  <td style="${changed ? 'color:red;' : ''}">${p.total_score}</td>
-                  <td style="${changed ? 'color:red;' : ''}">${p.total_zi}</td>
-                  <td style="${changed ? 'color:red;' : ''}">${p.total_hu}</td>
-                  <td style="${changed ? 'color:red;' : ''}">${p.total_qiang}</td>
-                </tr>
-            `;
+            <tr>
+                <td>${p.player_name}</td>
+                <td style="${changed ? 'color:red;' : ''}">${p.total_score}</td>
+                <td style="${changed ? 'color:red;' : ''}">${p.total_zi}</td>
+                <td style="${changed ? 'color:red;' : ''}">${p.total_hu}</td>
+                <td style="${changed ? 'color:red;' : ''}">${p.total_qiang}</td>
+            </tr>
+        `;
             }).join('');
 
-            // 更新 previousData
-            previousData = JSON.parse(JSON.stringify(filtered));
+            previousData = JSON.parse(JSON.stringify(displayStats));
         }
 
         // 初始載入
