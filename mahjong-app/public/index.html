@@ -683,20 +683,21 @@
         }
         const calc = opponents[0].sliderVal * unit + base;
         playerScore = calc;
-        records.push({ name: playerName, score: playerScore, zi: 0, hu: 1, qiang: 0 });
-        records.push({ name: opponents[0].name, score: -calc, zi: 0, hu: 0, qiang: 1 });
+        records.push({ name: playerName, score: playerScore, zi: 0, hu: 1, qiang: 0 }); // win
+        records.push({ name: opponents[0].name, score: -calc, zi: 0, hu: 0, qiang: 1 }); // 對家lose
       } else if (type === '1') { // 自摸
         if (opponents.length !== 3) {
           alert('自摸請選擇三位對家');
           return;
         }
-        const calc = opponents[0].sliderVal * unit + base;
-        const negCalc = -calc;
-        playerScore = calc * 3;
-        records.push({ name: playerName, score: playerScore, zi: 1, hu: 1, qiang: 0 });
+
+        let sumOppScore = 0;
         opponents.forEach(opp => {
-          records.push({ name: opp.name, score: negCalc, zi: 0, hu: 0, qiang: 0 });
+          const calc = opp.sliderVal * unit + base;
+          records.push({ name: opp.name, score: -calc, zi: 0, hu: 0, qiang: 0 });
+          sumOppScore += calc;
         });
+        records.push({ name: playerName, score: sumOppScore, zi: 1, hu: 1, qiang: 0 });
       } else if (type === '3') { // 三響
         if (opponents.length !== 3) {
           alert('三響請選擇三位對家');
@@ -724,7 +725,7 @@
 
 
       // Show confirmation dialog
-      let confirmMsg = '請確認以下分數:';
+      let confirmMsg = '請確認以下分數:\n';
       records.forEach(r => {
         confirmMsg += `${r.name}: ${r.score}\n`;
       });
