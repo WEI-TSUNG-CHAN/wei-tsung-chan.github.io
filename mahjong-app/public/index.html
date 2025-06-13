@@ -213,7 +213,10 @@
 
   <table border="1" style="width: 360px;">
     <tr>
-      <td colspan="3"><strong>計算公式</strong></td>
+      <td colspan="3">
+        <strong>計算公式</strong>
+        <input id="refreshStats1" type="button" value="強制更新"></input>
+      </td>
     </tr>
     <tr>
       <td colspan="3">類型
@@ -855,6 +858,7 @@
     fetchStats();
     updateCalcAccessibility();
     document.getElementById('refreshStats').addEventListener('click', fetchStats);
+    document.getElementById('refreshStats1').addEventListener('click', fetchStats);
   </script>
 
 </body>
