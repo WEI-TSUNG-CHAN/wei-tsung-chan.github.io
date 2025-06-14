@@ -709,11 +709,11 @@
         let sumOppScore = 0;
         opponents.forEach(opp => {
           const calc = opp.sliderVal * unit + base;
-          records.push({ name: opp.name, score: calc, zi: 0, hu: 0, qiang: 0 });
+          records.push({ name: opp.name, score: calc, zi: 0, hu: 1, qiang: 0 });
           sumOppScore += calc;
         });
         const playerOppScore = -sumOppScore;
-        records.push({ name: playerName, score: playerOppScore, zi: 0, hu: 0, qiang: 1 });
+        records.push({ name: playerName, score: playerOppScore, zi: 0, hu: 0, qiang: 3 });
       } else if (type === '4') { // 調整
         if (opponents.length !== 1) {
           alert('調整請選擇一位對家');
