@@ -97,7 +97,7 @@
         }
 
         async function fetchStats(date, round) {
-            const res = await fetch(`/stats?date=${encodeURIComponent(date)}&round_number=${round}`);
+            const res = await fetch(`/stats?date=${encodeURIComponent(date)}`);
             return await res.json();
         }
 
