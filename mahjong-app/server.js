@@ -203,6 +203,8 @@ const server = http.createServer((req, res) => {
     getAllChallenges(req, res);
   } else if (req.method === 'POST' && parsedUrl.pathname === '/challenge/reset') {
     resetAllChallenges(req, res);
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/challenge/current') {
+    getCurrentChallenge(req, res);
   } else {
     serveStaticFile(req, res);
   }
@@ -263,6 +265,16 @@ function resetAllChallenges(req, res) {
     }
   });
 }
+function getCurrentChallenge(req, res) {
+  const sql = `SELECT question FROM challenge_questions WHERE used = TRUE LIMIT 1`;
+  pool.query(sql, (err, results) => {
+    if (err || results.length === 0) {
+      return sendResponse(res, 200, JSON.stringify({ question: '' }));
+    }
+    return sendResponse(res, 200, JSON.stringify({ question: results[0].question }));
+  });
+}
+
 
 
 const PORT = 3000;
