@@ -113,6 +113,8 @@
         }
 
         function startSlotEffect() {
+            if (selectedQuestion === '尚未選定題目') return; // ✅ 加這行保護
+
             const slot = document.getElementById('slot');
             let i = 0;
             const interval = setInterval(() => {
@@ -129,12 +131,23 @@
             }, 3000);
         }
 
+
         async function refresh() {
             await fetchData();
+            const slot = document.getElementById('slot');
+
+            if (selectedQuestion === '尚未選定題目') {
+                slot.style.visibility = 'hidden';
+                return;
+            }
+
+            slot.style.visibility = 'visible';
+
             if (selectedQuestion !== previousQuestion) {
                 startSlotEffect();
             }
         }
+
 
         refresh();
         setInterval(refresh, 5000);

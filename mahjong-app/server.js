@@ -201,6 +201,8 @@ const server = http.createServer((req, res) => {
     getRandomChallenge(req, res);
   } else if (req.method === 'GET' && parsedUrl.pathname === '/challenge/all') {
     getAllChallenges(req, res);
+  } else if (req.method === 'POST' && parsedUrl.pathname === '/challenge/reset') {
+    resetAllChallenges(req, res);
   } else {
     serveStaticFile(req, res);
   }
@@ -250,6 +252,18 @@ function getAllChallenges(req, res) {
     }
   });
 }
+
+function resetAllChallenges(req, res) {
+  const sql = `UPDATE challenge_questions SET used = FALSE`;
+  pool.query(sql, (err) => {
+    if (err) {
+      sendResponse(res, 500, JSON.stringify({ error: 'Reset failed' }));
+    } else {
+      sendResponse(res, 200, JSON.stringify({ success: true }));
+    }
+  });
+}
+
 
 const PORT = 3000;
 server.listen(PORT, () => {
