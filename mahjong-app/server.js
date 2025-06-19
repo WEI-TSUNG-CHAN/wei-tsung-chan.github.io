@@ -197,10 +197,59 @@ const server = http.createServer((req, res) => {
     getMonthlyStats(req, res);
   } else if (req.method === 'POST' && parsedUrl.pathname === '/record') {
     recordGame(req, res);
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/challenge') {
+    getRandomChallenge(req, res);
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/challenge/all') {
+    getAllChallenges(req, res);
   } else {
     serveStaticFile(req, res);
   }
 });
+
+function getRandomChallenge(req, res) {
+  const sql = `
+    SELECT id, question FROM challenge_questions
+    ORDER BY RAND()
+    LIMIT 1
+  `;
+
+  pool.query(sql, (err, results) => {
+    if (err || results.length === 0) {
+      return sendResponse(res, 500, JSON.stringify({ error: 'DB error or no question' }));
+    }
+
+    const { id, question } = results[0];
+
+    // 更新所有題目為未選中，然後將目前這一題設為 true
+    const resetSql = `UPDATE challenge_questions SET used = FALSE`;
+    const setSelectedSql = `UPDATE challenge_questions SET used = TRUE WHERE id = ?`;
+
+    pool.query(resetSql, (err1) => {
+      if (err1) {
+        console.error('重設 used 欄失敗:', err1);
+        return sendResponse(res, 500, JSON.stringify({ error: 'DB reset error' }));
+      }
+
+      pool.query(setSelectedSql, [id], (err2) => {
+        if (err2) {
+          console.error('標記目前選定題目失敗:', err2);
+        }
+        return sendResponse(res, 200, JSON.stringify({ question }));
+      });
+    });
+  });
+}
+
+function getAllChallenges(req, res) {
+  const sql = `SELECT id, question, used FROM challenge_questions ORDER BY id ASC`;
+  pool.query(sql, (err, results) => {
+    if (err) {
+      sendResponse(res, 500, JSON.stringify({ error: 'DB query failed' }));
+    } else {
+      sendResponse(res, 200, JSON.stringify(results || []));
+    }
+  });
+}
 
 const PORT = 3000;
 server.listen(PORT, () => {

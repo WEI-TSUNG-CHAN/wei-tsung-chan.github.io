@@ -1,70 +1,49 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <head>
     <meta charset="UTF-8">
-    <title>拉霸挑戰機</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet">
+    <title>挑戰題目展示</title>
     <style>
         html,
         body {
             margin: 0;
             padding: 0;
-            background: transparent;
-            font-family: 'Orbitron', sans-serif;
-            color: rgba(220, 230, 240, 0.85);
-            background-color: transparent !important;
-
-        }
-
-        h1 {
-            margin: 20px auto;
-            text-align: center;
-            font-size: 4rem;
-            font-weight: 800;
-            color: #66fcf1;
-            letter-spacing: 0.1em;
-            text-shadow:
-                0 0 2px #45a29e,
-                0 0 4px #45a29e;
+            width: 800px;
+            height: 600px;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: transparent;
+            color: #fff;
         }
 
         #slot {
-            width: 500px;
-            height: 100px;
-            margin: 20px auto;
-            border: 3px solid #45a29e;
-            border-radius: 10px;
-            text-align: center;
+            margin: 30px auto;
+            width: 700px;
+            height: 120px;
             font-size: 3rem;
-            line-height: 100px;
-            background-color: rgba(20, 24, 30, 0.88);
-            color: #fff;
-            box-shadow: 0 0 10px #66fcf1 inset;
+            text-align: center;
+            line-height: 120px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            border: 2px solid #66fcf1;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            text-shadow: 0 0 6px #000;
         }
 
         .highlight {
-            animation: popEffect 1s ease-in-out;
-            animation-fill-mode: both;
+            animation: pop 0.6s ease-in-out;
         }
 
-
-        @keyframes popEffect {
+        @keyframes pop {
             0% {
                 transform: scale(1);
-                color: #fff;
-                text-shadow: none;
             }
 
             30% {
-                transform: scale(1.3) rotate(3deg);
+                transform: scale(1.3);
                 color: #66fcf1;
-                text-shadow: 0 0 20px #66fcf1;
-            }
-
-            60% {
-                transform: scale(0.9) rotate(-2deg);
             }
 
             100% {
@@ -72,151 +51,94 @@
             }
         }
 
-
-        button {
-            display: block;
+        #allQuestions {
             margin: 20px auto;
-            padding: 12px 30px;
-            font-size: 1.5rem;
-            font-family: 'Orbitron', sans-serif;
-            background-color: #45a29e;
-            color: #0b0c10;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
+            width: 90%;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #45a29e;
         }
 
-        button:hover {
-            background-color: #66fcf1;
-        }
-
-        table {
-            width: 1024px;
-            margin: 40px auto;
-            border-collapse: collapse;
-            background-color: rgba(20, 24, 30, 0.88);
-            border: 1px solid rgba(100, 100, 100, 0.2);
-            border-radius: 8px;
-        }
-
-        th,
-        td {
-            padding: 15px;
-            box-sizing: border-box;
-            text-align: center;
-            vertical-align: middle;
-            border: 1px solid rgba(80, 80, 80, 0.3);
-            font-size: 2rem;
-            color: rgba(240, 250, 255, 0.92);
-        }
-
-        th {
-            background-color: rgba(35, 40, 50, 0.95);
-            color: rgba(79, 195, 247, 0.95);
-            font-weight: 700;
-        }
-
-        #questionsInput {
-            width: 80%;
-            margin: 20px auto;
-            display: block;
-            font-size: 1rem;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #45a29e;
-            background: #1f2833;
-            color: #fff;
-        }
-
-        label {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
+        #allQuestions h2 {
             font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #66fcf1;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 6px 0;
+            border-bottom: 1px solid #444;
+            text-shadow: 0 0 3px #000;
         }
     </style>
 </head>
 
 <body>
+    <div id="slot">載入中...</div>
 
-    <h1>拉霸挑戰機</h1>
-
-    <div id="slot">請點下開始！</div>
-    <button onclick="startSlot()">開始拉霸</button>
-
-    <label for="questionsInput">請輸入挑戰題目（用逗號分隔）：</label>
-    <input type="text" id="questionsInput" placeholder="例如：題目A,題目B,題目C" value="不能屁胡A, 不能屁胡B, 不能屁胡C, 不能屁胡D, 不能屁胡E">
-
-    <table>
-        <thead>
-            <tr>
-                <th>題號</th>
-                <th>挑戰題目</th>
-            </tr>
-        </thead>
-        <tbody id="questionList">
-        </tbody>
-    </table>
+    <div id="allQuestions">
+        <h2>所有題目</h2>
+        <ul id="questionList"></ul>
+    </div>
 
     <script>
-        let questions = [];
+        let allQuestions = [];
+        let selectedQuestion = '';
+        let previousQuestion = '';
 
-        function updateQuestionList() {
-            const input = document.getElementById("questionsInput").value;
-            questions = input.split(',').map(q => q.trim()).filter(q => q.length > 0);
+        async function fetchData() {
+            const res = await fetch('/challenge/all');
+            const data = await res.json();
 
-            const tableBody = document.getElementById("questionList");
-            tableBody.innerHTML = '';
+            allQuestions = data.map(q => q.question);
+            const selected = data.find(q => q.used);
+            selectedQuestion = selected ? selected.question : '尚未選定題目';
 
-            questions.forEach((q, i) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${i + 1}</td><td>${q}</td>`;
-                tableBody.appendChild(row);
+            const list = document.getElementById('questionList');
+            list.innerHTML = '';
+            data.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.textContent = `${idx + 1}. ${item.question}`;
+                list.appendChild(li);
             });
         }
 
-        function startSlot() {
-            updateQuestionList();
-            if (questions.length === 0) {
-                alert("請先輸入至少一個挑戰題目！");
-                return;
-            }
-
-            const slot = document.getElementById("slot");
-            slot.classList.remove("highlight");
-
-            let count = 0;
-            let interval = setInterval(() => {
-                const randomIndex = Math.floor(Math.random() * questions.length);
-                slot.textContent = questions[randomIndex];
-                count++;
-                if (count > 15) {
-                    clearInterval(interval);
-
-                    // 等一下再套上 class，確保動畫會被觸發
-                    setTimeout(() => {
-                        // 強制觸發動畫：reflow + delay
-                        // 移除 class
-                        slot.classList.remove("highlight");
-
-                        // 強制 reflow
-                        void slot.offsetWidth;
-
-                        // 再加 class
-                        slot.classList.add("highlight");
-
-                    }, 50); // 延遲 50ms
-                }
+        function startSlotEffect() {
+            const slot = document.getElementById('slot');
+            let i = 0;
+            const interval = setInterval(() => {
+                slot.textContent = allQuestions[i % allQuestions.length] || '...';
+                i++;
             }, 100);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                slot.textContent = selectedQuestion;
+                slot.classList.add('highlight');
+                setTimeout(() => slot.classList.remove('highlight'), 1000);
+                previousQuestion = selectedQuestion;
+            }, 3000);
         }
 
+        async function refresh() {
+            await fetchData();
+            if (selectedQuestion !== previousQuestion) {
+                startSlotEffect();
+            }
+        }
 
-
-        // 預先載入題目
-        window.onload = updateQuestionList;
+        refresh();
+        setInterval(refresh, 5000);
     </script>
-
 </body>
 
 </html>

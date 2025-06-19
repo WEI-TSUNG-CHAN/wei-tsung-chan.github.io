@@ -111,7 +111,8 @@
       <option value="7">第七將</option>
       <option value="8">第八將</option>
     </select>
-
+    <br><input type="button" id="challengeBtn" value="挑戰題目">
+    <span id="challengeQuestion"></span>
   </h3>
 
   <p id="nameButtons">
@@ -850,6 +851,18 @@
       continuance = 0;
       document.getElementById('continuanceLabel').textContent = '0';
       updateDirection('times', '0');
+    });
+
+    document.getElementById('challengeBtn').addEventListener('click', () => {
+      fetch('/challenge')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('challengeQuestion').textContent = data.question || '取得題目失敗';
+        })
+        .catch(err => {
+          console.error('取得挑戰題目失敗', err);
+          document.getElementById('challengeQuestion').textContent = '錯誤';
+        });
     });
 
     // Initial setup
