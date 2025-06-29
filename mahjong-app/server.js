@@ -100,7 +100,8 @@ function getMonthlyStats(req, res) {
            SUM(score) AS total_score,
            SUM(zi) AS total_zi,
            SUM(hu) AS total_hu,
-           SUM(qiang) AS total_qiang
+           SUM(qiang) AS total_qiang,
+          COUNT(DISTINCT date,round_number) as round_number
     FROM player_records
     WHERE DATE_FORMAT(date, '%Y-%m') = ?
     GROUP BY player_name
