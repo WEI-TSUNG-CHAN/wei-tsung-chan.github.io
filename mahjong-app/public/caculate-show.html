@@ -15,7 +15,7 @@
         }
 
         table {
-            width: 600px;
+            width: 300px;
             margin: 40px auto;
             border-collapse: collapse;
             background-color: rgba(20, 24, 30, 0.88);
@@ -50,6 +50,12 @@
         tbody {
             display: table-row-group;
         }
+
+        tfoot td {
+            font-weight: bold;
+            background-color: rgba(30, 36, 45, 0.9);
+            color: #fff;
+        }
     </style>
 
 </head>
@@ -60,12 +66,17 @@
             <tr>
                 <th>類型</th>
                 <th>台數</th>
-                <th>時間</th>
+                <!--<th>時間</th>-->
             </tr>
         </thead>
         <tbody id="data-body">
             <!-- 資料將由 JS 動態插入 -->
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" id="total-row">合計：0 台</td>
+            </tr>
+        </tfoot>
     </table>
 
     <script>
@@ -83,23 +94,30 @@
 
         // 用於載入計算資料
         function loadCalculateData() {
-            fetch('/calculate/active', { method: 'POST' }) // 你需要設計這個 API：回傳符合 flag = 1 的資料
+            fetch('/calculate/active', { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
                     const tbody = document.getElementById('data-body');
+                    const totalRow = document.getElementById('total-row');
                     tbody.innerHTML = '';
 
-                    data.sort((a, b) => a.tie - b.tie); // 確保 tie 由小到大
+                    let totalTie = 0;
+
+                    data.sort((a, b) => a.tie - b.tie);
 
                     data.forEach(item => {
+                        totalTie += parseInt(item.tie, 10);
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${item.type}</td>
                             <td>${item.tie}</td>
-                            <td>${formatDateTime(item.now)}</td>
+                            
                         `;
+                        // <td>${formatDateTime(item.now)}</td>
                         tbody.appendChild(row);
                     });
+
+                    totalRow.textContent = `合計：${totalTie} 台`;
                 })
                 .catch(err => {
                     console.error('資料載入錯誤:', err);

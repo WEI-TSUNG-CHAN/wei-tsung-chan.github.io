@@ -6,20 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Editor - Full Version</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .add-btn {
+            font-size: 1rem;
+            padding: 0.4rem 0.8rem;
+        }
+    </style>
+
 </head>
 
 <body>
     <h1>現在時間: <span id="current-time"></span></h1>
 
     <!-- 上方台數和牌型選擇表格 -->
-    <table border="1" cellpadding="1" cellspacing="1" style="width:500px;">
+    <table border="1" cellpadding="1" cellspacing="1" style="width:350px;">
         <tbody id="mahjong-table"></tbody>
     </table>
 
     <p>計算結果</p>
 
     <!-- 計算結果表格 -->
-    <table border="1" cellpadding="1" cellspacing="1" style="width:500px;">
+    <table border="1" cellpadding="1" cellspacing="1" style="width:350px;">
         <tbody id="result-table">
             <tr>
                 <td>合計: <span id="total-tie">0</span>台</td>
