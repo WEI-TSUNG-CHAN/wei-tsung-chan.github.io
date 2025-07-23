@@ -80,6 +80,9 @@
     </table>
 
     <script>
+        let lastDataStr = null; // 紀錄上次資料字串
+        const table = document.querySelector('table');
+
         function formatDateTime(datetimeString) {
             const date = new Date(datetimeString);
             const pad = (n) => n.toString().padStart(2, '0');
@@ -97,23 +100,32 @@
             fetch('/calculate/active', { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
+                    const dataStr = JSON.stringify(data);
+
+                    // 如果資料沒變就隱藏 table 並結束
+                    if (dataStr === lastDataStr) {
+                        table.style.display = 'none';
+                        return;
+                    }
+
+                    // 資料有異動，更新 lastDataStr 並顯示 table
+                    lastDataStr = dataStr;
+                    table.style.display = 'table';
+
                     const tbody = document.getElementById('data-body');
                     const totalRow = document.getElementById('total-row');
                     tbody.innerHTML = '';
 
                     let totalTie = 0;
-
                     data.sort((a, b) => a.tie - b.tie);
 
                     data.forEach(item => {
                         totalTie += parseInt(item.tie, 10);
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${item.type}</td>
-                            <td>${item.tie}</td>
-                            
-                        `;
-                        // <td>${formatDateTime(item.now)}</td>
+                        <td>${item.type}</td>
+                        <td>${item.tie}</td>
+                    `;
                         tbody.appendChild(row);
                     });
 
@@ -124,8 +136,12 @@
                 });
         }
 
-        document.addEventListener('DOMContentLoaded', loadCalculateData);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCalculateData();
+            setInterval(loadCalculateData, 8000);
+        });
     </script>
+
 </body>
 
 </html>
