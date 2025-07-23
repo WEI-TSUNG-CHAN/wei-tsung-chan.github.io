@@ -1,106 +1,148 @@
-
 <!doctype html>
 <html lang="zh-Hant">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTML Editor - Full Version</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Editor - Full Version</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
-  <h1>現在時間: <span id="current-time"></span></h1>
+    <h1>現在時間: <span id="current-time"></span></h1>
 
-  <!-- 上方台數和牌型選擇表格 -->
-  <table border="1" cellpadding="1" cellspacing="1" style="width:500px;">
-    <tbody id="mahjong-table"></tbody>
-  </table>
+    <!-- 上方台數和牌型選擇表格 -->
+    <table border="1" cellpadding="1" cellspacing="1" style="width:500px;">
+        <tbody id="mahjong-table"></tbody>
+    </table>
 
-  <p>計算結果</p>
+    <p>計算結果</p>
 
-  <!-- 計算結果表格 -->
-  <table border="1" cellpadding="1" cellspacing="1" style="width:500px;">
-    <tbody id="result-table">
-      <tr>
-        <td>合計: <span id="total-tie">0</span>台</td>
-      </tr>
-    </tbody>
-  </table>
+    <!-- 計算結果表格 -->
+    <table border="1" cellpadding="1" cellspacing="1" style="width:500px;">
+        <tbody id="result-table">
+            <tr>
+                <td>合計: <span id="total-tie">0</span>台</td>
+            </tr>
+        </tbody>
+    </table>
 
-  <p><input type="button" value="送出" id="submit-button" /></p>
+    <p><input type="button" value="送出" id="submit-button" /></p>
 
-  <script>
-    // 顯示當前時間
-    function updateCurrentTime() {
-      const currentTime = new Date().toLocaleString();
-      document.getElementById('current-time').innerText = currentTime;
-    }
-
-    // 載入牌型資料
-    function loadMahjongData() {
-      $.get('/get-mahjong-data', (data) => {
-        const mahjongTable = $('#mahjong-table');
-        const resultTable = $('#result-table');
-        let resultTotalTie = 0;
-
-        // 根據台數排序後填充表格
-        data.forEach((item) => {
-          const row = `<tr>
-            <td>${item.tie}台</td>
-            <td>
-              <button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>
-            </td>
-          </tr>`;
-          mahjongTable.append(row);
-        });
-
-        // 當點擊某個牌型按鈕時，將資料加到下方計算結果
-        $('.add-btn').click(function() {
-          const type = $(this).data('type');
-          const tie = $(this).data('tie');
-          resultTotalTie += tie;
-
-          const resultRow = `<tr>
-            <td>${type} ${tie}台 <button class="remove-btn">-</button></td>
-          </tr>`;
-          resultTable.before(resultRow);
-
-          // 更新合計台數
-          $('#total-tie').text(resultTotalTie);
-
-          // 移除按鈕功能
-          $('.remove-btn').click(function() {
-            $(this).parent().parent().remove();
-            resultTotalTie -= tie;
-            $('#total-tie').text(resultTotalTie);
-          });
-        });
-      });
-    }
-
-    // 提交計算結果
-    $('#submit-button').click(function() {
-      const selectedData = [];
-
-      $('#result-table tr').each(function() {
-        const typeText = $(this).find('td').text().trim();
-        if (typeText !== '合計: 0台') {
-          const [type, tie] = typeText.split(' ');
-          selectedData.push({ type, tie: parseInt(tie, 10) });
+    <script>
+        // 顯示當前時間
+        function updateCurrentTime() {
+            const currentTime = new Date().toLocaleString();
+            document.getElementById('current-time').innerText = currentTime;
         }
-      });
 
-      $.post('/submit', selectedData, (response) => {
-        alert(response.message);
-        loadMahjongData();  // 重新加載資料
-      });
-    });
+        // 載入牌型資料
+        function loadMahjongData() {
+            $.get('/get-mahjong-data', (data) => {
+                const mahjongTable = $('#mahjong-table');
+                mahjongTable.empty();
 
-    // 初始頁面設定
-    $(document).ready(function() {
-      updateCurrentTime();
-      loadMahjongData();
-      setInterval(updateCurrentTime, 1000); // 每秒更新一次時間
-    });
-  </script>
+                const tieGroups = {};
+                const zhuanglian = [];
+
+                // 分類資料
+                data.forEach(item => {
+                    if (item.type.startsWith('莊連')) {
+                        zhuanglian.push(item);
+                    } else {
+                        if (!tieGroups[item.tie]) tieGroups[item.tie] = [];
+                        tieGroups[item.tie].push(item);
+                    }
+                });
+
+                // 渲染台數分類
+                Object.keys(tieGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(tie => {
+                    const buttons = tieGroups[tie].map(item =>
+                        `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>`
+                    ).join(' ');
+                    mahjongTable.append(`<tr><td>${tie}台</td><td>${buttons}</td></tr>`);
+                });
+
+                // 渲染莊連欄
+                if (zhuanglian.length > 0) {
+                    const buttons = zhuanglian.map(item =>
+                        `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>`
+                    ).join(' ');
+                    mahjongTable.append(`<tr><td>連莊</td><td>${buttons}</td></tr>`);
+                }
+
+                // 綁定點擊事件
+                $('.add-btn').off('click').on('click', function () {
+                    const type = $(this).data('type');
+                    const tie = parseInt($(this).data('tie'), 10);
+
+                    // 建立新列，並記錄 tie 值
+                    const row = $(`
+        <tr class="result-row">
+          <td data-tie="${tie}">${type} ${tie}台 <button class="remove-btn">-</button></td>
+        </tr>
+      `);
+                    $('#result-table tr:last').before(row);
+                    updateTotalTie();
+
+                    // 移除功能
+                    row.find('.remove-btn').on('click', function () {
+                        row.remove();
+                        updateTotalTie();
+                    });
+                });
+
+                // 計算總台數
+                function updateTotalTie() {
+                    let total = 0;
+                    $('.result-row td').each(function () {
+                        total += parseInt($(this).data('tie'), 10);
+                    });
+                    $('#total-tie').text(total);
+                }
+            });
+        }
+
+
+        // 提交計算結果
+        document.getElementById('submit-button').addEventListener('click', () => {
+            const selectedData = [];
+
+            // 從 .result-row 中讀出 type 和 tie 值
+            document.querySelectorAll('.result-row td').forEach(td => {
+                const type = td.textContent.split(' ')[0];
+                const tie = parseInt(td.getAttribute('data-tie'), 10);
+                selectedData.push({ type, tie });
+            });
+
+            // 發送 POST 請求
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(selectedData)
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then(response => {
+                    alert(response.message || '提交成功');
+                    loadMahjongData(); // 重新載入
+                })
+                .catch(err => {
+                    alert(`送出失敗：${err.message}`);
+                });
+        });
+
+        // 初始頁面設定
+        $(document).ready(function () {
+            updateCurrentTime();
+            loadMahjongData();
+            setInterval(updateCurrentTime, 1000); // 每秒更新一次時間
+        });
+    </script>
 </body>
+
 </html>
