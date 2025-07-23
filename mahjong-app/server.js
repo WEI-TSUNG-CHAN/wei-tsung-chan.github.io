@@ -208,6 +208,8 @@ const server = http.createServer((req, res) => {
     getCurrentChallenge(req, res);
   } else if (req.method === 'GET' && parsedUrl.pathname === '/get-mahjong-data') {
     getMahjongData(req, res);
+  } else if (req.method === 'POST' && parsedUrl.pathname === '/calculate/active') {
+    getCalActive(req, res);
   } else if (req.method === 'POST' && parsedUrl.pathname === '/submit') {
     submitMahjongResults(req, res);
   } else {
@@ -329,6 +331,17 @@ function submitMahjongResults(req, res) {
   });
 }
 
+// 顯示台數結果
+function getCalActive(req, res) {
+  const sql = 'SELECT type,tie,now FROM calculate where flag=1 ORDER BY tie ASC';
+  pool.query(sql, (err, results) => {
+    if (err) {
+      sendResponse(res, 500, JSON.stringify({ error: 'Database query error' }));
+    } else {
+      sendResponse(res, 200, JSON.stringify(results || []));
+    }
+  });
+}
 
 
 const PORT = 3000;
