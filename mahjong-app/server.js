@@ -206,6 +206,10 @@ const server = http.createServer((req, res) => {
     resetAllChallenges(req, res);
   } else if (req.method === 'GET' && parsedUrl.pathname === '/challenge/current') {
     getCurrentChallenge(req, res);
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/get-mahjong-data') {
+    getMahjongData(req, res);
+  } else if (req.method === 'POST' && parsedUrl.pathname === '/submit') {
+    submitMahjongResults(req, res);
   } else {
     serveStaticFile(req, res);
   }
@@ -273,6 +277,55 @@ function getCurrentChallenge(req, res) {
       return sendResponse(res, 200, JSON.stringify({ question: '' }));
     }
     return sendResponse(res, 200, JSON.stringify({ question: results[0].question }));
+  });
+}
+
+
+
+// 取得所有牌型資料並根據台數排序
+function getMahjongData(req, res) {
+  const sql = 'SELECT * FROM calculate ORDER BY tie ASC';
+  pool.query(sql, (err, results) => {
+    if (err) {
+      sendResponse(res, 500, JSON.stringify({ error: 'Database query error' }));
+    } else {
+      sendResponse(res, 200, JSON.stringify(results || []));
+    }
+  });
+}
+
+// 提交計算結果並更新資料庫
+function submitMahjongResults(req, res) {
+  let body = '';
+  req.on('data', chunk => { body += chunk.toString(); });
+  req.on('end', () => {
+    try {
+      const data = JSON.parse(body);
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+      // 更新所有資料的 flag 和 now 欄位為 NULL
+      const resetSql = 'UPDATE calculate SET flag = NULL, now = NULL';
+      pool.query(resetSql, (err) => {
+        if (err) {
+          sendResponse(res, 500, JSON.stringify({ error: 'Failed to reset flag' }));
+          return;
+        }
+
+        // 更新選中的牌型資料
+        data.forEach(item => {
+          const updateSql = 'UPDATE calculate SET flag = 1, now = ? WHERE type = ?';
+          pool.query(updateSql, [currentTime, item.type], (err) => {
+            if (err) {
+              console.error('Update failed for type:', item.type, err);
+            }
+          });
+        });
+
+        sendResponse(res, 200, JSON.stringify({ message: '提交成功' }));
+      });
+    } catch (e) {
+      sendResponse(res, 400, JSON.stringify({ error: 'Invalid JSON' }));
+    }
   });
 }
 
