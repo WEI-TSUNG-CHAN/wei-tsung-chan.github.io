@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Editor - Full Version</title>
+    <title>麻將計算</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         .add-btn {
@@ -14,7 +14,7 @@
         }
 
         .disabled-btn {
-            background-color: #d3d3d3; /* 灰色 */
+            background-color: #d3d3d3;
             cursor: not-allowed;
         }
 
@@ -43,7 +43,8 @@
     </table>
 
     <p><input type="button" value="送出" id="submit-button" /></p>
-    <!-- 上方台數和牌型選擇表格 -->
+
+    <!-- 牌型按鈕表格 -->
     <table border="1" cellpadding="1" cellspacing="1" style="width:350px;">
         <tbody id="mahjong-table"></tbody>
     </table>
@@ -55,7 +56,16 @@
             document.getElementById('current-time').innerText = currentTime;
         }
 
-        // 載入牌型資料
+        // 全域函數：更新總台數
+        function updateTotalTie() {
+            let total = 0;
+            $('.result-row td').each(function () {
+                total += parseInt($(this).data('tie'), 10);
+            });
+            $('#total-tie').text(total);
+        }
+
+        // 載入牌型資料並建立按鈕
         function loadMahjongData() {
             $.get('/get-mahjong-data', (data) => {
                 const mahjongTable = $('#mahjong-table');
@@ -64,7 +74,6 @@
                 const tieGroups = {};
                 const zhuanglian = [];
 
-                // 分類資料
                 data.forEach(item => {
                     if (item.type.startsWith('莊連')) {
                         zhuanglian.push(item);
@@ -74,7 +83,6 @@
                     }
                 });
 
-                // 渲染台數分類
                 Object.keys(tieGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(tie => {
                     const buttons = tieGroups[tie].map(item =>
                         `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>`
@@ -82,7 +90,6 @@
                     mahjongTable.append(`<tr><td>${tie}台</td><td>${buttons}</td></tr>`);
                 });
 
-                // 渲染莊連欄
                 if (zhuanglian.length > 0) {
                     const buttons = zhuanglian.map(item =>
                         `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>`
@@ -90,13 +97,12 @@
                     mahjongTable.append(`<tr><td>連莊</td><td>${buttons}</td></tr>`);
                 }
 
-                // 綁定點擊事件
+                // 綁定新增功能
                 $('.add-btn').off('click').on('click', function () {
                     const button = $(this);
                     const type = button.data('type');
                     const tie = parseInt(button.data('tie'), 10);
 
-                    // 建立新列，並記錄 tie 值
                     const row = $(`
                         <tr class="result-row">
                           <td data-tie="${tie}">${type} ${tie}台 <button class="remove-btn">-</button></td>
@@ -105,43 +111,58 @@
                     $('#result-table tr:last').before(row);
                     updateTotalTie();
 
-                    // 禁用按鈕並改變顏色
                     button.prop('disabled', true).addClass('disabled-btn');
 
-                    // 移除功能
                     row.find('.remove-btn').on('click', function () {
                         row.remove();
                         updateTotalTie();
-
-                        // 恢復按鈕可點擊並恢復顏色
                         $('.add-btn[data-type="' + type + '"][data-tie="' + tie + '"]')
                             .prop('disabled', false).removeClass('disabled-btn');
                     });
                 });
-
-                // 計算總台數
-                function updateTotalTie() {
-                    let total = 0;
-                    $('.result-row td').each(function () {
-                        total += parseInt($(this).data('tie'), 10);
-                    });
-                    $('#total-tie').text(total);
-                }
             });
         }
+
+        // 載入 flag=1 的資料，並顯示在「計算結果」上
+        function loadActiveResults() {
+            // 先清空原本的結果列
+            $('.result-row').remove();
+
+            $.post('/calculate/active', (data) => {
+                data.forEach(item => {
+                    const row = $(`
+                <tr class="result-row">
+                  <td data-tie="${item.tie}">${item.type} ${item.tie}台 <button class="remove-btn">-</button></td>
+                </tr>
+            `);
+                    $('#result-table tr:last').before(row);
+
+                    $('.add-btn[data-type="' + item.type + '"][data-tie="' + item.tie + '"]')
+                        .prop('disabled', true).addClass('disabled-btn');
+
+                    row.find('.remove-btn').on('click', function () {
+                        row.remove();
+                        updateTotalTie();
+                        $('.add-btn[data-type="' + item.type + '"][data-tie="' + item.tie + '"]')
+                            .prop('disabled', false).removeClass('disabled-btn');
+                    });
+                });
+
+                updateTotalTie();
+            });
+        }
+
 
         // 提交計算結果
         document.getElementById('submit-button').addEventListener('click', () => {
             const selectedData = [];
 
-            // 從 .result-row 中讀出 type 和 tie 值
             document.querySelectorAll('.result-row td').forEach(td => {
                 const type = td.textContent.split(' ')[0];
                 const tie = parseInt(td.getAttribute('data-tie'), 10);
                 selectedData.push({ type, tie });
             });
 
-            // 發送 POST 請求
             fetch('/submit', {
                 method: 'POST',
                 headers: {
@@ -155,18 +176,20 @@
                 })
                 .then(response => {
                     alert(response.message || '提交成功');
-                    loadMahjongData(); // 重新載入
+                    loadMahjongData(); // 重新載入按鈕
+                    setTimeout(loadActiveResults, 300); // 重新載入結果
                 })
                 .catch(err => {
                     alert(`送出失敗：${err.message}`);
                 });
         });
 
-        // 初始頁面設定
+        // 初始畫面
         $(document).ready(function () {
             updateCurrentTime();
             loadMahjongData();
-            setInterval(updateCurrentTime, 1000); // 每秒更新一次時間
+            setTimeout(loadActiveResults, 300); // 延遲載入 flag=1 結果
+            setInterval(updateCurrentTime, 1000);
         });
     </script>
 </body>
