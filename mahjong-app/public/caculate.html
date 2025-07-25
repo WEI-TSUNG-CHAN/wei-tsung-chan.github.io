@@ -10,9 +10,22 @@
         .add-btn {
             font-size: 1rem;
             padding: 0.4rem 0.8rem;
+            background-color: #f0f0f0;
+        }
+
+        .disabled-btn {
+            background-color: #d3d3d3; /* 灰色 */
+            cursor: not-allowed;
+        }
+
+        .add-btn:active {
+            background-color: #cccccc;
+        }
+
+        .remove-btn {
+            color: red;
         }
     </style>
-
 </head>
 
 <body>
@@ -79,22 +92,30 @@
 
                 // 綁定點擊事件
                 $('.add-btn').off('click').on('click', function () {
-                    const type = $(this).data('type');
-                    const tie = parseInt($(this).data('tie'), 10);
+                    const button = $(this);
+                    const type = button.data('type');
+                    const tie = parseInt(button.data('tie'), 10);
 
                     // 建立新列，並記錄 tie 值
                     const row = $(`
-        <tr class="result-row">
-          <td data-tie="${tie}">${type} ${tie}台 <button class="remove-btn">-</button></td>
-        </tr>
-      `);
+                        <tr class="result-row">
+                          <td data-tie="${tie}">${type} ${tie}台 <button class="remove-btn">-</button></td>
+                        </tr>
+                    `);
                     $('#result-table tr:last').before(row);
                     updateTotalTie();
+
+                    // 禁用按鈕並改變顏色
+                    button.prop('disabled', true).addClass('disabled-btn');
 
                     // 移除功能
                     row.find('.remove-btn').on('click', function () {
                         row.remove();
                         updateTotalTie();
+
+                        // 恢復按鈕可點擊並恢復顏色
+                        $('.add-btn[data-type="' + type + '"][data-tie="' + tie + '"]')
+                            .prop('disabled', false).removeClass('disabled-btn');
                     });
                 });
 
@@ -108,7 +129,6 @@
                 }
             });
         }
-
 
         // 提交計算結果
         document.getElementById('submit-button').addEventListener('click', () => {
