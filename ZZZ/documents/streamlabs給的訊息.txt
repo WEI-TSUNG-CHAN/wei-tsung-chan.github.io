@@ -1,0 +1,4 @@
+streamlabs給的訊息
+ip address: 192.168.0.112, fe80::9d35:41b8:b8b0:b362
+連接埠:59650
+api符記: b54596b15bc8e48be8cbe1e582286010a741b
