@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 1rem;
   border-radius: 12px;
-  background: rgba(20, 24, 30, 0.9);
+  background: rgba(20, 24, 30, 0.6); /* ⬅ 背景更透明 */
   border: 1px solid rgba(100, 100, 100, 0.25);
   font-family: 'Orbitron', sans-serif;
   color: rgba(240, 250, 255, 0.92);
@@ -20,7 +20,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.6rem 0.8rem;
-  background: rgba(35, 40, 50, 0.95);
+  background: rgba(35, 40, 50, 0.7); /* ⬅ 改透明一點 */
   border-radius: 8px;
   margin-bottom: 1rem;
 }
@@ -79,7 +79,7 @@
   flex: 2;
   position: relative;
   height: 42px;
-  background: rgba(30, 36, 45, 0.85);
+  background: rgba(30, 36, 45, 0.55); /* ⬅ 背景更透明 */
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(80, 80, 80, 0.3);
@@ -104,7 +104,6 @@
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
   white-space: nowrap; /* 確保一行不換行 */
 }
-
 
 .progress-bar-alt.progress-bar--thin {
   height: 24px;
