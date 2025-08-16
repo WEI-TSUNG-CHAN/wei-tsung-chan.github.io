@@ -1,5 +1,5 @@
 #poll-container {
-  width: 800px; /* 夠大，避免字被壓縮 */
+  width: 790px; /* 夠大，避免字被壓縮 */
   margin: 0 auto;
   padding: 1rem;
   border-radius: 12px;
@@ -8,7 +8,7 @@
   font-family: 'Orbitron', sans-serif;
   color: rgba(240, 250, 255, 0.92);
   box-shadow: 0 0 15px rgba(79, 195, 247, 0.35);
-  font-size: 2rem; /* 整體字體大小統一 */
+  font-size: 2.5rem; /* 整體字體大小統一 */
 }
 
 .poll-container--hide {
@@ -26,14 +26,14 @@
 }
 
 .poll-header-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: rgba(79, 195, 247, 0.95); /* 藍色標題 */
 }
 
 .poll-header-info {
   display: flex;
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
 .poll-info-section {
@@ -41,20 +41,20 @@
 }
 
 .poll-info-section .text {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: gold; /* 數字金色 */
 }
 
 .poll-info-section .title {
-  font-size: 2.2rem;
+  font-size: 2.2.5rem;
   color: rgba(220, 230, 240, 0.75); /* 灰白 */
 }
 
 .options-container {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.2.5rem;
 }
 
 .option-container {
@@ -67,7 +67,7 @@
   flex: 1;
   min-width: 250px;
   text-align: left;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: #00BFFF;
   white-space: nowrap;
@@ -98,7 +98,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: rgba(240, 250, 255, 0.95);
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
