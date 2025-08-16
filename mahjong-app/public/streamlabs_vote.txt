@@ -1,0 +1,111 @@
+#poll-container {
+  width: 800px; /* 夠大，避免字被壓縮 */
+  margin: 0 auto;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(20, 24, 30, 0.9);
+  border: 1px solid rgba(100, 100, 100, 0.25);
+  font-family: 'Orbitron', sans-serif;
+  color: rgba(240, 250, 255, 0.92);
+  box-shadow: 0 0 15px rgba(79, 195, 247, 0.35);
+  font-size: 2rem; /* 整體字體大小統一 */
+}
+
+.poll-container--hide {
+  display: none;
+}
+
+#poll-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  background: rgba(35, 40, 50, 0.95);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.poll-header-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(79, 195, 247, 0.95); /* 藍色標題 */
+}
+
+.poll-header-info {
+  display: flex;
+  gap: 2rem;
+}
+
+.poll-info-section {
+  text-align: center;
+}
+
+.poll-info-section .text {
+  font-size: 2rem;
+  font-weight: 700;
+  color: gold; /* 數字金色 */
+}
+
+.poll-info-section .title {
+  font-size: 2.2rem;
+  color: rgba(220, 230, 240, 0.75); /* 灰白 */
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.option-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.command-text {
+  flex: 1;
+  min-width: 250px;
+  text-align: left;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00BFFF;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.progress-bar-container {
+  flex: 2;
+  position: relative;
+  height: 42px;
+  background: rgba(30, 36, 45, 0.85);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(80, 80, 80, 0.3);
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 16px 0 0 16px;
+  background-color: rgba(79, 195, 247, 0.9); /* 藍色進度條 */
+  transition: width 0.4s ease;
+}
+
+.progress-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(240, 250, 255, 0.95);
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  white-space: nowrap; /* 確保一行不換行 */
+}
+
+
+.progress-bar-alt.progress-bar--thin {
+  height: 24px;
+}
