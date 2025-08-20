@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>戰績查詢 - 胡牌人生</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    input, select, button {
+      font-size: 1rem;
+      margin: 4px 2px;
+      padding: 6px 10px;
+    }
+    #queryResult {
+      margin-top: 20px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <h2>戰績查詢系統</h2>
+
+  <p>
+    日期：<input type="date" id="datePicker">
+    將數：
+    <select id="dealerCount">
+      <option value="1">第一將</option>
+      <option value="2">第二將</option>
+      <option value="3">第三將</option>
+      <option value="4">第四將</option>
+      <option value="5">第五將</option>
+      <option value="6">第六將</option>
+      <option value="7">第七將</option>
+      <option value="8">第八將</option>
+    </select>
+    <button id="queryBtn">查詢</button>
+  </p>
+
+  <div id="queryResult">尚未查詢</div>
+
+  <script>
+    document.getElementById('queryBtn').addEventListener('click', () => {
+      const selectedDate = document.getElementById('datePicker').value;
+      const dealerCount = document.getElementById('dealerCount').value;
+
+      if (!selectedDate) {
+        alert("請先選擇日期");
+        return;
+      }
+
+      fetch(`/stats?date=${selectedDate}&round_number=${dealerCount}`)
+        .then(res => res.json())
+        .then(data => {
+          let resultText = "歡迎來到《胡牌人生》！\n麻將愛好者的天堂，體驗自摸與爆胡快感，每局都是精彩對決！\n\n" +
+                           "享受更高畫質：\n設定 ⚙️ 》畫質 》進階，選擇解析度\n\n" +
+                           "本局戰績：\n";
+
+          if (Array.isArray(data) && data.length > 0) {
+            data.slice(0, 4).forEach(record => {
+              resultText += `🔹 ${record.player_name}：${record.total_score}\n`;
+            });
+          } else {
+            resultText += "暫無資料\n";
+          }
+
+          resultText += "\n📌 記得訂閱、按讚，開啟小鈴鐺，不錯過每場刺激對戰！\n#胡牌人生 #麻將 #麻將對戰";
+
+          document.getElementById('queryResult').textContent = resultText;
+        })
+        .catch(err => {
+          console.error("查詢錯誤", err);
+          alert("查詢失敗，請稍後再試");
+        });
+    });
+  </script>
+</body>
+</html>
