@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8" />
   <title>戰報輪播</title>
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       background: transparent;
@@ -27,7 +29,6 @@
       opacity: 0;
       transition: opacity 1s ease-in-out;
       background: transparent;
-
     }
 
     iframe.show {
@@ -39,13 +40,35 @@
       opacity: 0;
       z-index: 0;
     }
+
+    .youtube-banner {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #000;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 24px;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      user-select: none;
+    }
   </style>
 </head>
+
 <body>
   <div class="iframe-container">
+    <!-- 加在右上角的提示文字 -->
+    <div class="youtube-banner">
+      🟥胡牌人生<br>按讚👍 訂閱🔔<br>分享📤 小鈴噹🛎️
+    </div>
     <iframe id="iframe1" class="show" src="daily-top10-report.html"></iframe>
     <iframe id="iframe2" class="hide" src=""></iframe>
   </div>
+
+
 
   <script>
     const reports = ["daily-top10-report.html", "monthly-report.html"];
@@ -57,7 +80,6 @@
     setInterval(() => {
       current = (current + 1) % reports.length;
 
-      // Swap src and visibility
       if (iframe1.classList.contains("show")) {
         iframe2.src = reports[current];
         iframe2.classList.remove("hide");
@@ -74,4 +96,5 @@
     }, 6000);
   </script>
 </body>
+
 </html>
