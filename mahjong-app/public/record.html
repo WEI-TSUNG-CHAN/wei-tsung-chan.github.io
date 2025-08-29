@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,11 +11,15 @@
       margin: 20px;
       line-height: 1.6;
     }
-    input, select, button {
+
+    input,
+    select,
+    button {
       font-size: 1rem;
       margin: 4px 2px;
       padding: 6px 10px;
     }
+
     #queryResult {
       margin-top: 20px;
       padding: 12px;
@@ -25,6 +30,7 @@
     }
   </style>
 </head>
+
 <body>
   <h2>戰績查詢系統</h2>
 
@@ -59,9 +65,12 @@
       fetch(`/stats?date=${selectedDate}&round_number=${dealerCount}`)
         .then(res => res.json())
         .then(data => {
-          let resultText = "歡迎來到《胡牌人生》！\n麻將愛好者的天堂，體驗自摸與爆胡快感，每局都是精彩對決！\n\n" +
-                           "享受更高畫質：\n設定 ⚙️ 》畫質 》進階，選擇解析度\n\n" +
-                           "本局戰績：\n";
+          const playerNames = data.slice(0, 4).map(record => record.player_name).join(",");
+          let resultText = `${playerNames}\n\n`;
+
+          resultText += "本影片純屬麻將娛樂與文化分享，並無任何現金賭博行為。\n\n歡迎來到《胡牌人生》！\n麻將愛好者的天堂，體驗自摸與爆胡快感，每局都是精彩對決！\n\n" +
+            "享受更高畫質：\n設定 ⚙️ 》畫質 》進階，選擇解析度\n\n" +
+            "本局戰績：\n";
 
           if (Array.isArray(data) && data.length > 0) {
             data.slice(0, 4).forEach(record => {
@@ -82,4 +91,5 @@
     });
   </script>
 </body>
+
 </html>
