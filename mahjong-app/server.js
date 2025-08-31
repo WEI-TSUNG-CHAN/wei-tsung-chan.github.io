@@ -106,7 +106,6 @@ function getMonthlyStats(req, res) {
     WHERE DATE_FORMAT(date, '%Y-%m') = ?
     GROUP BY player_name
     ORDER BY total_score DESC
-    LIMIT 10
   `;
 
   pool.query(sql, [month], (err, results) => {
