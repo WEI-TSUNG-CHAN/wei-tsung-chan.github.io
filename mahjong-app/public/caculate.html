@@ -31,6 +31,11 @@
 <body>
     <h1>現在時間: <span id="current-time"></span></h1>
 
+    <div id="playerOptionsContainer">
+        <p>請選擇玩家：</p>
+        <div id="playerOptions"></div>
+    </div>
+
     <p>計算結果</p>
 
     <!-- 計算結果表格 -->
@@ -152,11 +157,70 @@
             });
         }
 
+        function loadPlayerRadioButtons() {
+            fetch('/directions/all')
+                .then(res => res.json())
+                .then(dirData => {
+                    const playerNames = [];
+
+                    for (let i = 1; i <= 4; i++) {
+                        const key = `player${i}`;
+                        const found = dirData.find(d => d.key_name === key);
+                        if (found) {
+                            playerNames.push(found.value_name);
+                        }
+                    }
+
+                    const playerOptionsDiv = document.getElementById('playerOptions');
+                    playerOptionsDiv.innerHTML = ''; // 清空原本內容
+
+                    playerNames.forEach((name, index) => {
+                        const label = document.createElement('label');
+                        // label.style.display = 'block';
+
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = 'playerName';
+                        radio.value = name;
+                        if (index === 0) radio.checked = true;
+
+                        label.appendChild(radio);
+                        label.appendChild(document.createTextNode(` ${name}`));
+                        playerOptionsDiv.appendChild(label);
+                    });
+
+                    // 如果你還要呼叫 updateAndSumStats，可以在這裡加：
+                    // updateAndSumStats();
+                })
+                .catch(err => {
+                    console.error("載入玩家資料失敗", err);
+                    alert("無法取得玩家資訊");
+                });
+        }
+
+        function updateDirection(key, value) {
+            fetch('/directions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key_name: key, value_name: value })
+            }).then(res => {
+                if (!res.ok) console.error("更新 directions 失敗");
+            });
+        }
 
         // 提交計算結果
         document.getElementById('submit-button').addEventListener('click', () => {
             const selectedData = [];
-
+            // 1. 抓取選中的 radio player 名稱
+            const selectedRadio = document.querySelector('input[name="playerName"]:checked');
+            if (selectedRadio) {
+                const winnerName = selectedRadio.value;
+                // 2. 呼叫 updateDirection，寫入 winner
+                updateDirection('winner', winnerName);
+            } else {
+                alert("請先選擇一位玩家");
+                return; // 沒選就不要送出
+            }
             document.querySelectorAll('.result-row td').forEach(td => {
                 const type = td.textContent.split(' ')[0];
                 const tie = parseInt(td.getAttribute('data-tie'), 10);
@@ -190,6 +254,11 @@
             loadMahjongData();
             setTimeout(loadActiveResults, 300); // 延遲載入 flag=1 結果
             setInterval(updateCurrentTime, 1000);
+
+            //const selectedDate = new Date().toISOString().split('T')[0];
+            // const dealerCount = 1;
+            // loadPlayerRadioButtons(selectedDate, dealerCount);
+            loadPlayerRadioButtons();
         });
     </script>
 </body>

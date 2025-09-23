@@ -57,17 +57,35 @@
             color: #39ff14 !important;
             /* 螢光綠，非常醒目 */
         }
+
+        /* 新增 winner-caption 樣式 */
+        caption.winner-caption {
+            caption-side: top;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #FF6F3C;
+            /* 活潑橘紅 */
+            letter-spacing: 0.08em;
+            /* 字間微拉 */
+            text-shadow: 1px 1px 3px rgba(255, 111, 60, 0.6);
+            /* 暖色陰影 */
+            padding-bottom: 0.6rem;
+            user-select: none;
+            font-family: 'Orbitron', sans-serif;
+            /* 保持整體字體 */
+        }
     </style>
 
 </head>
 
 <body>
     <table>
+        <caption id="winner-caption" class="winner-caption"></caption>
+        </caption>
         <thead>
             <tr>
                 <th>類型</th>
                 <th>台數</th>
-                <!--<th>時間</th>-->
             </tr>
         </thead>
         <tbody id="data-body">
@@ -81,52 +99,63 @@
     </table>
 
     <script>
-        let lastDataStr = null; // 紀錄上次資料字串
+        let lastDataStr = null; // 紀錄上次計算資料字串
+        let lastWinner = null;  // 紀錄上次冠軍名稱
         const table = document.querySelector('table');
+        const winnerCaption = document.getElementById('winner-caption');
 
-        function formatDateTime(datetimeString) {
-            const date = new Date(datetimeString);
-            const pad = (n) => n.toString().padStart(2, '0');
-            const yyyy = date.getFullYear();
-            const mm = pad(date.getMonth() + 1);
-            const dd = pad(date.getDate());
-            const hh = pad(date.getHours());
-            const mi = pad(date.getMinutes());
-            const ss = pad(date.getSeconds());
-            return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+        // 載入冠軍資訊
+        function loadWinner() {
+            return fetch('/directions/all')
+                .then(res => res.json())
+                .then(dirData => {
+                    const winnerObj = dirData.find(d => d.key_name === 'winner');
+                    const winnerName = winnerObj && winnerObj.value_name ? winnerObj.value_name : null;
+                    return winnerName;
+                });
         }
 
-        // 用於載入計算資料
+        // 載入計算資料
         function loadCalculateData() {
-            fetch('/calculate/active', { method: 'POST' })
+            return fetch('/calculate/active', { method: 'POST' })
                 .then(res => res.json())
-                .then(data => {
-                    const dataStr = JSON.stringify(data);
+                .then(data => data);
+        }
 
-                    // 如果資料沒變就隱藏 table 並結束
-                    if (dataStr === lastDataStr) {
+        // 主要更新函式：載入冠軍+計算資料，判斷是否更新和顯示隱藏
+        function refreshData() {
+            Promise.all([loadWinner(), loadCalculateData()])
+                .then(([winnerName, calcData]) => {
+                    const dataStr = JSON.stringify(calcData);
+                    // 判斷資料是否有變化（冠軍或計算資料）
+                    if (dataStr === lastDataStr && winnerName === lastWinner) {
+                        // 沒變就隱藏表格
                         table.style.display = 'none';
                         return;
                     }
-
-                    // 資料有異動，更新 lastDataStr 並顯示 table
+                    // 有變化則更新並顯示表格
                     lastDataStr = dataStr;
+                    lastWinner = winnerName;
                     table.style.display = 'table';
 
+                    // 更新冠軍顯示
+                    winnerCaption.textContent = winnerName ? `🎉WIN ${winnerName}` : '';
+
+                    // 更新計算資料表格
                     const tbody = document.getElementById('data-body');
                     const totalRow = document.getElementById('total-row');
                     tbody.innerHTML = '';
 
                     let totalTie = 0;
-                    data.sort((a, b) => a.tie - b.tie);
+                    calcData.sort((a, b) => a.tie - b.tie);
 
-                    data.forEach(item => {
+                    calcData.forEach(item => {
                         totalTie += parseInt(item.tie, 10);
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                        <td>${item.type}</td>
-                        <td>${item.tie}</td>
-                    `;
+                            <td>${item.type}</td>
+                            <td>${item.tie}</td>
+                        `;
                         tbody.appendChild(row);
                     });
 
@@ -134,15 +163,19 @@
                 })
                 .catch(err => {
                     console.error('資料載入錯誤:', err);
+                    // 出錯也可選擇隱藏表格或顯示錯誤訊息
+                    winnerCaption.textContent = '載入冠軍資訊失敗';
+                    table.style.display = 'none';
                 });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadCalculateData();
-            setInterval(loadCalculateData, 8000);
+            refreshData();
+            setInterval(refreshData, 8000);
         });
     </script>
-
 </body>
+
+
 
 </html>
