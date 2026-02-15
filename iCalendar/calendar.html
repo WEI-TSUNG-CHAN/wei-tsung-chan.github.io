@@ -41,7 +41,7 @@
             padding: 15px;
             text-align: center;
             font-size: 16px;
-            vertical-align: top; /* 讓文字靠上對齊 */
+            vertical-align: top;
         }
 
         th {
@@ -51,15 +51,13 @@
 
         td {
             background-color: #ecf0f1;
-            /* word-wrap: break-word; 使 td 內容自動換行 */
-            word-break: break-word; /* 防止長單詞超出 */
-            white-space: nowrap; /* 讓文字正常換行 */
-            max-width: 150px; /* 限制 td 的最大寬度 */
+            word-break: break-word;
+            max-width: 150px;
         }
 
         .content {
-            white-space: normal; /* 確保文字可以換行 */
-            word-wrap: break-word; /* 使長字串自動換行 */
+            white-space: normal;
+            word-wrap: break-word;
         }
 
         tr:nth-child(even) td {
@@ -70,7 +68,6 @@
             background-color: #f0f4f7;
         }
 
-        /* Mobile responsiveness */
         @media (max-width: 768px) {
             table {
                 font-size: 14px;
@@ -91,32 +88,44 @@
         <thead>
             <tr>
                 <th>時間/星期</th>
-                <th id="thu">星期四<br>3/1</th>
-                <th id="fri">星期五<br>3/2</th>
-                <th id="sat">星期六<br>3/3</th>
-                <th id="sun">星期天<br>3/4</th>
+                <th id="mon">星期一</th>
+                <th id="tue">星期二</th>
+                <th id="wed">星期三</th>
+                <th id="thu">星期四</th>
+                <th id="fri">星期五</th>
+                <th id="sat">星期六</th>
+                <th id="sun">星期日</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>早上</td>
+                <td>早</td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
             </tr>
             <tr>
-                <td>中午<br>13:00</td>
+                <td>中<br>13:00</td>
+                <td><div class="content"></div>佑(主1)<br>,,,</td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
                 <td><div class="content"></div>佑(主1)<br>本(主2)<br>,,</td>
                 <td><div class="content"></div>閃(主1)<br>莎(主2)<br>,,</td>
             </tr>
             <tr>
-                <td>晚上<br>19:00<br>或20:00</td>
+                <td>晚<br>19:00<br>或20:00</td>
                 <td><div class="content"></div></td>
                 <td><div class="content"></div>龍(主1)<br>澤(主2)<br>,,</td>
                 <td><div class="content"></div>王(主1)<br>詹(主2)<br>,,</td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
+                <td><div class="content"></div></td>
                 <td><div class="content"></div></td>
             </tr>
         </tbody>
@@ -124,7 +133,7 @@
     <p>臨：臨時約牌咖，可能會開直播，也有可能不開。</p>
     <script>
         function formatDate(date) {
-            const month = date.getMonth() + 1; // 月是從0開始的，所以需要加1
+            const month = date.getMonth() + 1;
             const day = date.getDate();
             return `${month}/${day}`;
         }
@@ -132,7 +141,7 @@
         function getCurrentWeekDates() {
             const today = new Date();
             const dayOfWeek = today.getDay();
-            const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 週一是1，週天是0，所以計算週一日期
+            const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
             const monday = new Date(today.setDate(today.getDate() + diff));
             
             const dates = [];
@@ -146,16 +155,16 @@
 
         function populateCalendar() {
             const weekDates = getCurrentWeekDates();
-            document.getElementById('thu').innerHTML = `星期四<br>${weekDates[3]}`;
-            document.getElementById('fri').innerHTML = `星期五<br>${weekDates[4]}`;
-            document.getElementById('sat').innerHTML = `星期六<br>${weekDates[5]}`;
-            document.getElementById('sun').innerHTML = `星期天<br>${weekDates[6]}`;
+            const ids = ["mon","tue","wed","thu","fri","sat","sun"];
+            const names = ["星期一","星期二","星期三","星期四","星期五","星期六","星期日"];
+            ids.forEach((id, index) => {
+                document.getElementById(id).innerHTML = `${names[index]}<br>${weekDates[index]}`;
+            });
         }
 
-        // 顯示檔案的最後更新時間
         function displayUpdateTime() {
-            const updateTime = new Date(document.lastModified);  // 取得最後修改時間
-            const formattedUpdateTime = updateTime.toLocaleString();  // 格式化為可讀時間
+            const updateTime = new Date(document.lastModified);
+            const formattedUpdateTime = updateTime.toLocaleString();
             document.getElementById('update-time').innerText = `更新時間: ${formattedUpdateTime}`;
         }
 
