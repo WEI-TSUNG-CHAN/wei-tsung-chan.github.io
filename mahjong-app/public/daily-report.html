@@ -17,10 +17,10 @@
 
         /* 🔹 新增：本將標題條 */
         .round-label {
-            width: 500px;
+            width: 400px;
             margin: 0 auto 6px auto;
             padding: 6px 12px;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             background: rgba(15, 18, 25, 0.9);
             color: rgba(120, 200, 255, 0.95);
             letter-spacing: 2px;
@@ -28,7 +28,7 @@
         }
 
         table {
-            width: 500px;
+            width: 400px;
             margin: 0 auto;
             border-collapse: collapse;
             background-color: rgba(20, 24, 30, 0.88);
@@ -145,8 +145,9 @@
             const totalHu = displayStats.reduce((sum, p) => sum + Number(p.total_hu), 0);
 
             // 🔹 更新表頭文字（即時戰報後加上局數）
+            //document.getElementById('round-label').innerHTML = `第 <span style="color:red; font-weight:bold;">${round}</span> 將｜即時戰報｜累積局數 <span style="color:red; font-weight:bold;">${totalHu}</span>`;
             document.getElementById('round-label').innerHTML =
-                `第 <span style="color:red; font-weight:bold;">${round}</span> 將｜即時戰報｜累積局數 <span style="color:red; font-weight:bold;">${totalHu}</span>`;
+                `<span style="color:green; font-weight:bold;">即時戰報</span> ｜累積局數 <span style="color:red; font-weight:bold;">${totalHu}</span>`;
 
             // 🔹 更新表格內容（保留原本邏輯）
             const tbody = document.getElementById('report-body');
