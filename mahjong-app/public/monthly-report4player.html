@@ -4,61 +4,79 @@
 <head>
   <meta charset="UTF-8" />
   <title>本月四位玩家分數統計</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+
   <style>
     html,
     body {
       margin: 0;
       padding: 0;
       background: transparent;
-      font-family: 'Orbitron', sans-serif;
-      color: rgba(220, 230, 240, 0.85);
+      font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
     }
 
     table {
-      width: 250px;
-      height: 250px;
+      width: 220px;
       margin: 0 auto;
-      border-collapse: collapse;
-      background-color: rgba(20, 24, 30, 0.88);
-      border: 1px solid rgba(100, 100, 100, 0.2);
-      border-radius: 8px;
+      border-collapse: separate;
+      border-spacing: 0 14px; /* 卡片間距 */
     }
 
-    th,
     td {
-      padding: 0.2rem 0.4rem;
-      /* 更緊密 */
-      text-align: center;
-      border: 1px solid rgba(80, 80, 80, 0.3);
-      font-size: 2.4rem;
-      color: rgba(240, 250, 255, 0.92);
+      background: rgba(20, 24, 30, 0.45);
+      backdrop-filter: blur(6px);
+      border-radius: 10px;
+      padding: 12px 16px;
     }
 
-    th {
-      background-color: rgba(35, 40, 50, 0.95);
-      color: rgba(79, 195, 247, 0.95);
-      font-weight: 700;
+    .player-name {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      letter-spacing: 1px;
     }
 
-    td:first-child {
-      color: gold;
+    .score-row {
+      margin-top: 4px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .label {
+      font-size: 0.9rem;
+      color: #BFBFBF;
+    }
+
+    .score {
+      font-size: 1.6rem;
       font-weight: 700;
+      transition: 0.3s ease;
+    }
+
+    .positive {
+      color: #FFD54F;
+    }
+
+    .negative {
+      color: #FF6B6B;
+    }
+
+    .flash {
+      animation: flashAnim 0.6s ease;
+    }
+
+    @keyframes flashAnim {
+      0% { transform: scale(1.15); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
 
 <body>
   <table>
-    <thead>
-      <tr>
-        <th>玩家</th>
-        <th>分數</th>
-      </tr>
-    </thead>
     <tbody id="report-body">
       <tr>
-        <td colspan="2">載入中...</td>
+        <td>載入中...</td>
       </tr>
     </tbody>
   </table>
@@ -80,37 +98,49 @@
     }
 
     async function renderMonthlyReport() {
+
       const dir = await fetchDirections();
       const date = dir['assign_date'];
-      const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
+      const players = [
+        dir['player1'],
+        dir['player2'],
+        dir['player3'],
+        dir['player4']
+      ];
+
       const stats = await fetchMonthlyStats(date);
+
       const statsMap = {};
       stats.forEach(s => {
         statsMap[s.player_name] = s.total_score;
       });
 
       const tbody = document.getElementById('report-body');
+
       tbody.innerHTML = players.map(name => {
+
         const score = statsMap[name] ?? 0;
         const prevScore = previousStatsMap[name];
-        const isChanged = prevScore !== undefined && prevScore !== score;
-        const colorStyle = isChanged ? 'color: red;' : '';
 
-        // 判斷是不是老王
-        const isLaoWang = name === '閃亮';
-        const rowStyle = isLaoWang
-          ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;'
-          : '';
+        const changed = prevScore !== undefined && prevScore !== score;
+        const signClass = score >= 0 ? 'positive' : 'negative';
+        const flashClass = changed ? 'flash' : '';
 
         return `
-        <tr style="${rowStyle}">
-          <td>${name}</td>
-          <td style="${colorStyle}">${score}</td>
-        </tr>
-      `;
+          <tr>
+            <td>
+              <div class="player-name">${name}</div>
+              <div class="score-row">
+                <span class="label">月｜</span>
+                <span class="score ${signClass} ${flashClass}">
+                  ${score}
+                </span>
+              </div>
+            </td>
+          </tr>
+        `;
       }).join('');
 
-      // 儲存目前狀態供下次比對
       previousStatsMap = { ...statsMap };
     }
 
@@ -118,7 +148,5 @@
     setInterval(renderMonthlyReport, 5000);
   </script>
 
-
 </body>
-
 </html>
