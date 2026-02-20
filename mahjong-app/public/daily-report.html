@@ -15,61 +15,69 @@
             color: rgba(220, 230, 240, 0.85);
         }
 
+        /* 🔹 新增：本將標題條 */
+        .round-label {
+            width: 500px;
+            margin: 0 auto 6px auto;
+            padding: 6px 12px;
+            font-size: 1.2rem;
+            background: rgba(15, 18, 25, 0.9);
+            color: rgba(120, 200, 255, 0.95);
+            letter-spacing: 2px;
+            border-radius: 6px;
+        }
+
         table {
-            width: 600px;
-            height: 400px;
+            width: 500px;
             margin: 0 auto;
             border-collapse: collapse;
             background-color: rgba(20, 24, 30, 0.88);
-            /* 深色背景恢復 */
             border: 1px solid rgba(100, 100, 100, 0.2);
             border-radius: 8px;
         }
 
         th,
         td {
-            padding: 0.4rem 0.6rem;
-            /* 欄位緊密 */
+            margin: 0 auto 6px auto;
             text-align: center;
             border: 1px solid rgba(80, 80, 80, 0.3);
-            font-size: 3rem;
-            /* 字體加大 */
+            font-size: 1.2rem;
             color: rgba(240, 250, 255, 0.92);
-            /* 白字偏藍，清楚 */
         }
 
         th {
             background-color: rgba(35, 40, 50, 0.95);
-            /* 深色表頭 */
             color: rgba(79, 195, 247, 0.95);
             font-weight: 700;
         }
 
         td:first-child {
             color: gold;
-            /* 玩家名稱顏色 */
             font-weight: 700;
         }
 
         h1 {
             display: none;
-            /* 隱藏標題可讓畫面乾淨 */
         }
 
         tbody {
             display: table-row-group;
         }
     </style>
-
-
 </head>
 
 <body>
+
+    <!-- 🔹 新增標示：明確告訴觀眾這是本將 -->
+    <div class="round-label" id="round-label">
+        本將即時戰報
+    </div>
+
     <table>
         <thead>
             <tr>
                 <th>玩家</th>
-                <th>分數</th>
+                <th>本將分數</th> <!-- 🔹 改這裡 -->
                 <th>自摸</th>
                 <th>胡牌</th>
                 <th>槍</th>
@@ -83,6 +91,7 @@
     </table>
 
     <script>
+        // 🔹 保留原本 fetchDirections 與 fetchStats，不改動
         let previousData = [];
 
         async function fetchDirections() {
@@ -115,7 +124,6 @@
             let displayStats;
 
             if (stats.length > 0) {
-                // 有資料：使用 stats 的順序
                 displayStats = stats.map(s => ({
                     player_name: s.player_name,
                     total_score: s.total_score,
@@ -124,7 +132,6 @@
                     total_qiang: s.total_qiang
                 }));
             } else {
-                // 沒有資料：補空資料，以 directions 的順序為主
                 displayStats = players.map(name => ({
                     player_name: name,
                     total_score: 0,
@@ -134,8 +141,15 @@
                 }));
             }
 
-            const tbody = document.getElementById('report-body');
+            // 🔹 計算局數（total_hu 加總，確保數字型別）
+            const totalHu = displayStats.reduce((sum, p) => sum + Number(p.total_hu), 0);
 
+            // 🔹 更新表頭文字（即時戰報後加上局數）
+            document.getElementById('round-label').innerHTML =
+                `第 <span style="color:red; font-weight:bold;">${round}</span> 將｜即時戰報｜累積局數 <span style="color:red; font-weight:bold;">${totalHu}</span>`;
+
+            // 🔹 更新表格內容（保留原本邏輯）
+            const tbody = document.getElementById('report-body');
             tbody.innerHTML = displayStats.map((p, i) => {
                 const prev = previousData[i];
                 const changed = prev && isDifferent(prev, p);
@@ -143,10 +157,10 @@
                 return `
             <tr>
                 <td>${p.player_name}</td>
-                <td style="${changed ? 'color:red;' : ''}">${p.total_score}</td>
-                <td style="${changed ? 'color:red;' : ''}">${p.total_zi}</td>
-                <td style="${changed ? 'color:red;' : ''}">${p.total_hu}</td>
-                <td style="${changed ? 'color:red;' : ''}">${p.total_qiang}</td>
+                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_score}</td>
+                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_zi}</td>
+                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_hu}</td>
+                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_qiang}</td>
             </tr>
         `;
             }).join('');
@@ -154,10 +168,8 @@
             previousData = JSON.parse(JSON.stringify(displayStats));
         }
 
-        // 初始載入
+        // 🔹 初始渲染
         renderReport();
-
-        // 每 5 秒自動刷新
         setInterval(renderReport, 5000);
     </script>
 
