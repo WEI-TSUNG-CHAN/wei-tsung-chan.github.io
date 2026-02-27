@@ -1,3 +1,24 @@
+.player-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+
+  /* 重點在這 */
+  -webkit-text-stroke: 1px #000;   /* 黑色描邊 */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* 柔和陰影 */
+}
+
+.player-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  padding: 2px 6px;
+  display: inline-block;
+  background: rgba(0,0,0,0.4);
+  border-radius: 6px;
+}
+
 老詹打Game-UnderDark-試播
 
 rtmp://x.rtmp.youtube.com/live2/
