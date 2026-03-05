@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>本月四位玩家分數統計</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      background: transparent;
+      font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+      overflow: hidden;
+      perspective: 1000px; /* 啟用透視 */
+    }
+
+    /* 容器定位佈局 */
+    .player-container {
+      position: absolute;
+      transform-style: preserve-3d; /* 保留透視深度 */
+    }
+
+    /* 玩家位置 */
+    #area-1 { bottom: 10px; left: 45%; transform: translateX(-50%); }
+    #area-2 { right: 10px; top: 35%; transform: translateY(-50%); }
+    #area-3 { top: 10px; left: 45%; transform: translateX(-50%); }
+    #area-4 { left: 10px; top: 40%; transform: translateY(-50%); }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35); /* 輕微陰影增加立體感 */
+      transform: translateZ(0); /* 保持透視深度 */
+    }
+
+    td {
+      background: rgba(20, 24, 30, 0.45);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+      padding: 20px 24px;
+    }
+
+    .player-name {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      padding: 4px 10px;
+      display: inline-block;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+    }
+
+    .score-row {
+      margin-top: 8px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .label {
+      font-size: 1.8rem;
+      color: #BFBFBF;
+    }
+
+    .score {
+      font-size: 2.5rem;
+      font-weight: 700;
+      transition: 0.3s ease;
+    }
+
+    .positive { color: #FFD54F; }
+    .negative { color: #FF6B6B; }
+
+    .flash {
+      animation: flashAnim 0.6s ease;
+    }
+
+    @keyframes flashAnim {
+      0% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="area-1" class="player-container"></div>
+  <div id="area-2" class="player-container"></div>
+  <div id="area-3" class="player-container"></div>
+  <div id="area-4" class="player-container"></div>
+
+  <script>
+    let previousStatsMap = {};
+
+    async function fetchDirections() {
+      const res = await fetch(`/directions/all?t=${Date.now()}`);
+      const data = await res.json();
+      const map = {};
+      data.forEach(item => map[item.key_name] = item.value_name);
+      return map;
+    }
+
+    async function fetchMonthlyStats(date) {
+      const res = await fetch(`/stats/month?date=${encodeURIComponent(date)}&t=${Date.now()}`);
+      return res.json();
+    }
+
+    async function renderMonthlyReport() {
+      const dir = await fetchDirections();
+      if (!dir) return;
+
+      const date = dir['assign_date'];
+      const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
+
+      const stats = await fetchMonthlyStats(date);
+      const statsMap = {};
+      stats.forEach(s => statsMap[s.player_name] = Number(s.total_score));
+
+      players.forEach((name, index) => {
+        const container = document.getElementById(`area-${index + 1}`);
+        if (!container || !name) return;
+
+        const score = statsMap[name] ?? 0;
+        const prevScore = previousStatsMap[name];
+        const changed = prevScore !== undefined && prevScore !== score;
+        const signClass = score >= 0 ? 'positive' : 'negative';
+
+        const isLaoWang = name === '老王';
+        const rowStyle = isLaoWang
+          ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;'
+          : '';
+
+        container.innerHTML = `
+          <table>
+            <tr style="${rowStyle}">
+              <td>
+                <div class="player-name">${name}</div>
+                <div class="score-row">
+                  <span class="label">月｜</span>
+                  <span class="score ${signClass} ${changed ? "flash" : ""}">${score}</span>
+                </div>
+              </td>
+            </tr>
+          </table>
+        `;
+      });
+
+      previousStatsMap = { ...statsMap };
+    }
+
+    renderMonthlyReport();
+    setInterval(renderMonthlyReport, 5000);
+  </script>
+</body>
+
+</html>
