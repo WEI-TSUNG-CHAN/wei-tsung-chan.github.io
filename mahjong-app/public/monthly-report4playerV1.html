@@ -6,6 +6,7 @@
   <title>本月四位玩家分數統計</title>
 
   <style>
+    /* 保留原始 CSS 與 3D 配置 */
     html,
     body {
       margin: 0;
@@ -15,26 +16,42 @@
       background: transparent;
       font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
       overflow: hidden;
-      perspective: 1000px; /* 啟用透視 */
+      perspective: 1000px;
     }
 
-    /* 容器定位佈局 */
     .player-container {
       position: absolute;
-      transform-style: preserve-3d; /* 保留透視深度 */
+      transform-style: preserve-3d;
     }
 
-    /* 玩家位置 */
-    #area-1 { bottom: 10px; left: 45%; transform: translateX(-50%); }
-    #area-2 { right: 10px; top: 35%; transform: translateY(-50%); }
-    #area-3 { top: 10px; left: 35%; transform: translateX(-50%); }
-    #area-4 { left: 10px; top: 40%; transform: translateY(-50%); }
+    #area-1 {
+      bottom: 10px;
+      left: 45%;
+      transform: translateX(-50%);
+    }
+
+    #area-2 {
+      right: 10px;
+      top: 30%;
+      transform: translateY(-50%);
+    }
+
+    #area-3 {
+      top: 10px;
+      left: 35%;
+      transform: translateX(-50%);
+    }
+
+    #area-4 {
+      left: 10px;
+      top: 40%;
+      transform: translateY(-50%);
+    }
 
     table {
       border-collapse: separate;
       border-spacing: 0;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8); /* 輕微陰影增加立體感 */
-      transform: translateZ(0); /* 保持透視深度 */
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
     }
 
     td {
@@ -44,12 +61,17 @@
       padding: 20px 24px;
     }
 
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
     .player-name {
       font-size: 2.5rem;
       font-weight: 600;
       color: #FFFFFF;
       padding: 4px 10px;
-      display: inline-block;
       background: rgba(0, 0, 0, 0.4);
       border-radius: 8px;
     }
@@ -72,18 +94,95 @@
       transition: 0.3s ease;
     }
 
-    .positive { color: #FFD54F; }
-    .negative { color: #FF6B6B; }
+    .positive {
+      color: #FFD54F;
+    }
+
+    .negative {
+      color: #FF6B6B;
+    }
+
+    /* 莊家標記 */
+    .dealer-mark {
+      position: relative;
+      font-size: 2.8rem;
+      font-weight: bold;
+      color: #FF4444;
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+    }
+
+    .times-count {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      font-size: 1.2rem;
+      background: #FF0000;
+      color: white;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* --- 右下角資訊樣式 (模擬圖片) --- */
+    .status-panel-wrapper {
+      position: absolute;
+      bottom: 10px;
+      right: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: gold;
+      font-weight: bold;
+      /* 統一金色陰影特效 */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    /* 上方：第 X 將 */
+    .ui-round-label {
+      font-size: 2.2rem;
+      margin-bottom: 5px;
+    }
+
+    /* 下方容器：風向 + 連莊(底台) */
+    .ui-main-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    /* 風向字體：超大 */
+    .ui-direction-text {
+      font-size: 5rem;
+      line-height: 1;
+    }
+
+    /* 連莊次數：模擬「底台」排列方式 */
+    .ui-tie-stack {
+      display: flex;
+      flex-direction: column;
+      font-size: 1.5rem;
+      line-height: 1.5;
+      justify-content: flex-end;
+      padding-bottom: 5px;
+    }
 
     .flash {
       animation: flashAnim 0.6s ease;
     }
 
     @keyframes flashAnim {
-      0% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
+      0% {
+        transform: scale(1.15);
+      }
 
+      100% {
+        transform: scale(1);
+      }
+    }
   </style>
 </head>
 
@@ -92,6 +191,16 @@
   <div id="area-2" class="player-container"></div>
   <div id="area-3" class="player-container"></div>
   <div id="area-4" class="player-container"></div>
+
+  <div class="status-panel-wrapper">
+    <div id="ui-round" class="ui-round-label"></div>
+    <div class="ui-main-row">
+      <div id="ui-direction" class="ui-direction-text"></div>
+      <div class="ui-tie-stack">
+        <div><span id="ui-tie-val"></span></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     let previousStatsMap = {};
@@ -113,8 +222,16 @@
       const dir = await fetchDirections();
       if (!dir) return;
 
+      // 更新右下角 UI 佈局
+      const roundNum = parseInt(dir['round_number'], 10);
+      document.getElementById('ui-round').innerText = (roundNum >= 1 && roundNum <= 8) ? `第 ${roundNum} 將` : '';
+      document.getElementById('ui-direction').innerText = dir['direction'] || '';
+      document.getElementById('ui-tie-val').innerHTML = dir['tie_conut'] || '0';
+
       const date = dir['assign_date'];
       const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
+      const rankerIdx = parseInt(dir['ranker'], 10);
+      const timesVal = dir['times'];
 
       const stats = await fetchMonthlyStats(date);
       const statsMap = {};
@@ -129,16 +246,26 @@
         const changed = prevScore !== undefined && prevScore !== score;
         const signClass = score >= 0 ? 'positive' : 'negative';
 
-        const isLaoWang = name === '閃亮';
-        const rowStyle = isLaoWang
-          ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;'
-          : '';
+        // 莊家標記 (放左側)
+        let dealerHtml = '';
+        if ((index + 1) === rankerIdx) {
+          dealerHtml = `
+            <div class="dealer-mark">
+              莊${timesVal != 0 ? `<div class="times-count">${timesVal}</div>` : ''}
+            </div>`;
+        }
+
+        const isSpecial = name === '閃亮';
+        const rowStyle = isSpecial ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;' : '';
 
         container.innerHTML = `
           <table>
             <tr style="${rowStyle}">
               <td>
-                <div class="player-name">${name}</div>
+                <div class="name-row">
+                  ${dealerHtml}
+                  <div class="player-name">${name}</div>
+                </div>
                 <div class="score-row">
                   <span class="label">月｜</span>
                   <span class="score ${signClass} ${changed ? "flash" : ""}">${score}</span>
