@@ -27,18 +27,18 @@
     /* 玩家位置 */
     #area-1 { bottom: 10px; left: 45%; transform: translateX(-50%); }
     #area-2 { right: 10px; top: 35%; transform: translateY(-50%); }
-    #area-3 { top: 10px; left: 45%; transform: translateX(-50%); }
+    #area-3 { top: 10px; left: 35%; transform: translateX(-50%); }
     #area-4 { left: 10px; top: 40%; transform: translateY(-50%); }
 
     table {
       border-collapse: separate;
       border-spacing: 0;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35); /* 輕微陰影增加立體感 */
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8); /* 輕微陰影增加立體感 */
       transform: translateZ(0); /* 保持透視深度 */
     }
 
     td {
-      background: rgba(20, 24, 30, 0.45);
+      background: rgba(20, 24, 30, 0.8);
       backdrop-filter: blur(6px);
       border-radius: 14px;
       padding: 20px 24px;
@@ -129,7 +129,7 @@
         const changed = prevScore !== undefined && prevScore !== score;
         const signClass = score >= 0 ? 'positive' : 'negative';
 
-        const isLaoWang = name === '老王';
+        const isLaoWang = name === '閃亮';
         const rowStyle = isLaoWang
           ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;'
           : '';
