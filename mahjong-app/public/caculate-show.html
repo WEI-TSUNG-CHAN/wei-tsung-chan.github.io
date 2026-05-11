@@ -3,24 +3,121 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>麻將計算資料</title>
+    <title>麻將計算資料 - 整合版</title>
     <style>
         html,
         body {
             margin: 0;
             padding: 0;
+            width: 1400px;
+            height: 600px;
             background: transparent;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Microsoft JhengHei', sans-serif;
             color: rgba(220, 230, 240, 0.85);
+            overflow: hidden;
         }
 
+        /* 主容器：控制整體的顯示與隱藏 */
+        .layout-container {
+            display: none;
+            /* 初始隱藏 */
+            width: 1400px;
+            height: 600px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+
+        /* ========================= */
+        /* 左側特效區 */
+        /* ========================= */
+        .kill-effect {
+            width: 900px;
+            height: 600px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            overflow: visible;
+        }
+
+        .kill-text {
+            display: flex;
+            gap: 10px;
+            min-width: 600px;
+        }
+
+        .kill-text.show {
+            animation: killShake 0.15s infinite;
+        }
+
+        .kill-char {
+            font-size: 10rem;
+            font-weight: 900;
+            color: #ff2b2b;
+            text-shadow: 4px 4px 0 #000, 0 0 10px red, 0 0 25px crimson, 0 0 50px darkred;
+            opacity: 0;
+            transform: translateX(-1200px) rotate(-25deg) scale(3);
+            display: inline-block;
+        }
+
+        /* 文字動畫 */
+        .kill-text.show .kill-char {
+            animation: killEnter 7s forwards;
+        }
+
+        @keyframes killEnter {
+            0% {
+                opacity: 0;
+                transform: translateX(-1200px) rotate(-30deg) scale(3);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translateX(40px) rotate(5deg) scale(1.1);
+            }
+
+            20%,
+            80% {
+                opacity: 1;
+                transform: translateX(0) rotate(0deg) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-250px) rotate(15deg) scale(0.2);
+            }
+        }
+
+        @keyframes killShake {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(2px, -1px);
+            }
+
+            50% {
+                transform: translate(-2px, 1px);
+            }
+
+            100% {
+                transform: translate(-1px, -2px);
+            }
+        }
+
+        /* ========================= */
+        /* 右側表格區 */
+        /* ========================= */
         table {
-            width: 300px;
-            margin: 40px auto;
+            width: 320px;
             border-collapse: collapse;
             background-color: rgba(20, 24, 30, 0.88);
             border: 1px solid rgba(100, 100, 100, 0.2);
             border-radius: 8px;
+            overflow: hidden;
         }
 
         th,
@@ -43,141 +140,141 @@
             font-weight: 700;
         }
 
-        h1 {
-            display: none;
-        }
-
-        tbody {
-            display: table-row-group;
-        }
-
         tfoot td {
             font-weight: bold;
             background-color: rgba(30, 36, 45, 0.9);
             color: #39ff14 !important;
-            /* 螢光綠，非常醒目 */
         }
 
-        /* 新增 winner-caption 樣式 */
         caption.winner-caption {
-            caption-side: top;
             font-size: 2.5rem;
             font-weight: 800;
             color: #FF6F3C;
-            /* 活潑橘紅 */
-            letter-spacing: 0.08em;
-            /* 字間微拉 */
-            text-shadow:
-                2px 2px 4px rgba(0, 0, 0, 0.7);
-            /* 暖色陰影 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             padding-bottom: 0.6rem;
-            user-select: none;
-            font-family: 'Orbitron', sans-serif;
-            /* 保持整體字體 */
-
         }
     </style>
-
 </head>
 
 <body>
-    <table>
-        <caption id="winner-caption" class="winner-caption"></caption>
-        </caption>
-        <thead>
-            <tr>
-                <th>類型</th>
-                <th>台數</th>
-            </tr>
-        </thead>
-        <tbody id="data-body">
-            <!-- 資料將由 JS 動態插入 -->
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2" id="total-row">合計：0 台</td>
-            </tr>
-        </tfoot>
-    </table>
+    <!-- 用容器包起來，統一控制顯示隱藏 -->
+    <div class="layout-container" id="main-container">
+        <!-- 左側特效 -->
+        <div class="kill-effect">
+            <div class="kill-text" id="kill-text"></div>
+        </div>
+
+        <!-- 右側表格 -->
+        <table id="data-table">
+            <caption id="winner-caption" class="winner-caption"></caption>
+            <thead>
+                <tr>
+                    <th>類型</th>
+                    <th>台數</th>
+                </tr>
+            </thead>
+            <tbody id="data-body"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" id="total-row">合計：0 台</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
     <script>
-        let lastDataStr = null; // 紀錄上次計算資料字串
-        let lastWinner = null;  // 紀錄上次冠軍名稱
-        const table = document.querySelector('table');
-        const winnerCaption = document.getElementById('winner-caption');
+        let lastDataStr = null;
+        let lastWinner = null;
 
-        // 載入冠軍資訊
+        const mainContainer = document.getElementById('main-container');
+        const winnerCaption = document.getElementById('winner-caption');
+        const killText = document.getElementById('kill-text');
+
+        function showKillEffect(text) {
+            killText.innerHTML = '';
+            // 拆解文字
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('div');
+                span.className = 'kill-char';
+                span.textContent = char;
+                span.style.animationDelay = `${index * 0.1}s`;
+                killText.appendChild(span);
+            });
+
+            // 重啟動畫
+            killText.classList.remove('show');
+            void killText.offsetWidth; // 觸發重繪
+            killText.classList.add('show');
+        }
+
         function loadWinner() {
             return fetch('/directions/all')
                 .then(res => res.json())
                 .then(dirData => {
                     const winnerObj = dirData.find(d => d.key_name === 'winner');
-                    const winnerName = winnerObj && winnerObj.value_name ? winnerObj.value_name : null;
-                    return winnerName;
+                    return winnerObj?.value_name || null;
                 });
         }
 
-        // 載入計算資料
         function loadCalculateData() {
             return fetch('/calculate/active', { method: 'POST' })
-                .then(res => res.json())
-                .then(data => data);
+                .then(res => res.json());
         }
 
-        // 主要更新函式：載入冠軍+計算資料，判斷是否更新和顯示隱藏
         function refreshData() {
             Promise.all([loadWinner(), loadCalculateData()])
                 .then(([winnerName, calcData]) => {
                     const dataStr = JSON.stringify(calcData);
-                    // 判斷資料是否有變化（冠軍或計算資料）
+
+                    // 1. 判斷是否隱藏 (與你原版邏輯一致)
                     if (dataStr === lastDataStr && winnerName === lastWinner) {
-                        // 沒變就隱藏表格
-                        table.style.display = 'none';
+                        mainContainer.style.display = 'none';
                         return;
                     }
-                    // 有變化則更新並顯示表格
+
+                    // 2. 有變化，更新狀態並顯示
                     lastDataStr = dataStr;
                     lastWinner = winnerName;
-                    table.style.display = 'table';
+                    mainContainer.style.display = 'flex'; // 使用 flex 佈局
 
-                    // 更新冠軍顯示
+                    // 更新表格內容
                     winnerCaption.textContent = winnerName ? `🎉WIN ${winnerName}` : '';
-
-                    // 更新計算資料表格
                     const tbody = document.getElementById('data-body');
                     const totalRow = document.getElementById('total-row');
                     tbody.innerHTML = '';
 
                     let totalTie = 0;
-                    calcData.sort((a, b) => a.tie - b.tie);
+                    // 由大到小排序，取最高台數做特效
+                    calcData.sort((a, b) => parseInt(b.tie) - parseInt(a.tie));
 
                     calcData.forEach(item => {
                         totalTie += parseInt(item.tie, 10);
                         const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${item.type}</td>
-                            <td>${item.tie}</td>
-                        `;
+                        row.innerHTML = `<td>${item.type}</td><td>${item.tie}</td>`;
                         tbody.appendChild(row);
                     });
-
                     totalRow.textContent = `合計：${totalTie} 台`;
+
+                    // 3. 觸發文字特效 (台數 >= 3 才執行)
+                    const topItem = calcData[0];
+                    if (topItem && parseInt(topItem.tie, 10) >= 3) {
+                        showKillEffect(topItem.type);
+                    } else {
+                        killText.innerHTML = ''; // 沒大牌就清空特效
+                    }
                 })
                 .catch(err => {
                     console.error('資料載入錯誤:', err);
-                    // 出錯也可選擇隱藏表格或顯示錯誤訊息
-                    winnerCaption.textContent = '載入冠軍資訊失敗';
-                    table.style.display = 'none';
+                    mainContainer.style.display = 'none';
                 });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             refreshData();
+            // 每 8 秒檢查一次，配合 7 秒動畫，剛好有 1 秒空檔
             setInterval(refreshData, 8000);
         });
     </script>
 </body>
-
-
 
 </html>
