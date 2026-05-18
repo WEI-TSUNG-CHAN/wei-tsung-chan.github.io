@@ -207,12 +207,29 @@
             killText.classList.add('show');
         }
 
+        // 透過 ranker 找到對應的 player 取得莊家名字
         function loadWinner() {
             return fetch('/directions/all')
                 .then(res => res.json())
                 .then(dirData => {
+                    // 1. 取得贏家名字
                     const winnerObj = dirData.find(d => d.key_name === 'winner');
-                    return winnerObj?.value_name || null;
+                    const winnerName = winnerObj?.value_name || null;
+
+                    // 2. 先找出 ranker 的值 (例如 1, 2, 3, 4)
+                    const rankerObj = dirData.find(d => d.key_name === 'ranker');
+                    const rankerValue = rankerObj?.value_name;
+
+                    let dealerName = null;
+                    if (rankerValue) {
+                        // 組合出對應的 key_name (例如 player1)
+                        const playerKey = `player${rankerValue}`;
+                        // 尋找該 player 的名字
+                        const dealerObj = dirData.find(d => d.key_name === playerKey);
+                        dealerName = dealerObj?.value_name || null;
+                    }
+
+                    return { winnerName, dealerName };
                 });
         }
 
@@ -223,7 +240,8 @@
 
         function refreshData() {
             Promise.all([loadWinner(), loadCalculateData()])
-                .then(([winnerName, calcData]) => {
+                .then(([winnerInfo, calcData]) => {
+                    const { winnerName, dealerName } = winnerInfo;
                     const dataStr = JSON.stringify(calcData);
 
                     // 1. 判斷是否隱藏 (與你原版邏輯一致)
@@ -244,7 +262,7 @@
                     tbody.innerHTML = '';
 
                     let totalTie = 0;
-                    // 由大到小排序，取最高台數做特效
+                    // 由大到小排序
                     calcData.sort((a, b) => parseInt(b.tie) - parseInt(a.tie));
 
                     calcData.forEach(item => {
@@ -255,12 +273,29 @@
                     });
                     totalRow.textContent = `合計：${totalTie} 台`;
 
-                    // 3. 觸發文字特效 (台數 >= 3 才執行)
-                    const topItem = calcData[0];
-                    if (topItem && parseInt(topItem.tie, 10) >= 3) {
-                        showKillEffect(topItem.type);
+                    // 3. 觸發文字特效 (篩選出符合條件的最高台數項目)
+                    const effectItem = calcData.find(item => {
+                        const tieCount = parseInt(item.tie, 10);
+                        
+                        // 條件 A: 台數必須 >= 3
+                        if (tieCount < 3) return false;
+
+                        // 條件 B: 檢查是否為「非莊家卻拿到莊連字眼」
+                        const isDealerText = item.type.startsWith('莊') || item.type.startsWith('連');
+                        const isNotDealer = winnerName !== dealerName;
+
+                        if (isDealerText && isNotDealer) {
+                            return false; // 這是非莊家拿到的莊連台，跳過不選
+                        }
+
+                        return true; // 符合資格！
+                    });
+
+                    // 如果有找到符合資格的項目，就播放特效；沒有就清空
+                    if (effectItem) {
+                        showKillEffect(effectItem.type);
                     } else {
-                        killText.innerHTML = ''; // 沒大牌就清空特效
+                        killText.innerHTML = ''; 
                     }
                 })
                 .catch(err => {
