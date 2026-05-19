@@ -1,0 +1,23 @@
+黃225 255 110
+  255 204 0
+東南西北
+人物介紹打字機
+視角 
+開頭動畫
+
+<<媒體、快編、剪輯視窗>>
+
+按住K,敲擊L =>向前一幀
+按住K,敲擊J =>往後一幀
+按住K+L =>半速向前預覽
+按住K+J =>半速往後預覽
+連擊L =>倍速向前
+連擊J =>倍速往後
+
+https://keepthescore.com/board/nxbsssvbjkxve
+
+Google Sheets 
+編寫 HTML 來顯示計分板並解析 CSV 數據
+加入即時排名功能
+
+https://docs.google.com/spreadsheets/d/e/2PACX-1vR9CXjND4m3GPVUTQ7Ti4sUBlfi84prQQvkqattrhpx0nDKyztPcfaqOU1OR2AHUxt4shZrZBmgL_-x/pub?gid=18946255&single=true&output=csv
