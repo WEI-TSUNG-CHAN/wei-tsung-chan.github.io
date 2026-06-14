@@ -1,4 +1,4 @@
-【胡牌人生】麻將:熬過低潮才摸的到大牌-閃亮,小佑,莎菈,老王 20260517(直播)
+【胡牌人生】麻將:爛牌是考題-閃亮,老王,老詹,阿本 20260614(直播)
 
 
 澔緯,嫚嫚,莎菈,
@@ -7,11 +7,19 @@
 麻將算台,麻將台數,麻將規則,胡牌人生,胡牌牌型,Mahjong,麻將抓位
 
 
-📌第一將北風圈阿本莊，老詹:地聽+自摸
-📌第三將南風圈閃亮莊，閃亮:清一色+莊家
+✨【精彩瞬間 Highlights】✨
+📌第一將西風圈詹媽莊，小龍:自摸碰碰胡+四暗刻+4花
+📌第三將東風圈莎菈莊，閃亮:碰碰胡+自摸+發財+2花
 📌第三將南風圈閃亮莊，閃亮:Migi+莊家
 📌第四將北風圈老詹莊連1，二條三萬，命懸一線！
 
+
+-- FB設定 --------------------------------------
+
+rtmps://live-api-s.facebook.com:443/rtmp/
+FB-122165427632706062-0-Ab6tMhxQcjpFON_qz10TTbDb
+
+https://www.facebook.com/weitsungchan1/live_videos/
 -- 直播用 --------------------------------------
 
 歡迎來到《胡牌人生》！👉純屬娛樂與分享，無賭博行為
@@ -46,13 +54,14 @@
 碰碰胡自摸四暗刻(莎菈😄) #麻將
 順到發笑:槓上自摸(莎菈😄) #麻將
 一念之差，小三元混一色就這樣來了(小龍😄) #麻將
-你有被同一個人攔3次胡過嗎？(小佑😱） #麻將
+老手看到都羨慕！碰碰胡四暗刻11台  (小龍😄) #麻將
+
 
 麻將不只是運氣，更是技巧的展示！💥
 來一起看我胡牌的人生！🎯
 👉 點擊觀看：胡牌人生
 
-#麻將 #胡牌人生 #攔胡
+#麻將 #胡牌人生 #碰碰胡 #四暗刻
 
 
 -- Shorts --------------------------------------
@@ -108,8 +117,13 @@
 本局輸贏台數*2
 莊家直接臭連
 
+-- 抓台數素材 --------------------------------------
 
--- 將數統計 --------------------------------------
+SELECT * FROM player_records where `date` >='2026-05-17'
+and score >=21
+
+
+-- 結算將數統計 --------------------------------------
 
     SELECT player_name,
            SUM(score) AS total_score,
@@ -118,6 +132,50 @@
            SUM(qiang) AS total_qiang,
           COUNT(DISTINCT date,round_number) as round_number
     FROM player_records
-    WHERE DATE_FORMAT(date, '%Y-%m') = '2026-03'
+    WHERE DATE_FORMAT(date, '%Y-%m') = '2026-05'
     GROUP BY player_name
     ORDER BY total_score DESC
+
+
+-- 每月第一名 --------------------------------------
+
+SELECT *
+FROM (
+    SELECT 
+        DATE_FORMAT(`date`, '%Y-%m') AS month,
+        player_name,
+        SUM(score) AS total_score,
+        SUM(zi) AS total_zi,
+        SUM(hu) AS total_hu,
+        SUM(qiang) AS total_qiang,
+        COUNT(DISTINCT `date`, round_number) AS round_number
+    FROM player_records
+    GROUP BY DATE_FORMAT(`date`, '%Y-%m'), player_name
+) t
+WHERE (month, total_score) IN (
+    SELECT 
+        month,
+        MAX(total_score)
+    FROM (
+        SELECT 
+            DATE_FORMAT(`date`, '%Y-%m') AS month,
+            player_name,
+            SUM(score) AS total_score
+        FROM player_records
+        GROUP BY DATE_FORMAT(`date`, '%Y-%m'), player_name
+    ) s
+    GROUP BY month
+)
+ORDER BY month DESC;
+
+
+----每個月將數 ----------------------------------------------------
+SELECT
+    DATE_FORMAT(date, '%Y-%m') AS month,
+    COUNT(DISTINCT date, round_number) AS total_rounds
+FROM player_records
+GROUP BY
+    DATE_FORMAT(date, '%Y-%m')
+ORDER BY
+    month DESC,
+    total_rounds DESC;
