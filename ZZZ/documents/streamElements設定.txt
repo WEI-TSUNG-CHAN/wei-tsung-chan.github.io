@@ -5,6 +5,11 @@ let countElement = null;
 let videoId = null;
 let lastGoodCount = "0";
 
+// 搜尋直播間隔（5分鐘）
+const LIVE_SEARCH_INTERVAL = 5 * 60 * 1000;
+
+let lastLiveSearch = 0;
+
 function getEl() {
     if (!countElement) {
         countElement = document.getElementById('count');
@@ -23,9 +28,11 @@ async function fetchJSON(url) {
 }
 
 /**
- * 只抓一次 live videoId
+ * 搜尋目前直播中的影片
+ * search.list = 100 units
  */
-async function fetchLiveVideoIdOnce() {
+async function fetchLiveVideoId() {
+
     const url =
         `https://www.googleapis.com/youtube/v3/search?part=id&type=video&eventType=live&channelId=${CHANNEL_ID}&key=${API_KEY}`;
 
@@ -35,23 +42,31 @@ async function fetchLiveVideoIdOnce() {
 }
 
 /**
- * 拿觀看人數（低成本）
+ * 查詢即時觀看人數
+ * videos.list = 1 unit
  */
 async function fetchViewers(id) {
+
     const url =
         `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${id}&key=${API_KEY}`;
 
     const data = await fetchJSON(url);
 
+    console.log("YouTube API:", data);
+
     return data?.items?.[0]?.liveStreamingDetails?.concurrentViewers ?? null;
 }
 
 function render(value) {
+
     const el = getEl();
+
     if (!el) return;
 
     if (value !== null && value !== undefined) {
+
         const n = Number(value);
+
         if (!Number.isNaN(n)) {
             lastGoodCount = n.toLocaleString();
         }
@@ -61,42 +76,71 @@ function render(value) {
 }
 
 async function update() {
+
     try {
-        // 1️⃣ 如果還沒 videoId，只抓一次
+
+        const now = Date.now();
+
+        // 只有還沒找到直播時才搜尋
         if (!videoId) {
-            videoId = await fetchLiveVideoIdOnce();
+
+            if (now - lastLiveSearch > LIVE_SEARCH_INTERVAL) {
+
+                lastLiveSearch = now;
+
+                console.log("搜尋直播中...");
+
+                videoId = await fetchLiveVideoId();
+
+                if (videoId) {
+                    console.log("找到直播:", videoId);
+                } else {
+                    console.log("目前沒有直播");
+                }
+            }
         }
 
-        // 沒直播
+        // 還是沒找到直播
         if (!videoId) {
-            render(null);
+            render(0);
             return;
         }
 
-        // 2️⃣ 只更新觀看數
+        // 更新觀看人數
         const viewers = await fetchViewers(videoId);
 
+        // concurrentViewers 沒回傳
         if (viewers === null) {
-            render(null);
+
+            console.log("找不到 concurrentViewers，可能直播已結束");
+
+            // 清除影片ID
+            videoId = null;
+
+            render(0);
+
             return;
         }
 
         render(viewers);
 
+        console.log("目前觀看人數:", viewers);
+
     } catch (err) {
-        console.error("update error:", err);
 
-        // ❗失敗不清畫面
+        console.error("更新失敗:", err);
+
+        // 保留最後成功數字
         render(null);
-
-        // ❗如果 search 或 API 爆掉，下次重抓
-        videoId = null;
     }
 }
 
 function start() {
+
     update();
-    setInterval(update, 15000); // StreamElements 建議 10~20s
+
+    // 每20秒更新一次觀看人數
+    setInterval(update, 20000);
 }
 
 start();
