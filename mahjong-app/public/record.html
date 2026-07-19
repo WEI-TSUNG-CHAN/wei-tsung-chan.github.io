@@ -1,4 +1,6 @@
-已為你將「將數資訊」整合至日期標籤後方，並微調了文字區塊的寬度以容納新資訊。修改後的完整程式碼如下：
+沒問題，我幫你在「縮圖產製器」區塊內新增了一個勾選鍵（預設為勾選，會顯示將數；取消勾選則只會顯示日期，非常適合拿來做直播縮圖）。
+
+以下是修改後的完整程式碼：
 
 ```html
 <!doctype html>
@@ -47,6 +49,13 @@
       border: 1px solid #000;
       display: none;
     }
+
+    /* 新增勾選框的排版樣式 */
+    .checkbox-label {
+      margin-left: 15px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -79,6 +88,10 @@
       選擇影片背景：<input type="file" id="videoFile" accept="video/*">
     </p>
     <p>
+      <!-- 新增：是否顯示將數的自訂勾選鍵 -->
+      <label class="checkbox-label"><input type="checkbox" id="showRoundText" checked> 顯示將數資訊 (直播縮圖請取消勾選)</label>
+    </p>
+    <p>
       <button id="genThumbBtn">生成設計感縮圖</button>
       <button id="downloadThumbBtn" style="display:none;">下載縮圖</button>
     </p>
@@ -88,13 +101,12 @@
   <script>
     let globalPlayers = "";
     let globalDate = "";
-    let globalRoundText = ""; // 新增：儲存將數文字
+    let globalRoundText = "";
 
     document.getElementById('queryBtn').addEventListener('click', () => {
       const selectedDate = document.getElementById('datePicker').value;
       const dealerCount = document.getElementById('dealerCount').value;
       
-      // 取得下拉選單當前選中的文字（例如："第一將"）
       const dealerSelect = document.getElementById('dealerCount');
       globalRoundText = dealerSelect.options[dealerSelect.selectedIndex].text;
 
@@ -143,6 +155,9 @@
       const canvas = document.getElementById('thumbnailCanvas');
       const ctx = canvas.getContext('2d');
       const titleInput = document.getElementById('thumbTitle').value.trim();
+      
+      // 檢查使用者是否有勾選顯示將數
+      const isShowRound = document.getElementById('showRoundText').checked;
 
       if (!globalDate) {
         alert("請先完成上方的「戰績查詢」。");
@@ -214,10 +229,15 @@
           ctx.restore();
         }
 
-        // 4. 繪製左下角 [日期 + 將數標籤]：加入將數文字資訊
+        // 4. 繪製左下角 [日期標籤] (依據勾選狀態決定要不要加上將數)
         ctx.save();
         ctx.font = "900 48px system-ui, -apple-system, sans-serif";
-        const dateText = ` 📅 ${globalDate}  ${globalRoundText} `; // 串接日期與將數
+        
+        // 判斷是否加上將數文字的空格
+        const dateText = isShowRound 
+          ? ` 📅 ${globalDate}  ${globalRoundText} ` 
+          : ` 📅 ${globalDate} `;
+          
         const dWidth = ctx.measureText(dateText).width;
 
         // 實心正紅底塊
