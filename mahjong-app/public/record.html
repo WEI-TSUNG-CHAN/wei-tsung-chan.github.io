@@ -1,3 +1,6 @@
+已為你將「將數資訊」整合至日期標籤後方，並微調了文字區塊的寬度以容納新資訊。修改後的完整程式碼如下：
+
+```html
 <!doctype html>
 <html>
 
@@ -85,10 +88,15 @@
   <script>
     let globalPlayers = "";
     let globalDate = "";
+    let globalRoundText = ""; // 新增：儲存將數文字
 
     document.getElementById('queryBtn').addEventListener('click', () => {
       const selectedDate = document.getElementById('datePicker').value;
       const dealerCount = document.getElementById('dealerCount').value;
+      
+      // 取得下拉選單當前選中的文字（例如："第一將"）
+      const dealerSelect = document.getElementById('dealerCount');
+      globalRoundText = dealerSelect.options[dealerSelect.selectedIndex].text;
 
       if (!selectedDate) {
         alert("請先選擇日期");
@@ -99,7 +107,6 @@
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
-            // 小圖用空白隔開最清晰
             globalPlayers = data.slice(0, 4).map(record => record.player_name).join(" ");
           } else {
             globalPlayers = "胡牌人生";
@@ -162,50 +169,43 @@
         // 1. 繪製原始影片背景
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // 2. 繪製頂部 [玩家名字]：改用黑底+超大粗體字，解決縮小看不清問題
+        // 2. 繪製頂部 [玩家名字]
         ctx.save();
-        // 強制使用極粗體字型
         ctx.font = "900 52px system-ui, -apple-system, sans-serif"; 
         const playersText = ` 👤 ${globalPlayers} `;
         const pWidth = ctx.measureText(playersText).width;
         
-        // 實心純黑長方形底塊，徹底隔絕背景干擾
         ctx.fillStyle = "#111111";
         ctx.fillRect(40, 65, pWidth + 20, 70);
         
-        // 純白字體
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(playersText, 50, 100);
         ctx.restore();
 
-        // 3. 繪製中左側 [大標題]：調深漸層顏色，增強立體陰影
+        // 3. 繪製中左側 [大標題]
         if (titleInput) {
           ctx.save();
-          ctx.font = "900 110px Arial Black, Impact, sans-serif"; // 再次放大字體
+          ctx.font = "900 110px Arial Black, Impact, sans-serif"; 
           ctx.textBaseline = "middle";
 
           const textX = 50;
           const textY = 260;
 
-          // 增強型深黑色向外擴展的立體投影
           ctx.fillStyle = "#000000";
           for (let i = 1; i <= 12; i++) {
             ctx.fillText(titleInput, textX + i, textY + i);
           }
 
-          // 超粗黑外框
           ctx.strokeStyle = "#000000";
           ctx.lineWidth = 24;
           ctx.lineJoin = "round";
           ctx.strokeText(titleInput, textX, textY);
 
-          // 內嵌純白框
           ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 6;
           ctx.strokeText(titleInput, textX, textY);
 
-          // 調深主色調（改用飽和度高、不刺眼的深黃到正橘漸層）
           const gradient = ctx.createLinearGradient(textX, textY - 50, textX, textY + 50);
           gradient.addColorStop(0, "#ffea00");
           gradient.addColorStop(1, "#ff4500");
@@ -214,23 +214,21 @@
           ctx.restore();
         }
 
-        // 4. 繪製左下角 [日期標籤]：改用實心正紅底框 + 超大白字
+        // 4. 繪製左下角 [日期 + 將數標籤]：加入將數文字資訊
         ctx.save();
         ctx.font = "900 48px system-ui, -apple-system, sans-serif";
-        const dateText = ` 📅 ${globalDate} `;
+        const dateText = ` 📅 ${globalDate}  ${globalRoundText} `; // 串接日期與將數
         const dWidth = ctx.measureText(dateText).width;
 
         // 實心正紅底塊
         ctx.fillStyle = "#ff1e27";
         ctx.fillRect(40, 535, dWidth + 20, 65);
 
-        // 純白字體，完全不需要外框就極度顯眼
+        // 純白字體
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(dateText, 50, 567);
         ctx.restore();
-
-        // 右下角保持淨空，留給時間標籤
 
         canvas.style.display = "block";
         document.getElementById('downloadThumbBtn').style.display = "inline-block";
@@ -251,3 +249,5 @@
 </body>
 
 </html>
+
+```
