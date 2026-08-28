@@ -126,7 +126,7 @@
       color: #FF6B6B;
     }
 
-    /* 箭頭特效樣式 */
+    /* 箭頭與差額特效樣式 */
     .score-trend {
       font-size: 2.2rem;
       font-weight: bold;
@@ -317,14 +317,25 @@
           hasAnyScoreChanged = true;
         }
 
-        // 偵測到分數異動時，當下立刻顯示對應箭頭
+        // 計算分數變動數值與趨勢
+        let scoreDisplayHtml = '';
         let trendHtml = '';
+
         if (changed) {
-          if (score > prevScore) {
+          const diff = score - prevScore;
+          if (diff > 0) {
+            // 加分：顯示 +X，顏色為紅色 (trend-up)
+            scoreDisplayHtml = `<span class="score trend-up flash">+${diff}</span>`;
             trendHtml = `<span class="score-trend trend-up">▲</span>`;
           } else {
+            // 減分：顯示 -X，顏色為綠色 (trend-down)
+            scoreDisplayHtml = `<span class="score trend-down flash">${diff}</span>`;
             trendHtml = `<span class="score-trend trend-down">▼</span>`;
           }
+        } else {
+          // 無變動：顯示原來的月分數
+          scoreDisplayHtml = `<span class="score ${signClass}">${score}</span>`;
+          trendHtml = '';
         }
 
         // 莊家標記 (放左側)
@@ -336,7 +347,7 @@
             </div>`;
         }
 
-        const isSpecial = name === '小龍';
+        const isSpecial = name === '莎菈';
         const rowStyle = isSpecial ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;' : '';
 
         container.innerHTML = `
@@ -349,7 +360,7 @@
                 </div>
                 <div class="score-row">
                   <span class="label">月｜</span>
-                  <span class="score ${signClass} ${changed ? "flash" : ""}">${score}</span>
+                  ${scoreDisplayHtml}
                   ${trendHtml}
                 </div>
               </td>
