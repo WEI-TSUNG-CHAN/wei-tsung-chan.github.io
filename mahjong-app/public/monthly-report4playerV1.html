@@ -17,6 +17,26 @@
       font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
       overflow: hidden;
       perspective: 1000px;
+      box-sizing: border-box;
+    }
+
+    /* 全螢幕邊框閃爍特效 (耀金光芒) */
+    body.screen-flash {
+      animation: borderFlash 0.8s ease-in-out 2;
+    }
+
+    @keyframes borderFlash {
+      0% {
+        box-shadow: inset 0 0 0px transparent;
+      }
+      50% {
+        /* 琥珀金光芒內陰影與外邊框 */
+        box-shadow: inset 0 0 50px rgba(255, 215, 0, 0.8), 
+                    inset 0 0 15px rgba(255, 180, 0, 1);
+      }
+      100% {
+        box-shadow: inset 0 0 0px transparent;
+      }
     }
 
     .player-container {
@@ -237,6 +257,19 @@
   <script>
     let previousStatsMap = {};
 
+    // 觸發全螢幕邊框閃爍特效
+    function triggerBorderFlash() {
+      document.body.classList.remove('screen-flash');
+      // 強制重繪 (Reflow) 以重置動畫
+      void document.body.offsetWidth;
+      document.body.classList.add('screen-flash');
+
+      // 1.6 秒後 (0.8s * 2 次) 自動移除動畫 class
+      setTimeout(() => {
+        document.body.classList.remove('screen-flash');
+      }, 1600);
+    }
+
     async function fetchDirections() {
       const res = await fetch(`/directions/all?t=${Date.now()}`);
       const data = await res.json();
@@ -269,6 +302,8 @@
       const statsMap = {};
       stats.forEach(s => statsMap[s.player_name] = Number(s.total_score));
 
+      let hasAnyScoreChanged = false;
+
       players.forEach((name, index) => {
         const container = document.getElementById(`area-${index + 1}`);
         if (!container || !name) return;
@@ -277,6 +312,10 @@
         const prevScore = previousStatsMap[name];
         const changed = prevScore !== undefined && prevScore !== score;
         const signClass = score >= 0 ? 'positive' : 'negative';
+
+        if (changed) {
+          hasAnyScoreChanged = true;
+        }
 
         // 偵測到分數異動時，當下立刻顯示對應箭頭
         let trendHtml = '';
@@ -318,6 +357,11 @@
           </table>
         `;
       });
+
+      // 任一玩家分數有變動時，觸發全螢幕閃爍
+      if (hasAnyScoreChanged) {
+        triggerBorderFlash();
+      }
 
       previousStatsMap = { ...statsMap };
     }
