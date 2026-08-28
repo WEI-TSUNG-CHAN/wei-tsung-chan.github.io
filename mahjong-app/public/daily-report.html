@@ -63,6 +63,54 @@
         tbody {
             display: table-row-group;
         }
+
+        /* 🔹 新增：加減分與箭頭特效樣式 */
+        .score-trend {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-left: 4px;
+            display: inline-block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        .trend-up {
+            color: #FF4444 !important; /* 增加/加分：紅色 */
+            text-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+            font-weight: bold;
+        }
+
+        .trend-down {
+            color: #00E676 !important; /* 減少/減分：綠色 */
+            text-shadow: 0 0 8px rgba(0, 230, 118, 0.6);
+            font-weight: bold;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .flash {
+            animation: flashAnim 0.6s ease;
+        }
+
+        @keyframes flashAnim {
+            0% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 
@@ -77,7 +125,7 @@
         <thead>
             <tr>
                 <th>玩家</th>
-                <th>本將分數</th> <!-- 🔹 改這裡 -->
+                <th>本將分數</th>
                 <th>自摸</th>
                 <th>胡牌</th>
                 <th>槍</th>
@@ -91,7 +139,6 @@
     </table>
 
     <script>
-        // 🔹 保留原本 fetchDirections 與 fetchStats，不改動
         let previousData = [];
 
         async function fetchDirections() {
@@ -107,13 +154,6 @@
             return res.json();
         }
 
-        function isDifferent(oldItem, newItem) {
-            return oldItem.total_score !== newItem.total_score ||
-                oldItem.total_zi !== newItem.total_zi ||
-                oldItem.total_hu !== newItem.total_hu ||
-                oldItem.total_qiang !== newItem.total_qiang;
-        }
-
         async function renderReport() {
             const dir = await fetchDirections();
             const date = dir['assign_date'];
@@ -126,7 +166,7 @@
             if (stats.length > 0) {
                 displayStats = stats.map(s => ({
                     player_name: s.player_name,
-                    total_score: s.total_score,
+                    total_score: Number(s.total_score),
                     total_zi: s.total_zi,
                     total_hu: s.total_hu,
                     total_qiang: s.total_qiang
@@ -144,24 +184,48 @@
             // 🔹 計算局數（total_hu 加總，確保數字型別）
             const totalHu = displayStats.reduce((sum, p) => sum + Number(p.total_hu), 0);
 
-            // 🔹 更新表頭文字（即時戰報後加上局數）
-            //document.getElementById('round-label').innerHTML = `第 <span style="color:red; font-weight:bold;">${round}</span> 將｜即時戰報｜累積局數 <span style="color:red; font-weight:bold;">${totalHu}</span>`;
+            // 🔹 更新表頭文字
             document.getElementById('round-label').innerHTML =
                 `<span style="color:green; font-weight:bold;">即時戰報</span> ｜本將累積局數 <span style="color:red; font-weight:bold;">${totalHu}</span>`;
 
-            // 🔹 更新表格內容（保留原本邏輯）
+            // 🔹 更新表格內容
             const tbody = document.getElementById('report-body');
             tbody.innerHTML = displayStats.map((p, i) => {
                 const prev = previousData[i];
-                const changed = prev && isDifferent(prev, p);
+                
+                let scoreDisplayHtml = '';
+                let trendHtml = '';
+
+                // 比對分數是否有變化
+                if (prev && prev.total_score !== undefined && prev.total_score !== p.total_score) {
+                    const diff = p.total_score - prev.total_score;
+                    if (diff > 0) {
+                        // 加分：顯示 +X（紅色），加號箭頭 ▲
+                        scoreDisplayHtml = `<span class="trend-up flash">+${diff}</span>`;
+                        trendHtml = `<span class="score-trend trend-up">▲</span>`;
+                    } else {
+                        // 減分：顯示 -X（綠色），減號箭頭 ▼
+                        scoreDisplayHtml = `<span class="trend-down flash">${diff}</span>`;
+                        trendHtml = `<span class="score-trend trend-down">▼</span>`;
+                    }
+                } else {
+                    // 無變動：顯示原本的本將總分數
+                    scoreDisplayHtml = `${p.total_score}`;
+                    trendHtml = '';
+                }
+
+                // 其他欄位（自摸、胡牌、槍）若有變動時高亮顯示
+                const ziChanged = prev && prev.total_zi !== p.total_zi;
+                const huChanged = prev && prev.total_hu !== p.total_hu;
+                const qiangChanged = prev && prev.total_qiang !== p.total_qiang;
 
                 return `
             <tr>
                 <td>${p.player_name}</td>
-                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_score}</td>
-                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_zi}</td>
-                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_hu}</td>
-                <td style="${changed ? 'color:#FFD54F;' : ''}">${p.total_qiang}</td>
+                <td>${scoreDisplayHtml}${trendHtml}</td>
+                <td style="${ziChanged ? 'color:#FFD54F;' : ''}">${p.total_zi}</td>
+                <td style="${huChanged ? 'color:#FFD54F;' : ''}">${p.total_hu}</td>
+                <td style="${qiangChanged ? 'color:#FFD54F;' : ''}">${p.total_qiang}</td>
             </tr>
         `;
             }).join('');
