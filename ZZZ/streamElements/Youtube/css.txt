@@ -1,0 +1,27 @@
+.viewer-count {
+  display: flex;
+  justify-content: center;  /* 置中 */
+  align-items: center;
+
+  gap: 16px;
+  color: #fff;
+
+  font-size: 48px;
+  font-weight: 800;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+
+  text-shadow:
+    -4px -4px 0 #000,
+     4px -4px 0 #000,
+    -4px  4px 0 #000,
+     4px  4px 0 #000;
+
+  white-space: nowrap;
+}
+
+.yt-logo {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  display: block; /* 👈 避免 SVG 被壓扁或偏移 */
+}

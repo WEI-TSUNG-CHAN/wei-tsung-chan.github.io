@@ -1,0 +1,146 @@
+const API_KEY = 'AIzaSyA4NAzHgLpyIQxZQzUll926-4EVYqeKT9k';
+const CHANNEL_ID = 'UCrRV_5Qewa9ARPUuoG-JOUg';
+
+let countElement = null;
+let videoId = null;
+let lastGoodCount = "0";
+
+// 搜尋直播間隔（5分鐘）
+const LIVE_SEARCH_INTERVAL = 5 * 60 * 1000;
+
+let lastLiveSearch = 0;
+
+function getEl() {
+    if (!countElement) {
+        countElement = document.getElementById('count');
+    }
+    return countElement;
+}
+
+async function fetchJSON(url) {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+    }
+
+    return await res.json();
+}
+
+/**
+ * 搜尋目前直播中的影片
+ * search.list = 100 units
+ */
+async function fetchLiveVideoId() {
+
+    const url =
+        `https://www.googleapis.com/youtube/v3/search?part=id&type=video&eventType=live&channelId=${CHANNEL_ID}&key=${API_KEY}`;
+
+    const data = await fetchJSON(url);
+
+    return data?.items?.[0]?.id?.videoId || null;
+}
+
+/**
+ * 查詢即時觀看人數
+ * videos.list = 1 unit
+ */
+async function fetchViewers(id) {
+
+    const url =
+        `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${id}&key=${API_KEY}`;
+
+    const data = await fetchJSON(url);
+
+    console.log("YouTube API:", data);
+
+    return data?.items?.[0]?.liveStreamingDetails?.concurrentViewers ?? null;
+}
+
+function render(value) {
+
+    const el = getEl();
+
+    if (!el) return;
+
+    if (value !== null && value !== undefined) {
+
+        const n = Number(value);
+
+        if (!Number.isNaN(n)) {
+            lastGoodCount = n.toLocaleString();
+        }
+    }
+
+    el.innerText = lastGoodCount;
+}
+
+async function update() {
+
+    try {
+
+        const now = Date.now();
+
+        // 只有還沒找到直播時才搜尋
+        if (!videoId) {
+
+            if (now - lastLiveSearch > LIVE_SEARCH_INTERVAL) {
+
+                lastLiveSearch = now;
+
+                console.log("搜尋直播中...");
+
+                videoId = await fetchLiveVideoId();
+
+                if (videoId) {
+                    console.log("找到直播:", videoId);
+                } else {
+                    console.log("目前沒有直播");
+                }
+            }
+        }
+
+        // 還是沒找到直播
+        if (!videoId) {
+            render(0);
+            return;
+        }
+
+        // 更新觀看人數
+        const viewers = await fetchViewers(videoId);
+
+        // concurrentViewers 沒回傳
+        if (viewers === null) {
+
+            console.log("找不到 concurrentViewers，可能直播已結束");
+
+            // 清除影片ID
+            videoId = null;
+
+            render(0);
+
+            return;
+        }
+
+        render(viewers);
+
+        console.log("目前觀看人數:", viewers);
+
+    } catch (err) {
+
+        console.error("更新失敗:", err);
+
+        // 保留最後成功數字
+        render(null);
+    }
+}
+
+function start() {
+
+    update();
+
+    // 每20秒更新一次觀看人數
+    setInterval(update, 20000);
+}
+
+start();

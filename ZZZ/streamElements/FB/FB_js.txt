@@ -1,0 +1,47 @@
+// ⚠️ 填入第三階段取得的長期 Token
+const PAGE_ACCESS_TOKEN = 'EAA32fcZB8RpoBSZASCdzTkAHHs7gxz9S0EDMbJLK11jwiQXb8kHKzMzvCpIZCXJJHDujYNTBQcglhqiTo5GZAVqKAdxOGguZBp4RNsyY5liPP23ZAxK6JzQacpYewilRU9DhGxTzdeIhCdLGjgMofal3AMzHAGy9PZBFVQkzZCzqZCJCUtO93CdJwIpFYjTkASSfuyj5PNMg7WSfUU01g'; 
+
+// ⚠️ 填入你的粉絲專頁 ID（Numeric Page ID）
+const PAGE_ID = '451422554732276'; 
+
+function autoFetchFBViewers() {
+  if (!PAGE_ACCESS_TOKEN || PAGE_ACCESS_TOKEN.includes('你的FB')) {
+    document.getElementById('fb-count').innerText = '未設定 Token';
+    return;
+  }
+
+  // 第一步：自動向 FB 查詢該粉專「當前正在直播」的 Video ID
+  const searchUrl = `https://graph.facebook.com/v18.0/${PAGE_ID}/live_videos?status=LIVE&access_token=${PAGE_ACCESS_TOKEN}`;
+
+  fetch(searchUrl)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.data && data.data.length > 0) {
+        // 找到了正在進行的直播 Video ID
+        const liveVideoId = data.data[0].id;
+        
+        // 第二步：向 FB 查詢該場直播的即時線上人數
+        return fetch(`https://graph.facebook.com/v18.0/${liveVideoId}?fields=live_views&access_token=${PAGE_ACCESS_TOKEN}`);
+      } else {
+        // 目前沒有開播
+        throw new Error('OFFLINE');
+      }
+    })
+    .then(res => res ? res.json() : null)
+    .then(liveData => {
+      if (liveData && liveData.live_views !== undefined) {
+        document.getElementById('fb-count').innerText = liveData.live_views;
+      }
+    })
+    .catch(err => {
+      if (err.message === 'OFFLINE') {
+        document.getElementById('fb-count').innerText = '0';
+      } else {
+        console.error('FB API 讀取失敗:', err);
+      }
+    });
+}
+
+// 首次載入執行，並設定每 15 秒自動刷新一次
+autoFetchFBViewers();
+setInterval(autoFetchFBViewers, 15000);
