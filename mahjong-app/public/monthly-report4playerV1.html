@@ -95,7 +95,6 @@
       padding: 4px 12px;
       background: rgba(0, 0, 0, 0.5);
       border-radius: 8px;
-      /* 使用 -webkit-text-stroke 保持字體清晰銳利 */
       -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
     }
 
@@ -146,7 +145,6 @@
       transition: 0.3s ease;
     }
 
-    /* 月積分顏色調整：預設/正值為黃色，負值為鮮紅色 */
     .monthly-score-value {
       color: #FFD54F;
     }
@@ -160,7 +158,7 @@
       color: #7DD3FC;
     }
 
-    /* --- 前三名金屬質感與鮮明邊框樣式 (加強版) --- */
+    /* --- 前三名金屬質感與鮮明邊框樣式 --- */
     /* 1. 金牌 */
     .rank-1-card {
       outline: 2px solid #FFD700;
@@ -173,7 +171,7 @@
       font-weight: 900;
     }
 
-    /* 2. 銀牌（加強白銀對比度） */
+    /* 2. 銀牌 */
     .rank-2-card {
       outline: 2px solid #E2E8F0;
       box-shadow: 0 0 12px rgba(226, 232, 240, 0.3);
@@ -185,7 +183,7 @@
       font-weight: 900;
     }
 
-    /* 3. 銅牌（加強金銅/赤銅對比度） */
+    /* 3. 銅牌 */
     .rank-3-card {
       outline: 2px solid #E67E22;
       box-shadow: 0 0 12px rgba(230, 126, 34, 0.3);
@@ -195,6 +193,26 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 900;
+    }
+
+    /* --- 4. 貧民/普通樣式（前三名以外） --- */
+    .rank-other-card {
+      outline: 1px solid #3A4048; /* 暗灰細邊框 */
+      box-shadow: none !important; /* 移除發光與浮雕感 */
+    }
+    .rank-other-card td {
+      background: rgba(15, 17, 20, 0.75); /* 更暗沉無光的背景 */
+    }
+    .rank-other-text {
+      color: #8A929A !important; /* 灰白水泥色 */
+      -webkit-text-fill-color: #8A929A !important;
+      font-weight: 600;
+    }
+    .rank-other-card .monthly-rank-panel {
+      background: rgba(20, 25, 30, 0.4); /* 暗淡色塊 */
+    }
+    .rank-other-card .monthly-rank-value {
+      color: #64748B !important; /* 低調死板的灰色數值 */
     }
 
     /* 箭頭與差額特效樣式 */
@@ -406,7 +424,7 @@
             </div>`;
         }
 
-        // 強化前三名邊框與金屬色彩
+        // 區分前三名金屬視覺與第 4 名（貧民）樸素樣式
         let tableClass = '';
         let textClass = '';
         if (monthlyRank === 1) {
@@ -418,6 +436,9 @@
         } else if (monthlyRank === 3) {
           tableClass = 'rank-3-card';
           textClass = 'rank-3-text';
+        } else {
+          tableClass = 'rank-other-card';
+          textClass = 'rank-other-text';
         }
 
         container.innerHTML = `
