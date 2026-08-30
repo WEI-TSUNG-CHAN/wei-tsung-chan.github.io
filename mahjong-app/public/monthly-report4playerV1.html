@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>本月四位玩家分數統計</title>
+  <title>本月四位玩家分數統計｜方案六</title>
 
   <style>
     /* 保留原始 CSS 與 3D 配置 */
@@ -30,7 +30,6 @@
         box-shadow: inset 0 0 0px transparent;
       }
       50% {
-        /* 琥珀金光芒內陰影與外邊框 */
         box-shadow: inset 0 0 50px rgba(255, 215, 0, 0.8), 
                     inset 0 0 15px rgba(255, 180, 0, 1);
       }
@@ -52,7 +51,7 @@
 
     #area-2 {
       right: 10px;
-      top: 25%;
+      top: 27%;
       transform: translateY(-50%);
     }
 
@@ -68,19 +67,17 @@
       transform: translateY(-50%);
     }
 
-    /* 重要修改區 */
     table {
       border-collapse: separate;
       border-spacing: 0;
       border-radius: 14px;
-      /* 圓角移到 table */
       overflow: hidden;
-      /* 防止 td 背景露出 */
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      transition: all 0.3s ease;
     }
 
     td {
-      background: rgba(20, 24, 30, 0.8);
+      background: rgba(20, 24, 30, 0.85);
       backdrop-filter: blur(6px);
       padding: 20px 24px;
     }
@@ -93,56 +90,121 @@
 
     .player-name {
       font-size: 2.5rem;
-      font-weight: 600;
+      font-weight: 700;
       color: #FFFFFF;
-      padding: 4px 10px;
-      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 12px;
+      background: rgba(0, 0, 0, 0.5);
       border-radius: 8px;
+      /* 使用 -webkit-text-stroke 替代模糊光暈，保持字體清晰銳利 */
+      -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
     }
 
-    .score-row {
-      margin-top: 8px;
+    /* --- 方案六：底部斜角色塊資訊 --- */
+    .stats-row {
+      margin: 12px -24px -20px;
+      display: flex;
+      height: 78px;
+      overflow: hidden;
+    }
+
+    .stat-panel {
+      flex: 1;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      box-sizing: border-box;
+      white-space: nowrap;
     }
 
-    .label {
-      font-size: 1.8rem;
-      color: #BFBFBF;
+    .monthly-score-panel {
+      background: rgba(92, 88, 42, 0.35);
+      clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
+      padding-right: 20px;
+      flex-wrap: nowrap;
     }
 
-    .score {
-      font-size: 2.5rem;
-      font-weight: 700;
+    .monthly-rank-panel {
+      margin-left: -10%;
+      background: rgba(28, 57, 73, 0.45);
+      clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+      padding-left: 20px;
+    }
+
+    .stat-label {
+      font-size: 1.55rem;
+      color: #D5D5D5;
+      white-space: nowrap;
+    }
+
+    .stat-value {
+      font-size: 2.35rem;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
       transition: 0.3s ease;
     }
 
-    .positive {
+    .monthly-score-value {
       color: #FFD54F;
     }
 
-    .negative {
-      color: #FF6B6B;
+    .monthly-rank-value {
+      color: #7DD3FC;
+    }
+
+    /* --- 前三名金屬質感與鮮明邊框樣式 (無光暈) --- */
+    /* 1. 金牌 */
+    .rank-1-card {
+      outline: 2px solid #FFD700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+    .rank-1-text {
+      background: linear-gradient(180deg, #FFF176 0%, #FFD700 50%, #FF8F00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+    }
+
+    /* 2. 銀牌 */
+    .rank-2-card {
+      outline: 2px solid #C0C0C0;
+    }
+    .rank-2-text {
+      background: linear-gradient(180deg, #FFFFFF 0%, #E0E0E0 50%, #9E9E9E 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+    }
+
+    /* 3. 銅牌 */
+    .rank-3-card {
+      outline: 2px solid #CD7F32;
+    }
+    .rank-3-text {
+      background: linear-gradient(180deg, #FFCC80 0%, #CD7F32 50%, #8D6E63 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
     }
 
     /* 箭頭與差額特效樣式 */
     .score-trend {
       font-size: 2.2rem;
       font-weight: bold;
-      margin-left: 5px;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
       animation: popIn 0.3s ease-out;
     }
 
     .trend-up {
-      color: #FF4444; /* 增加上升為紅色 */
-      text-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+      color: #FF4444;
     }
 
     .trend-down {
-      color: #00E676; /* 減少下降為綠色 */
-      text-shadow: 0 0 10px rgba(0, 230, 118, 0.6);
+      color: #00E676;
     }
 
     @keyframes popIn {
@@ -165,7 +227,6 @@
       font-size: 2.8rem;
       font-weight: bold;
       color: #FF4444;
-      text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
     }
 
     .times-count {
@@ -194,7 +255,6 @@
       align-items: center;
       color: gold;
       font-weight: bold;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     }
 
     .ui-round-label {
@@ -221,20 +281,6 @@
       justify-content: flex-end;
       padding-bottom: 5px;
     }
-
-    .flash {
-      animation: flashAnim 0.6s ease;
-    }
-
-    @keyframes flashAnim {
-      0% {
-        transform: scale(1.15);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
   </style>
 </head>
 
@@ -257,14 +303,11 @@
   <script>
     let previousStatsMap = {};
 
-    // 觸發全螢幕邊框閃爍特效
     function triggerBorderFlash() {
       document.body.classList.remove('screen-flash');
-      // 強制重繪 (Reflow) 以重置動畫
       void document.body.offsetWidth;
       document.body.classList.add('screen-flash');
 
-      // 1.6 秒後 (0.8s * 2 次) 自動移除動畫 class
       setTimeout(() => {
         document.body.classList.remove('screen-flash');
       }, 1600);
@@ -287,7 +330,6 @@
       const dir = await fetchDirections();
       if (!dir) return;
 
-      // 更新右下角 UI 佈局
       const roundNum = parseInt(dir['round_number'], 10);
       document.getElementById('ui-round').innerText = (roundNum >= 1 && roundNum <= 8) ? `第 ${roundNum} 將` : '';
       document.getElementById('ui-direction').innerText = dir['direction'] || '';
@@ -299,8 +341,18 @@
       const timesVal = dir['times'];
 
       const stats = await fetchMonthlyStats(date);
+
+      const monthlyRanking = [...stats].sort(
+        (a, b) => Number(b.total_score) - Number(a.total_score)
+      );
+
       const statsMap = {};
-      stats.forEach(s => statsMap[s.player_name] = Number(s.total_score));
+      const rankMap = {};
+
+      monthlyRanking.forEach((s, index) => {
+        statsMap[s.player_name] = Number(s.total_score);
+        rankMap[s.player_name] = index + 1;
+      });
 
       let hasAnyScoreChanged = false;
 
@@ -311,34 +363,30 @@
         const score = statsMap[name] ?? 0;
         const prevScore = previousStatsMap[name];
         const changed = prevScore !== undefined && prevScore !== score;
-        const signClass = score >= 0 ? 'positive' : 'negative';
 
         if (changed) {
           hasAnyScoreChanged = true;
         }
 
-        // 計算分數變動數值與趨勢
-        let scoreDisplayHtml = '';
-        let trendHtml = '';
+        const monthlyRank = rankMap[name] ?? '—';
 
+        let monthlyPanelContentHtml = '';
         if (changed) {
           const diff = score - prevScore;
-          if (diff > 0) {
-            // 加分：顯示 +X，顏色為紅色 (trend-up)
-            scoreDisplayHtml = `<span class="score trend-up flash">+${diff}</span>`;
-            trendHtml = `<span class="score-trend trend-up">▲</span>`;
-          } else {
-            // 減分：顯示 -X，顏色為綠色 (trend-down)
-            scoreDisplayHtml = `<span class="score trend-down flash">${diff}</span>`;
-            trendHtml = `<span class="score-trend trend-down">▼</span>`;
-          }
+          const diffText = diff > 0 ? `+${diff}` : `${diff}`;
+          const diffArrow = diff > 0 ? '▲' : '▼';
+          const diffClass = diff > 0 ? 'trend-up' : 'trend-down';
+
+          monthlyPanelContentHtml = `
+            <span class="score-trend ${diffClass}">${diffArrow} ${diffText}</span>
+          `;
         } else {
-          // 無變動：顯示原來的月分數
-          scoreDisplayHtml = `<span class="score ${signClass}">${score}</span>`;
-          trendHtml = '';
+          monthlyPanelContentHtml = `
+            <span class="stat-label">月</span>
+            <span class="stat-value monthly-score-value">${score}</span>
+          `;
         }
 
-        // 莊家標記 (放左側)
         let dealerHtml = '';
         if ((index + 1) === rankerIdx) {
           dealerHtml = `
@@ -347,21 +395,36 @@
             </div>`;
         }
 
-        const isSpecial = name === '莎菈';
-        const rowStyle = isSpecial ? 'font-weight:900; color: gold; text-shadow: 0 0 10px gold, 0 0 20px orange;' : '';
+        // 以金屬質感漸層字體 + 明顯的亮色邊框代替原本會模糊的 text-shadow
+        let tableClass = '';
+        let textClass = '';
+        if (monthlyRank === 1) {
+          tableClass = 'rank-1-card';
+          textClass = 'rank-1-text';
+        } else if (monthlyRank === 2) {
+          tableClass = 'rank-2-card';
+          textClass = 'rank-2-text';
+        } else if (monthlyRank === 3) {
+          tableClass = 'rank-3-card';
+          textClass = 'rank-3-text';
+        }
 
         container.innerHTML = `
-          <table>
-            <tr style="${rowStyle}">
+          <table class="${tableClass}">
+            <tr>
               <td>
                 <div class="name-row">
                   ${dealerHtml}
-                  <div class="player-name">${name}</div>
+                  <div class="player-name ${textClass}">${name}</div>
                 </div>
-                <div class="score-row">
-                  <span class="label">月｜</span>
-                  ${scoreDisplayHtml}
-                  ${trendHtml}
+                <div class="stats-row">
+                  <div class="stat-panel monthly-score-panel">
+                    ${monthlyPanelContentHtml}
+                  </div>
+                  <div class="stat-panel monthly-rank-panel">
+                    <span class="stat-label">月排</span>
+                    <span class="stat-value monthly-rank-value ${textClass}">${monthlyRank}</span>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -369,7 +432,6 @@
         `;
       });
 
-      // 任一玩家分數有變動時，觸發全螢幕閃爍
       if (hasAnyScoreChanged) {
         triggerBorderFlash();
       }
