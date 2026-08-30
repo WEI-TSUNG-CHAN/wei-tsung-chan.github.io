@@ -95,7 +95,7 @@
       padding: 4px 12px;
       background: rgba(0, 0, 0, 0.5);
       border-radius: 8px;
-      /* 使用 -webkit-text-stroke 替代模糊光暈，保持字體清晰銳利 */
+      /* 使用 -webkit-text-stroke 保持字體清晰銳利 */
       -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
     }
 
@@ -146,19 +146,25 @@
       transition: 0.3s ease;
     }
 
+    /* 月積分顏色調整：預設/正值為黃色，負值為鮮紅色 */
     .monthly-score-value {
       color: #FFD54F;
+    }
+
+    .negative-score {
+      color: #FF5252 !important;
+      -webkit-text-fill-color: #FF5252 !important;
     }
 
     .monthly-rank-value {
       color: #7DD3FC;
     }
 
-    /* --- 前三名金屬質感與鮮明邊框樣式 (無光暈) --- */
+    /* --- 前三名金屬質感與鮮明邊框樣式 (加強版) --- */
     /* 1. 金牌 */
     .rank-1-card {
       outline: 2px solid #FFD700;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
     }
     .rank-1-text {
       background: linear-gradient(180deg, #FFF176 0%, #FFD700 50%, #FF8F00 100%);
@@ -167,23 +173,25 @@
       font-weight: 900;
     }
 
-    /* 2. 銀牌 */
+    /* 2. 銀牌（加強白銀對比度） */
     .rank-2-card {
-      outline: 2px solid #C0C0C0;
+      outline: 2px solid #E2E8F0;
+      box-shadow: 0 0 12px rgba(226, 232, 240, 0.3);
     }
     .rank-2-text {
-      background: linear-gradient(180deg, #FFFFFF 0%, #E0E0E0 50%, #9E9E9E 100%);
+      background: linear-gradient(180deg, #FFFFFF 0%, #CBD5E1 60%, #94A3B8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 900;
     }
 
-    /* 3. 銅牌 */
+    /* 3. 銅牌（加強金銅/赤銅對比度） */
     .rank-3-card {
-      outline: 2px solid #CD7F32;
+      outline: 2px solid #E67E22;
+      box-shadow: 0 0 12px rgba(230, 126, 34, 0.3);
     }
     .rank-3-text {
-      background: linear-gradient(180deg, #FFCC80 0%, #CD7F32 50%, #8D6E63 100%);
+      background: linear-gradient(180deg, #FFE0B2 0%, #E67E22 50%, #D35400 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 900;
@@ -370,6 +378,9 @@
 
         const monthlyRank = rankMap[name] ?? '—';
 
+        // 判斷月積分負數顏色類別
+        const scoreColorClass = score < 0 ? 'negative-score' : '';
+
         let monthlyPanelContentHtml = '';
         if (changed) {
           const diff = score - prevScore;
@@ -383,7 +394,7 @@
         } else {
           monthlyPanelContentHtml = `
             <span class="stat-label">月</span>
-            <span class="stat-value monthly-score-value">${score}</span>
+            <span class="stat-value monthly-score-value ${scoreColorClass}">${score}</span>
           `;
         }
 
@@ -395,7 +406,7 @@
             </div>`;
         }
 
-        // 以金屬質感漸層字體 + 明顯的亮色邊框代替原本會模糊的 text-shadow
+        // 強化前三名邊框與金屬色彩
         let tableClass = '';
         let textClass = '';
         if (monthlyRank === 1) {
