@@ -3,78 +3,375 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>麻將計算</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>麻將計算 - 右側固定連莊版</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --bg-color: #f4f6f8;
+            --zhuang-color: #e67e22; /* 連莊主題色：橙色 */
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: pan-x pan-y;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: -webkit-fill-available;
+        }
+
+        /* 頂部固定區 */
+        .header-fixed {
+            flex-shrink: 0;
+            background: #ffffff;
+            padding: 8px 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        #playerOptions {
+            display: flex;
+            gap: 6px;
+        }
+
+        #playerOptions label {
+            flex: 1;
+            text-align: center;
+            background: #f1f2f6;
+            padding: 6px 4px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            font-weight: 500;
+        }
+
+        #playerOptions input[type="radio"] {
+            display: none;
+        }
+
+        #playerOptions input[type="radio"]:checked + span,
+        #playerOptions label:has(input:checked) {
+            background: #e8f8f5;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .detail-box {
+            background: #f8f9fa;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .section-title {
+            font-size: 0.78rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        #clear-all-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            font-size: 0.72rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #result-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-height: 52px;
+            overflow-y: auto;
+            min-height: 24px;
+            align-items: center;
+        }
+
+        .result-chip {
+            background: #2c3e50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .result-chip:active {
+            background: #c0392b;
+        }
+
+        .result-chip::after {
+            content: " ×";
+            color: #ff8787;
+            font-weight: bold;
+        }
+
+        /* 主體區塊：左右雙欄 (左側為牌型，右側固定連莊) */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 左側滾動牌型區 (佔滿剩餘寬度，3欄) */
+        .content-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            padding: 10px 8px 15px 8px;
+        }
+
+        .group-title {
+            font-size: 0.78rem;
+            color: #888;
+            margin: 10px 0 4px 2px;
+            font-weight: bold;
+        }
+
+        /* 牌型格狀排版改為 3 欄，騰出右側空間給連莊欄 */
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+
         .add-btn {
-            font-size: 1rem;
-            padding: 0.4rem 0.8rem;
-            background-color: #f0f0f0;
+            font-size: 0.82rem;
+            padding: 8px 2px;
+            background-color: #ffffff;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            word-break: break-all;
+            line-height: 1.2;
+            touch-action: manipulation;
+        }
+
+        /* 專屬分類卡片 */
+        .category-card {
+            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+        }
+
+        .cat-zhongfabai { background-color: #fff5f5; border-color: #fed7d7; }
+        .cat-zhongfabai .add-btn { background-color: #fff; border-color: #feb2b2; color: #9b2c2c; }
+
+        .cat-winds { background-color: #ebf8ff; border-color: #bee3f8; }
+        .cat-winds .add-btn { background-color: #fff; border-color: #90cdf4; color: #2b6cb0; }
+
+        .cat-core { background-color: #f0fff4; border-color: #c6f6d5; }
+        .cat-core .add-btn { background-color: #fff; border-color: #9ae6b4; color: #22543d; }
+
+        /* 右側固定連莊欄 */
+        .zhuang-sidebar {
+            width: 72px;
+            flex-shrink: 0;
+            background: #fff3e0;
+            border-left: 1px solid #ffe0b2;
+            padding: 8px 4px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.03);
+            z-index: 10;
+        }
+
+        .zhuang-sidebar .sidebar-title {
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: var(--zhuang-color);
+            text-align: center;
+            margin-bottom: 2px;
+        }
+
+        .zhuang-btn {
+            background-color: #ffffff;
+            border: 1px solid #ffcc80;
+            color: #e65100;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 8px 0;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+            line-height: 1.2;
+        }
+
+        .zhuang-btn:active:not(.disabled-btn) {
+            background-color: #ffe0b2;
         }
 
         .disabled-btn {
-            background-color: #d3d3d3;
+            background-color: #f1f2f6 !important;
+            color: #b2bec3 !important;
+            border-color: #dfe4ea !important;
             cursor: not-allowed;
         }
 
-        .add-btn:active {
-            background-color: #cccccc;
+        /* 底部固定結算列 */
+        .footer-fixed {
+            flex-shrink: 0;
+            background: #ffffff;
+            padding: 8px 12px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
         }
 
-        .remove-btn {
-            color: red;
+        .total-display {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        #submit-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            touch-action: manipulation;
         }
     </style>
 </head>
 
 <body>
-    <h1>現在時間: <span id="current-time"></span></h1>
+    <div class="app-container">
+        <!-- 頂部固定區 -->
+        <div class="header-fixed">
+            <div class="header-top-row">
+                <span>請選擇贏家：</span>
+                <span style="font-size: 0.75rem;" id="current-time"></span>
+            </div>
+            
+            <div id="playerOptions"></div>
 
-    <div id="playerOptionsContainer">
-        <p>請選擇玩家：</p>
-        <div id="playerOptions"></div>
+            <div class="detail-box">
+                <div class="section-header">
+                    <div class="section-title">已選明細（點擊標籤刪除）</div>
+                    <button id="clear-all-btn">一鍵清除</button>
+                </div>
+                <div id="result-container">
+                    <span style="color: #aaa; font-size: 0.75rem;" id="no-result-text">未選擇任何牌型</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主體內容區（左右分欄） -->
+        <div class="main-content">
+            <!-- 左側：獨立滾動牌型區 -->
+            <div class="content-scrollable">
+                <div id="mahjong-table-container"></div>
+            </div>
+
+            <!-- 右側：固定連莊側邊欄 -->
+            <div class="zhuang-sidebar">
+                <div class="sidebar-title">連莊選單</div>
+                <div id="zhuanglian-container" style="display: flex; flex-direction: column; gap: 5px;"></div>
+            </div>
+        </div>
+
+        <!-- 底部固定區 -->
+        <div class="footer-fixed">
+            <div class="total-display">合計: <span id="total-tie" style="color: var(--accent-color);">0</span> 台</div>
+            <input type="button" value="確認送出" id="submit-button" />
+        </div>
     </div>
 
-    <p>計算結果</p>
-
-    <!-- 計算結果表格 -->
-    <table border="1" cellpadding="1" cellspacing="1" style="width:350px;">
-        <tbody id="result-table">
-            <tr>
-                <td>合計: <span id="total-tie">0</span>台</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <p><input type="button" value="送出" id="submit-button" /></p>
-
-    <!-- 牌型按鈕表格 -->
-    <table border="1" cellpadding="1" cellspacing="1" style="width:350px;">
-        <tbody id="mahjong-table"></tbody>
-    </table>
-
     <script>
-        // 顯示當前時間
         function updateCurrentTime() {
-            const currentTime = new Date().toLocaleString();
-            document.getElementById('current-time').innerText = currentTime;
+            const now = new Date();
+            const timeString = now.getHours().toString().padStart(2, '0') + ':' +
+                               now.getMinutes().toString().padStart(2, '0') + ':' +
+                               now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('current-time').innerText = timeString;
         }
 
-        // 全域函數：更新總台數
         function updateTotalTie() {
             let total = 0;
-            $('.result-row td').each(function () {
+            let count = 0;
+            $('.result-chip').each(function () {
                 total += parseInt($(this).data('tie'), 10);
+                count++;
             });
             $('#total-tie').text(total);
+            if (count > 0) {
+                $('#no-result-text').hide();
+            } else {
+                $('#no-result-text').show();
+            }
         }
 
-        // 載入牌型資料並建立按鈕
+        function clearAllResults() {
+            $('.result-chip').each(function () {
+                const type = $(this).attr('data-type');
+                const tie = $(this).attr('data-tie');$('.add-btn[data-type="' + type + '"][data-tie="' + tie + '"], .zhuang-btn[data-type="' + type + '"][data-tie="' + tie + '"]')
+                    .prop('disabled', false).removeClass('disabled-btn');
+            });
+            $('#result-container').find('.result-chip').remove();
+            updateTotalTie();
+        }
+
+        $('#clear-all-btn').on('click', function () {
+            clearAllResults();
+        });
+
         function loadMahjongData() {
             $.get('/get-mahjong-data', (data) => {
-                const mahjongTable = $('#mahjong-table');
-                mahjongTable.empty();
+                const container = $('#mahjong-table-container');
+                const zhuangContainer = $('#zhuanglian-container');
+                container.empty();
+                zhuangContainer.empty();
 
                 const tieGroups = {};
                 const zhuanglian = [];
@@ -88,67 +385,122 @@
                     }
                 });
 
+                // 分類 1 台特別名單
+                const catZhongFaBaiList = ['紅中', '發財', '白牌'];
+                const catWindsList = ['風牌', '門牌', '花牌'];
+                const catCoreList = ['莊家', '自摸', '獨聽', '門清'];
+
                 Object.keys(tieGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(tie => {
-                    const buttons = tieGroups[tie].map(item =>
-                        `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>`
-                    ).join(' ');
-                    mahjongTable.append(`<tr><td>${tie}台</td><td>${buttons}</td></tr>`);
+                    if (tie == 1) {
+                        const items = tieGroups[tie];
+                        const zhongFaBaiItems = items.filter(i => catZhongFaBaiList.includes(i.type));
+                        const windsItems = items.filter(i => catWindsList.includes(i.type));
+                        const coreItems = items.filter(i => catCoreList.includes(i.type));
+                        const otherItems = items.filter(i => !catZhongFaBaiList.includes(i.type) && !catWindsList.includes(i.type) && !catCoreList.includes(i.type));
+
+                        if (zhongFaBaiItems.length > 0) {
+                            const btns = zhongFaBaiItems.map(item => `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}<br><span style="font-size:0.68rem; opacity:0.8;">${item.tie}台</span></button>`).join('');
+                            container.append(`
+                                <div class="group-title">1 台 - 中發白</div>
+                                <div class="category-card cat-zhongfabai"><div class="btn-grid">${btns}</div></div>
+                            `);
+                        }
+
+                        if (windsItems.length > 0) {
+                            const btns = windsItems.map(item => `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}<br><span style="font-size:0.68rem; opacity:0.8;">${item.tie}台</span></button>`).join('');
+                            container.append(`
+                                <div class="group-title">1 台 - 風牌 / 門牌 / 花牌</div>
+                                <div class="category-card cat-winds"><div class="btn-grid">${btns}</div></div>
+                            `);
+                        }
+
+                        if (coreItems.length > 0) {
+                            const btns = coreItems.map(item => `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}<br><span style="font-size:0.68rem; opacity:0.8;">${item.tie}台</span></button>`).join('');
+                            container.append(`
+                                <div class="group-title">1 台 - 莊家 / 自摸 / 獨聽 / 門清</div>
+                                <div class="category-card cat-core"><div class="btn-grid">${btns}</div></div>
+                            `);
+                        }
+
+                        if (otherItems.length > 0) {
+                            const btns = otherItems.map(item => `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}<br><span style="font-size:0.68rem; color:#888;">${item.tie}台</span></button>`).join('');
+                            container.append(`
+                                <div class="group-title">1 台 - 其他</div>
+                                <div class="btn-grid">${btns}</div>
+                            `);
+                        }
+
+                    } else {
+                        const buttons = tieGroups[tie].map(item =>
+                            `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}<br><span style="font-size:0.68rem; color:#888;">${item.tie}台</span></button>`
+                        ).join('');
+                        
+                        container.append(`
+                            <div class="group-title">${tie} 台</div>
+                            <div class="btn-grid">${buttons}</div>
+                        `);
+                    }
                 });
 
+                // 將連莊按鈕獨立放至【右側固定欄】
                 if (zhuanglian.length > 0) {
-                    const buttons = zhuanglian.map(item =>
-                        `<button class="add-btn" data-type="${item.type}" data-tie="${item.tie}">${item.type}</button>`
-                    ).join(' ');
-                    mahjongTable.append(`<tr><td>連莊</td><td>${buttons}</td></tr>`);
+                    zhuanglian.forEach(item => {
+                        zhuangContainer.append(`
+                            <button class="zhuang-btn" data-type="${item.type}" data-tie="${item.tie}">
+                                ${item.type}<br><span style="font-size:0.65rem; font-weight:normal;">${item.tie}台</span>
+                            </button>
+                        `);
+                    });
                 }
 
-                // 綁定新增功能
-                $('.add-btn').off('click').on('click', function () {
+                // 綁定牌型與連莊按鈕點擊事件
+                $('.add-btn, .zhuang-btn').off('click').on('click', function () {
                     const button = $(this);
                     const type = button.data('type');
                     const tie = parseInt(button.data('tie'), 10);
 
-                    const row = $(`
-                        <tr class="result-row">
-                          <td data-tie="${tie}">${type} ${tie}台 <button class="remove-btn">-</button></td>
-                        </tr>
+                    if (button.hasClass('disabled-btn')) return;
+
+                    const chip = $(`
+                        <div class="result-chip" data-type="${type}" data-tie="${tie}">
+                            ${type} (${tie}台)
+                        </div>
                     `);
-                    $('#result-table tr:last').before(row);
+                    
+                    $('#result-container').append(chip);
                     updateTotalTie();
 
                     button.prop('disabled', true).addClass('disabled-btn');
 
-                    row.find('.remove-btn').on('click', function () {
-                        row.remove();
+                    chip.on('click', function () {
+                        chip.remove();
                         updateTotalTie();
-                        $('.add-btn[data-type="' + type + '"][data-tie="' + tie + '"]')
+                        $('.add-btn[data-type="' + type + '"][data-tie="' + tie + '"], .zhuang-btn[data-type="' + type + '"][data-tie="' + tie + '"]')
                             .prop('disabled', false).removeClass('disabled-btn');
                     });
                 });
             });
         }
 
-        // 載入 flag=1 的資料，並顯示在「計算結果」上
         function loadActiveResults() {
-            // 先清空原本的結果列
-            $('.result-row').remove();
+            $('#result-container').find('.result-chip').remove();
 
             $.post('/calculate/active', (data) => {
                 data.forEach(item => {
-                    const row = $(`
-                <tr class="result-row">
-                  <td data-tie="${item.tie}">${item.type} ${item.tie}台 <button class="remove-btn">-</button></td>
-                </tr>
-            `);
-                    $('#result-table tr:last').before(row);
+                    const chip = $(`
+                        <div class="result-chip" data-type="${item.type}" data-tie="${item.tie}">
+                            ${item.type} (${item.tie}台)
+                        </div>
+                    `);
+                    $('#result-container').append(chip);
 
-                    $('.add-btn[data-type="' + item.type + '"][data-tie="' + item.tie + '"]')
+                    $('.add-btn[data-type="' + item.type + '"][data-tie="' + item.tie + '"], .zhuang-btn[data-type="' + item.type + '"][data-tie="' + item.tie + '"]')
                         .prop('disabled', true).addClass('disabled-btn');
 
-                    row.find('.remove-btn').on('click', function () {
-                        row.remove();
+                    chip.on('click', function () {
+                        chip.remove();
                         updateTotalTie();
-                        $('.add-btn[data-type="' + item.type + '"][data-tie="' + item.tie + '"]')
+                        $('.add-btn[data-type="' + type + '"][data-tie="' + tie + '"], .zhuang-btn[data-type="' + type + '"][data-tie="' + tie + '"]')
                             .prop('disabled', false).removeClass('disabled-btn');
                     });
                 });
@@ -162,22 +514,17 @@
                 .then(res => res.json())
                 .then(dirData => {
                     const playerNames = [];
-
                     for (let i = 1; i <= 4; i++) {
                         const key = `player${i}`;
                         const found = dirData.find(d => d.key_name === key);
-                        if (found) {
-                            playerNames.push(found.value_name);
-                        }
+                        if (found) playerNames.push(found.value_name);
                     }
 
                     const playerOptionsDiv = document.getElementById('playerOptions');
-                    playerOptionsDiv.innerHTML = ''; // 清空原本內容
+                    playerOptionsDiv.innerHTML = '';
 
                     playerNames.forEach((name, index) => {
                         const label = document.createElement('label');
-                        // label.style.display = 'block';
-
                         const radio = document.createElement('input');
                         radio.type = 'radio';
                         radio.name = 'playerName';
@@ -185,16 +532,12 @@
                         if (index === 0) radio.checked = true;
 
                         label.appendChild(radio);
-                        label.appendChild(document.createTextNode(` ${name}`));
+                        label.appendChild(document.createTextNode(name));
                         playerOptionsDiv.appendChild(label);
                     });
-
-                    // 如果你還要呼叫 updateAndSumStats，可以在這裡加：
-                    // updateAndSumStats();
                 })
                 .catch(err => {
                     console.error("載入玩家資料失敗", err);
-                    alert("無法取得玩家資訊");
                 });
         }
 
@@ -203,61 +546,49 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key_name: key, value_name: value })
-            }).then(res => {
-                if (!res.ok) console.error("更新 directions 失敗");
             });
         }
 
-        // 提交計算結果
         document.getElementById('submit-button').addEventListener('click', () => {
             const selectedData = [];
-            // 1. 抓取選中的 radio player 名稱
             const selectedRadio = document.querySelector('input[name="playerName"]:checked');
             if (selectedRadio) {
-                const winnerName = selectedRadio.value;
-                // 2. 呼叫 updateDirection，寫入 winner
-                updateDirection('winner', winnerName);
+                updateDirection('winner', selectedRadio.value);
             } else {
                 alert("請先選擇一位玩家");
-                return; // 沒選就不要送出
+                return;
             }
-            document.querySelectorAll('.result-row td').forEach(td => {
-                const type = td.textContent.split(' ')[0];
-                const tie = parseInt(td.getAttribute('data-tie'), 10);
+
+            $('.result-chip').each(function () {
+                const type = $(this).attr('data-type');
+                const tie = parseInt($(this).attr('data-tie'), 10);
                 selectedData.push({ type, tie });
             });
 
             fetch('/submit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(selectedData)
             })
-                .then(res => {
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    return res.json();
-                })
-                .then(response => {
-                    alert(response.message || '提交成功');
-                    loadMahjongData(); // 重新載入按鈕
-                    setTimeout(loadActiveResults, 300); // 重新載入結果
-                })
-                .catch(err => {
-                    alert(`送出失敗：${err.message}`);
-                });
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(response => {
+                alert(response.message || '提交成功');
+                loadMahjongData();
+                setTimeout(loadActiveResults, 300);
+            })
+            .catch(err => {
+                alert(`送出失敗：${err.message}`);
+            });
         });
 
-        // 初始畫面
         $(document).ready(function () {
             updateCurrentTime();
             loadMahjongData();
-            setTimeout(loadActiveResults, 300); // 延遲載入 flag=1 結果
+            setTimeout(loadActiveResults, 300);
             setInterval(updateCurrentTime, 1000);
-
-            //const selectedDate = new Date().toISOString().split('T')[0];
-            // const dealerCount = 1;
-            // loadPlayerRadioButtons(selectedDate, dealerCount);
             loadPlayerRadioButtons();
         });
     </script>
