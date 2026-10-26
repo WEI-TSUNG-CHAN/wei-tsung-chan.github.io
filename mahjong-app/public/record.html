@@ -45,11 +45,14 @@
       display: none;
     }
 
-    /* 新增勾選框的排版樣式 */
     .checkbox-label {
       margin-left: 15px;
       font-size: 0.95rem;
       cursor: pointer;
+    }
+
+    .time-input {
+      width: 140px;
     }
   </style>
 </head>
@@ -83,7 +86,8 @@
       選擇影片背景：<input type="file" id="videoFile" accept="video/*">
     </p>
     <p>
-      <!-- 新增：是否顯示將數的自訂勾選鍵 -->
+      ⏱️ 指定截圖時間：
+      <input type="text" id="seekTime" class="time-input" placeholder="例如 55:06 或秒數">
       <label class="checkbox-label"><input type="checkbox" id="showRoundText"> 顯示將數資訊 (直播縮圖請取消勾選)</label>
     </p>
     <p>
@@ -98,10 +102,34 @@
     let globalDate = "";
     let globalRoundText = "";
 
+    // 輔助函式：將「分:秒」或「時:分:秒」或純秒數轉換為總秒數
+    function parseTimeToSeconds(inputStr) {
+      inputStr = inputStr.trim();
+      if (!inputStr) return null;
+
+      // 如果包含冒號 (例如 55:06 或 1:05:06)
+      if (inputStr.includes(':')) {
+        const parts = inputStr.split(':').map(Number);
+        if (parts.some(isNaN)) return NaN;
+
+        if (parts.length === 2) {
+          // MM:SS
+          return parts[0] * 60 + parts[1];
+        } else if (parts.length === 3) {
+          // HH:MM:SS
+          return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        }
+      }
+
+      // 如果是純數字秒數
+      const num = parseFloat(inputStr);
+      return isNaN(num) ? NaN : num;
+    }
+
     document.getElementById('queryBtn').addEventListener('click', () => {
       const selectedDate = document.getElementById('datePicker').value;
       const dealerCount = document.getElementById('dealerCount').value;
-      
+
       const dealerSelect = document.getElementById('dealerCount');
       globalRoundText = dealerSelect.options[dealerSelect.selectedIndex].text;
 
@@ -149,8 +177,8 @@
       const canvas = document.getElementById('thumbnailCanvas');
       const ctx = canvas.getContext('2d');
       const titleInput = document.getElementById('thumbTitle').value.trim();
-      
-      // 檢查使用者是否有勾選顯示將數
+      const seekTimeInput = document.getElementById('seekTime').value;
+
       const isShowRound = document.getElementById('showRoundText').checked;
 
       if (!globalDate) {
@@ -170,23 +198,36 @@
       video.playsInline = true;
 
       video.addEventListener('loadeddata', () => {
-        const randomTime = Math.random() * (video.duration * 0.8) + (video.duration * 0.1);
-        video.currentTime = randomTime;
+        let targetTime;
+
+        if (seekTimeInput.trim() !== "") {
+          targetTime = parseTimeToSeconds(seekTimeInput);
+          if (isNaN(targetTime)) {
+            alert("時間格式輸入錯誤，請輸入如 55:06 或直接輸入秒數");
+            URL.revokeObjectURL(videoUrl);
+            return;
+          }
+          if (targetTime < 0) targetTime = 0;
+          if (targetTime > video.duration) targetTime = video.duration - 0.1;
+        } else {
+          targetTime = Math.random() * (video.duration * 0.8) + (video.duration * 0.1);
+        }
+
+        video.currentTime = targetTime;
       });
 
       video.addEventListener('seeked', () => {
-        // 1. 繪製原始影片背景
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // 2. 繪製頂部 [玩家名字]
         ctx.save();
-        ctx.font = "900 52px system-ui, -apple-system, sans-serif"; 
+        ctx.font = "900 52px system-ui, -apple-system, sans-serif";
         const playersText = ` 👤 ${globalPlayers} `;
         const pWidth = ctx.measureText(playersText).width;
-        
+
         ctx.fillStyle = "#111111";
         ctx.fillRect(40, 65, pWidth + 20, 70);
-        
+
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(playersText, 50, 100);
@@ -195,7 +236,7 @@
         // 3. 繪製中左側 [大標題]
         if (titleInput) {
           ctx.save();
-          ctx.font = "900 110px Arial Black, Impact, sans-serif"; 
+          ctx.font = "900 110px Arial Black, Impact, sans-serif";
           ctx.textBaseline = "middle";
 
           const textX = 50;
@@ -223,22 +264,19 @@
           ctx.restore();
         }
 
-        // 4. 繪製左下角 [日期標籤] (依據勾選狀態決定要不要加上將數)
+        // 4. 繪製左下角 [日期標籤]
         ctx.save();
         ctx.font = "900 48px system-ui, -apple-system, sans-serif";
-        
-        // 判斷是否加上將數文字的空格
-        const dateText = isShowRound 
-          ? ` 📅 ${globalDate}  ${globalRoundText} ` 
+
+        const dateText = isShowRound
+          ? ` 📅 ${globalDate}  ${globalRoundText} `
           : ` 📅 ${globalDate} `;
-          
+
         const dWidth = ctx.measureText(dateText).width;
 
-        // 實心正紅底塊
         ctx.fillStyle = "#ff1e27";
         ctx.fillRect(40, 535, dWidth + 20, 65);
 
-        // 純白字體
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(dateText, 50, 567);
@@ -246,7 +284,7 @@
 
         canvas.style.display = "block";
         document.getElementById('downloadThumbBtn').style.display = "inline-block";
-        
+
         URL.revokeObjectURL(videoUrl);
       });
     });
@@ -263,5 +301,3 @@
 </body>
 
 </html>
-
-```
