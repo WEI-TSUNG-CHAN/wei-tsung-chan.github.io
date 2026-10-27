@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>本月四位玩家分數統計｜直式直播版</title>
+
+  <style>
+    /* 調整為直式直播比例 (1080 x 1920) */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1920px;
+      background: transparent;
+      font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+      overflow: hidden;
+      perspective: 1000px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    /* 全螢幕邊框閃爍特效 (耀金光芒) */
+    body.screen-flash {
+      animation: borderFlash 0.8s ease-in-out 2;
+    }
+
+    @keyframes borderFlash {
+      0% {
+        box-shadow: inset 0 0 0px transparent;
+      }
+
+      50% {
+        box-shadow: inset 0 0 50px rgba(255, 215, 0, 0.8),
+          inset 0 0 15px rgba(255, 180, 0, 1);
+      }
+
+      100% {
+        box-shadow: inset 0 0 0px transparent;
+      }
+    }
+
+    .player-container {
+      position: absolute;
+      transform-style: preserve-3d;
+      z-index: 10;
+    }
+
+    /* --- 直式直播四方配置 (避開中央影像區) --- */
+    /* 上方 (玩家 3) */
+    #area-3 {
+      top: 380px;
+      right: 10px; 
+    }
+
+    /* 左上 (玩家 4) */
+    #area-4 {
+      bottom: 400px;
+      left: 10px;
+    }
+
+    /* 右上 (玩家 2) */
+    #area-2 {
+      bottom: 400px;
+      right: 10px;
+    }
+
+    /* 下方 (玩家 1) */
+    #area-1 {
+      position: absolute;
+      bottom: 400px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    td {
+      background: rgba(20, 24, 30, 0.85);
+      backdrop-filter: blur(6px);
+      padding: 16px 20px;
+    }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .player-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      padding: 4px 12px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
+    }
+
+    /* --- 方案六：底部斜角色塊資訊 --- */
+    .stats-row {
+      margin: 10px -20px -16px;
+      display: flex;
+      height: 68px;
+      overflow: hidden;
+    }
+
+    .stat-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    .monthly-score-panel {
+      background: rgba(92, 88, 42, 0.35);
+      clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
+      padding-right: 16px;
+      flex-wrap: nowrap;
+    }
+
+    .monthly-rank-panel {
+      margin-left: -10%;
+      background: rgba(28, 57, 73, 0.45);
+      clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+      padding-left: 16px;
+    }
+
+    .stat-label {
+      font-size: 1.35rem;
+      color: #D5D5D5;
+      white-space: nowrap;
+    }
+
+    .stat-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+      transition: 0.3s ease;
+    }
+
+    .monthly-score-value {
+      color: #FFD54F;
+    }
+
+    .negative-score {
+      color: #FF5252 !important;
+      -webkit-text-fill-color: #FF5252 !important;
+    }
+
+    .monthly-rank-value {
+      color: #7DD3FC;
+    }
+
+    /* --- 前三名金屬質感與鮮明邊框樣式 --- */
+    .rank-1-card {
+      outline: 2px solid #FFD700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    }
+
+    .rank-1-text {
+      background: linear-gradient(180deg, #FFF176 0%, #FFD700 50%, #FF8F00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+    }
+
+    .rank-2-card {
+      outline: 2px solid #E2E8F0;
+      box-shadow: 0 0 12px rgba(226, 232, 240, 0.3);
+    }
+
+    .rank-2-text {
+      background: linear-gradient(180deg, #FFFFFF 0%, #CBD5E1 60%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+    }
+
+    .rank-3-card {
+      outline: 2px solid #E67E22;
+      box-shadow: 0 0 12px rgba(230, 126, 34, 0.3);
+    }
+
+    .rank-3-text {
+      background: linear-gradient(180deg, #FFE0B2 0%, #E67E22 50%, #D35400 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+    }
+
+    /* --- 4. 普通樣式 --- */
+    .rank-other-card {
+      outline: 1px solid #3A4048;
+      box-shadow: none !important;
+    }
+
+    .rank-other-card td {
+      background: rgba(15, 17, 20, 0.75);
+    }
+
+    .rank-other-text {
+      color: #8A929A !important;
+      -webkit-text-fill-color: #8A929A !important;
+      font-weight: 600;
+    }
+
+    .rank-other-card .monthly-rank-panel {
+      background: rgba(20, 25, 30, 0.4);
+    }
+
+    .rank-other-card .monthly-rank-value {
+      color: #64748B !important;
+    }
+
+    /* 箭頭與差額特效樣式 */
+    .score-trend {
+      font-size: 1.9rem;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      animation: popIn 0.3s ease-out;
+    }
+
+    .trend-up {
+      color: #FF4444;
+    }
+
+    .trend-down {
+      color: #00E676;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+
+      80% {
+        transform: scale(1.3);
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* 莊家標記 */
+    .dealer-mark {
+      position: relative;
+      font-size: 2.4rem;
+      font-weight: bold;
+      color: #FF4444;
+    }
+
+    .times-count {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 1.1rem;
+      background: #FF0000;
+      color: white;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* --- 右下角資訊樣式 (調整避開底區) --- */
+    .status-panel-wrapper {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: gold;
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    .ui-round-label {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    .ui-main-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .ui-direction-text {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+
+    .ui-tie-stack {
+      display: flex;
+      flex-direction: column;
+      font-size: 1.4rem;
+      line-height: 1.5;
+      justify-content: flex-end;
+      padding-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="area-1" class="player-container"></div>
+  <div id="area-2" class="player-container"></div>
+  <div id="area-3" class="player-container"></div>
+  <div id="area-4" class="player-container"></div>
+
+  <div class="status-panel-wrapper">
+    <div id="ui-round" class="ui-round-label"></div>
+    <div class="ui-main-row">
+      <div id="ui-direction" class="ui-direction-text"></div>
+      <div class="ui-tie-stack">
+        <div><span id="ui-tie-val"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let previousStatsMap = {};
+
+    function triggerBorderFlash() {
+      document.body.classList.remove('screen-flash');
+      void document.body.offsetWidth;
+      document.body.classList.add('screen-flash');
+
+      setTimeout(() => {
+        document.body.classList.remove('screen-flash');
+      }, 1600);
+    }
+
+    async function fetchDirections() {
+      const res = await fetch(`/directions/all?t=${Date.now()}`);
+      const data = await res.json();
+      const map = {};
+      data.forEach(item => map[item.key_name] = item.value_name);
+      return map;
+    }
+
+    async function fetchMonthlyStats(date) {
+      const res = await fetch(`/stats/month?date=${encodeURIComponent(date)}&t=${Date.now()}`);
+      return res.json();
+    }
+
+    async function renderMonthlyReport() {
+      const dir = await fetchDirections();
+      if (!dir) return;
+
+      const roundNum = parseInt(dir['round_number'], 10);
+      document.getElementById('ui-round').innerText = (roundNum >= 1 && roundNum <= 8) ? `第 ${roundNum} 將` : '';
+      document.getElementById('ui-direction').innerText = dir['direction'] || '';
+      document.getElementById('ui-tie-val').innerHTML = dir['tie_conut'] || '0';
+
+      const date = dir['assign_date'];
+      const players = [dir['player1'], dir['player2'], dir['player3'], dir['player4']];
+      const rankerIdx = parseInt(dir['ranker'], 10);
+      const timesVal = dir['times'];
+
+      const stats = await fetchMonthlyStats(date);
+
+      const monthlyRanking = [...stats].sort(
+        (a, b) => Number(b.total_score) - Number(a.total_score)
+      );
+
+      const statsMap = {};
+      const rankMap = {};
+
+      monthlyRanking.forEach((s, index) => {
+        statsMap[s.player_name] = Number(s.total_score);
+        rankMap[s.player_name] = index + 1;
+      });
+
+      let hasAnyScoreChanged = false;
+
+      players.forEach((name, index) => {
+        const container = document.getElementById(`area-${index + 1}`);
+        if (!container || !name) return;
+
+        const score = statsMap[name] ?? 0;
+        const prevScore = previousStatsMap[name];
+        const changed = prevScore !== undefined && prevScore !== score;
+
+        if (changed) {
+          hasAnyScoreChanged = true;
+        }
+
+        const monthlyRank = rankMap[name] ?? '—';
+
+        // 判斷月積分負數顏色類別
+        const scoreColorClass = score < 0 ? 'negative-score' : '';
+
+        let monthlyPanelContentHtml = '';
+        if (changed) {
+          const diff = score - prevScore;
+          const diffText = diff > 0 ? `+${diff}` : `${diff}`;
+          const diffArrow = diff > 0 ? '▲' : '▼';
+          const diffClass = diff > 0 ? 'trend-up' : 'trend-down';
+
+          monthlyPanelContentHtml = `
+            <span class="score-trend ${diffClass}">${diffArrow} ${diffText}</span>
+          `;
+        } else {
+          monthlyPanelContentHtml = `
+            <span class="stat-label">月</span>
+            <span class="stat-value monthly-score-value ${scoreColorClass}">${score}</span>
+          `;
+        }
+
+        let dealerHtml = '';
+        if ((index + 1) === rankerIdx) {
+          dealerHtml = `
+            <div class="dealer-mark">
+              莊${timesVal != 0 ? `<div class="times-count">${timesVal}</div>` : ''}
+            </div>`;
+        }
+
+        // 區分前三名與其他樣式
+        let tableClass = '';
+        let textClass = '';
+        if (monthlyRank === 1) {
+          tableClass = 'rank-1-card';
+          textClass = 'rank-1-text';
+        } else if (monthlyRank === 2) {
+          tableClass = 'rank-2-card';
+          textClass = 'rank-2-text';
+        } else if (monthlyRank === 3) {
+          tableClass = 'rank-3-card';
+          textClass = 'rank-3-text';
+        } else {
+          tableClass = 'rank-other-card';
+          textClass = 'rank-other-text';
+        }
+
+        container.innerHTML = `
+          <table class="${tableClass}">
+            <tr>
+              <td>
+                <div class="name-row">
+                  ${dealerHtml}
+                  <div class="player-name ${textClass}">${name}</div>
+                </div>
+                <div class="stats-row">
+                  <div class="stat-panel monthly-score-panel">
+                    ${monthlyPanelContentHtml}
+                  </div>
+                  <div class="stat-panel monthly-rank-panel">
+                    <span class="stat-label">月排</span>
+                    <span class="stat-value monthly-rank-value ${textClass}">${monthlyRank}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        `;
+      });
+
+      if (hasAnyScoreChanged) {
+        triggerBorderFlash();
+      }
+
+      previousStatsMap = { ...statsMap };
+    }
+
+    renderMonthlyReport();
+    setInterval(renderMonthlyReport, 5000);
+  </script>
+</body>
+
+</html>
